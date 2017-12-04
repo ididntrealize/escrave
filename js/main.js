@@ -323,7 +323,6 @@
 		
 	
      //SMOKE BUTTONS - START TIMER
-            var currTimer;
             var smokeTimer;
             var boughtTimer;
 			var goalTimer;
@@ -337,7 +336,7 @@
 
             }else{
                 //start timer from json values
-				//initiateTimerValues("#use-content ", "sinceLastUse", smokeTimer, false);
+				//initiateSmokeTimer("#use-content ", "sinceLastUse", smokeTimer, false);
 						
             }
 
@@ -370,8 +369,7 @@
 				
 					if(this.id == "crave-button"){
 						timerSection = "#use-content";
-						//sinceLastAction = "sinceLastUse";
-						
+					
 						//updates
 							json.statistics.craveCounter++;
 							$("#crave-total").html(json.statistics.craveCounter);
@@ -383,17 +381,13 @@
 						return 0;
 						
 					}else if(this.id == "smoke-button"){
-						timerSection = "#use-content";
-						sinceLastAction = "sinceLastUse";
-						currTimer = smokeTimer;
-						
 						//updates
 							updateActionTable(timestampSeconds, "used");
 						//update display
 							json.statistics.smokeCounter++;
 							$("#use-total").html(json.statistics.smokeCounter);
 						//start timer
-							initiateTimerValues(timerSection, sinceLastAction, currTimer, true);	
+							initiateSmokeTimer();	
 				
 							
 							
@@ -416,88 +410,204 @@
 			
 		
 			
-	function initiateTimerValues(timerSection, sinceLastAction, currTimer, restart){
-			 var jsonDaysString    = ("json." + sinceLastAction + ".days"),
-				 jsonHoursString   = ("json." + sinceLastAction + ".hours"),
-				 jsonMinutesString = ("json." + sinceLastAction + ".minutes"),
-				 jsonSecondsString = ("json." + sinceLastAction + ".seconds"),
-			     jsonTotalSecondsString = ("json." + sinceLastAction + ".totalSeconds");
- 
-				
-				if(timerSection == "#use-content"){
-					clearInterval(smokeTimer);
-				}else if(timerSection == "#bought-content"){
-					clearInterval(boughtTimer);
-				}
-					
-				//if(!restart){
-					jsonDaysString = 0,
-					jsonHoursString = 0,
-					jsonMinutesString = 0,
-					jsonSecondsString = 0,
-					jsonTotalSecondsString = 0;
-				//}
-				
-					$(timerSection + " .secondsSinceLastClickSpan:first-child").html("0" + jsonSecondsString);
-					$(timerSection + " .minutesSinceLastClickSpan:first-child").html(jsonMinutesString);
-					$(timerSection + " .hoursSinceLastClickSpan:first-child").html(jsonHoursString);
-					$(timerSection + " .daysSinceLastClickSpan:first-child").html(jsonDaysString);
+	function initiateSmokeTimer(){
+		//USE TIMER
+			clearInterval(smokeTimer);
 
-				if(!$(timerSection + " .fibonacci-timer").is(':visible')){  
-					 $(timerSection + " .fibonacci-timer:first-child").toggle();
-				}
+			if(json.sinceLastUse.totalSeconds == 0 || $("#smoke-timer").hasClass("counting")){
 
-				while ($(timerSection + " .boxes div:visible").length > 1 ) {
-					$($(timerSection + " .boxes div:visible")[0]).toggle();
-				}
-				
-			 currTimer = setInterval(function() {
+				//reset local vars
+				var daysSinceUse = 0,
+					hoursSinceUse = 0,
+					minutesSinceUse = 0,
+					secondsSinceUse = 0,
+					totalSecondsSinceUse = 0;
+				//reset json vars
+				json.sinceLastUse.days = 0,
+				json.sinceLastUse.hours = 0,
+				json.sinceLastUse.minutes = 0,
+				json.sinceLastUse.seconds = 0,
+				json.sinceLastUse.totalSeconds = 0;	
 
-                    jsonTotalSecondsString++;
-                    jsonSecondsString++;
-                    
-                    if(jsonSecondsString>=10){
-                        $(timerSection + " .secondsSinceLastClickSpan:first-child").html(jsonSecondsString);
-                    }else{
-                        $(timerSection + " .secondsSinceLastClickSpan:first-child").html("0" + jsonSecondsString);
-                    }
-                    
+			}else{
 
-                    if(jsonSecondsString>=60){
-                        jsonSecondsString=0;
-                        jsonMinutesString++;
-                        if ($(timerSection + " .boxes div:visible").length == 1 ) {
-                            var numberOfBoxesHidden = $(timerSection + " .boxes div:hidden").length;
-                            $($(timerSection + " .boxes div:hidden")[numberOfBoxesHidden - 1]).toggle();
-                        }
-                        $(timerSection + " .minutesSinceLastClickSpan:first-child").html(jsonMinutesString);
-                        $(timerSection + " .secondsSinceLastClickSpan:first-child").html(jsonSecondsString);
-                    }
-                    if(jsonMinutesString>=60){
-                        jsonMinutesString=0;
-                        jsonHoursString++;
-                        if ($(timerSection + ".boxes div:visible").length == 2 ) {
-                            var numberOfBoxesHidden = $(timerSection + " .boxes div:hidden").length;
-                            $($(timerSection + " .boxes div:hidden")[numberOfBoxesHidden - 1]).toggle();
-                        }
-                        $(timerSection + " .minutesSinceLastClickSpan:first-child").html(jsonMinutesString);
-                        $(timerSection + " .hoursSinceLastClickSpan:first-child").html(jsonHoursString);
-                    }
-                    if(jsonHoursString>=24){
-                        jsonHoursString=0;
-                        jsonDaysString++;
-                        if ($(timerSection + " .boxes div:visible").length == 3 ) {
-                            var numberOfBoxesHidden = $('.boxes div:hidden').length;
-                            $($(timerSection + " .boxes div:hidden")[numberOfBoxesHidden - 1]).toggle();
-                        }
-                        $(timerSection + " .hoursSinceLastClickSpan:first-child").html(jsonHoursString);
-                        $(timerSection + " .daysSinceLastClickSpan:first-child").html(jsonDaysString);
-                    } 
-                        
-                
-                }, 1000); //end setInterval
-                
+				//reset timer from values
+				var daysSinceUse = json.sinceLastUse.days,
+					hoursSinceUse = json.sinceLastUse.hours,
+					minutesSinceUse = json.sinceLastUse.minutes,
+					secondsSinceUse = json.sinceLastUse.seconds,
+					totalSecondsSinceUse = json.sinceLastUse.totalSeconds;
+
+			}
+
+		//Insert timer values into timer
+		$("#use-content .secondsSinceLastClickSpan:first-child").html("0" + secondsSinceUse);
+		$("#use-content .minutesSinceLastClickSpan:first-child").html(minutesSinceUse);
+		$("#use-content .hoursSinceLastClickSpan:first-child").html(hoursSinceUse);
+		$("#use-content .daysSinceLastClickSpan:first-child").html(daysSinceUse);
+
+		//hide timer sections which are zero
+			if(!$("#use-content .fibonacci-timer").is(':visible')){  
+				 $("#use-content .fibonacci-timer:first-child").toggle();
+			}
+			while ($("#use-content .boxes div:visible").length > 1 ) {
+				$($("#use-content .boxes div:visible")[0]).toggle();
+			}
+		
+
+
+		 smokeTimer = setInterval(function() {
+
+		 	//reset local scope vars
+            totalSecondsSinceUse++;
+            secondsSinceUse++;
+            //update json
+            json.sinceLastUse.totalSeconds++;
+            json.sinceLastUse.seconds++;
+            
+            if(secondsSinceUse>=10){
+                $("#use-content .secondsSinceLastClickSpan:first-child").html(secondsSinceUse);
+            }else{
+                $("#use-content .secondsSinceLastClickSpan:first-child").html("0" + secondsSinceUse);
+            }
+            
+
+            if(secondsSinceUse>=60){
+            	//reset local scope vars
+                secondsSinceUse=0;
+                minutesSinceUse++;
+                //update json
+                json.sinceLastUse.seconds = 0;
+                json.sinceLastUse.minutes++;
+
+                if ($("#use-content .boxes div:visible").length == 1 ) {
+                    var numberOfBoxesHidden = $("#use-content .boxes div:hidden").length;
+                    $($("#use-content .boxes div:hidden")[numberOfBoxesHidden - 1]).toggle();
+                }
+                $("#use-content .minutesSinceLastClickSpan:first-child").html(minutesSinceUse);
+                $("#use-content .secondsSinceLastClickSpan:first-child").html(secondsSinceUse);
+            }
+            if(minutesSinceUse>=60){
                
+                //reset local scope vars
+                minutesSinceUse=0;
+                hoursSinceUse++;
+                //update json
+                json.sinceLastUse.minutes = 0;
+                json.sinceLastUse.hours++;
+
+
+                if ($("#use-content .boxes div:visible").length == 2 ) {
+                    var numberOfBoxesHidden = $("#use-content .boxes div:hidden").length;
+                    $($("#use-content .boxes div:hidden")[numberOfBoxesHidden - 1]).toggle();
+                }
+                $("#use-content .minutesSinceLastClickSpan:first-child").html(minutesSinceUse);
+                $("#use-content .hoursSinceLastClickSpan:first-child").html(hoursSinceUse);
+            }
+            if(hoursSinceUse>=24){
+                
+            	//reset local vars
+                hoursSinceUse=0;
+                daysSinceUse++;
+                //update json
+                json.sinceLastUse.hours = 0;
+                json.sinceLastUse.days++;
+
+
+                if ($("#use-content .boxes div:visible").length == 3 ) {
+                    var numberOfBoxesHidden = $('#use-content .boxes div:hidden').length;
+                    $($("#use-content .boxes div:hidden")[numberOfBoxesHidden - 1]).toggle();
+                }
+                $("#use-content .hoursSinceLastClickSpan:first-child").html(hoursSinceUse);
+                $("#use-content .daysSinceLastClickSpan:first-child").html(daysSinceUse);
+            } 
+                
+           
+        
+        }, 1000); //end setInterval
+            
+		 $("#smoke-timer").addClass("counting");
+		
+	}
+
+
+
+	//START BOUGHT TIMER
+	function initiateBoughtTimer(){
+
+		var jsonTotalSecondsString = 0,
+			jsonSecondsString = 0,
+			jsonMinutesString = 0,
+			jsonHoursString = 0,
+			jsonDaysString = 0;
+
+
+
+		clearInterval(boughtTimer);
+
+			
+				$("#cost-content .secondsSinceLastClickSpan:first-child").html("0" + jsonSecondsString);
+				$("#cost-content .minutesSinceLastClickSpan:first-child").html(jsonMinutesString);
+				$("#cost-content .hoursSinceLastClickSpan:first-child").html(jsonHoursString);
+				$("#cost-content .daysSinceLastClickSpan:first-child").html(jsonDaysString);
+
+			if(!$("#cost-content .fibonacci-timer").is(':visible')){  
+				 $("#cost-content .fibonacci-timer:first-child").toggle();
+			}
+
+			while ($("#cost-content .boxes div:visible").length > 1 ) {
+				$($("#cost-content .boxes div:visible")[0]).toggle();
+			}
+			
+		 boughtTimer = setInterval(function() {
+
+		 		
+                jsonTotalSecondsString++;
+                jsonSecondsString++;
+                
+                if(jsonSecondsString>=10){
+                    $("#cost-content .secondsSinceLastClickSpan:first-child").html(jsonSecondsString);
+                }else{
+                    $("#cost-content .secondsSinceLastClickSpan:first-child").html("0" + jsonSecondsString);
+                }
+                
+
+                if(jsonSecondsString>=60){
+                    jsonSecondsString=0;
+                    jsonMinutesString++;
+                    if ($("#cost-content .boxes div:visible").length == 1 ) {
+                        var numberOfBoxesHidden = $("#cost-content .boxes div:hidden").length;
+                        $($("#cost-content .boxes div:hidden")[numberOfBoxesHidden - 1]).toggle();
+                    }
+                    $("#cost-content .minutesSinceLastClickSpan:first-child").html(jsonMinutesString);
+                    $("#cost-content .secondsSinceLastClickSpan:first-child").html(jsonSecondsString);
+                }
+                if(jsonMinutesString>=60){
+                    jsonMinutesString=0;
+                    jsonHoursString++;
+                    if ($("#cost-content .boxes div:visible").length == 2 ) {
+                        var numberOfBoxesHidden = $("#cost-content .boxes div:hidden").length;
+                        $($("#cost-content .boxes div:hidden")[numberOfBoxesHidden - 1]).toggle();
+                    }
+                    $("#cost-content .minutesSinceLastClickSpan:first-child").html(jsonMinutesString);
+                    $("#cost-content .hoursSinceLastClickSpan:first-child").html(jsonHoursString);
+                }
+                if(jsonHoursString>=24){
+                    jsonHoursString=0;
+                    jsonDaysString++;
+                    if ($("#cost-content .boxes div:visible").length == 3 ) {
+                        var numberOfBoxesHidden = $('#cost-content .boxes div:hidden').length;
+                        $($("#cost-content .boxes div:hidden")[numberOfBoxesHidden - 1]).toggle();
+                    }
+                    $("#cost-content .hoursSinceLastClickSpan:first-child").html(jsonHoursString);
+                    $("#cost-content .daysSinceLastClickSpan:first-child").html(jsonDaysString);
+                } 
+                    
+               
+            
+            }, 1000); //end setInterval
+     		$("#bought-timer").addClass("counting");
+		
 
 		}
 		
@@ -657,13 +767,7 @@
 					$("#bought-total").html(json.statistics.boughtCounter);
 					closeClickDialog();
 					
-					
-					//start timer
-						timerSection = "#cost-content";
-						sinceLastAction = "sinceLastBought";
-						currTimer = boughtTimer;
-						
-					initiateTimerValues(timerSection, sinceLastAction, currTimer, true);	
+					initiateBoughtTimer();	
 				
 				}
 			
