@@ -94,15 +94,7 @@
 				var jsonObject = JSON.parse(currJsonString);
 
 						//statistics
-							
-							//restart timers from existing values
-								//take timestamp in most recent record for use/bought 
-								//take new timstamp and subtract last one
-									//push to json.sinceLastUse.totalSeconds
-								//convert to dd hh mm ss 
-									//push to json.sinceLastUse.etc
-							
-								
+						
 							//count number of records for crave, smoke, and bought
 								//total uses
 									var smokeCount = jsonObject.action.filter(function(e){
@@ -114,8 +106,18 @@
 									var sinceLastUse = smokeCount[smokeCount.length-1].timeStamp;
 									restartTimerAtValues("use", sinceLastUse);
 									
+								//average time between uses
+									//timestamp values summed / smokeCount
+									var timestampValues = jsonObject.action.filter(function(e){
+										return (e.clickType == "used" || e.clickType == "craved");
+									});
 									
+									var avgTimeBetween =0;
+									//for(i=1; i< timestampValues.length; i++){
+									//	avgTimeBetween = parseInt(timestampValues[i].timeStamp) - parseInt(timestampValues[i-1].timeStamp);
+									//}
 									
+									console.log(avgTimeBetween/timestampValues.length);
 								//total craves
 									var craveCount = jsonObject.action.filter(function(e){
 										return e.clickType == "craved";
@@ -162,6 +164,16 @@
 									//retrieve all the time stamps for clicktype: use 
 										//find difference of first and last stamps 
 										//divide that by total number of time stamps for clicktype: use
+										
+										
+										
+							//goal 
+								//find most recent goalstamp
+								//take current timestamp
+								//subtract current timestamp from goalend stamp 
+									//set equal to json.untilGoalEnd.totalSeconds
+										//calculate days hours minutes seconds
+										//start goal timer from json
 					
 			}
 			
@@ -275,14 +287,14 @@
 							
 						}
 					
-						
+				/*		
 				alert(  
 						"json seconds = " + json.sinceLastUse.seconds + 
 						"\njson minutes are = " + json.sinceLastUse.minutes +
 						"\njson Hours are = " + json.sinceLastUse.hours +
 						"\njson Days are = " + json.sinceLastUse.days
 					);		
-				
+				*/
 			}
 	
 
@@ -336,7 +348,7 @@
 
             }else{
                 //start timer from json values
-				//initiateSmokeTimer("#use-content ", "sinceLastUse", smokeTimer, false);
+				initiateSmokeTimer();
 						
             }
 
@@ -356,7 +368,39 @@
 
             }
 			
+		
+
+	//readjust 
+	function adjustFibonacciTimerToBoxes(){
+		if($("#use-content .boxes div:visible").length == 1){
+			//adjust .fibonacci-timer to timer height
+							document.getElementById("smoke-timer").style.width = "3.3rem";
+							document.getElementById("smoke-timer").style.height = "3.3rem";	
+					
+					
+					
+					
+		}else if($("#use-content .boxes div:visible").length == 2){
+			//adjust .fibonacci-timer to timer height
+						document.getElementById("smoke-timer").style.width = "6.4rem";
+						document.getElementById("smoke-timer").style.height = "3.3rem";
+					
+					
+					
+		}else if($("#use-content .boxes div:visible").length == 3){
+			//adjust .fibonacci-timer to timer height
+						document.getElementById("smoke-timer").style.width = "9rem";
+						document.getElementById("smoke-timer").style.height = "6.4rem";
+						
+		}else if($("#use-content .boxes div:visible").length == 4){
+			//adjust .fibonacci-timer to timer height
+						document.getElementById("smoke-timer").style.width = "9rem";
+						document.getElementById("smoke-timer").style.height = "16.1rem";
 			
+		}
+		
+	}
+		
 	//SMOKE BUTTON		
 	//CRAVE BUTTON 					
 	//BOUGHT BUTTON		
@@ -388,7 +432,7 @@
 							$("#use-total").html(json.statistics.smokeCounter);
 						//start timer
 							initiateSmokeTimer();	
-				
+							adjustFibonacciTimerToBoxes();
 							
 							
 					}else if(this.id == "bought-button"){
@@ -414,7 +458,7 @@
 		//USE TIMER
 			clearInterval(smokeTimer);
 
-			if(json.sinceLastUse.totalSeconds == 0 || $("#smoke-timer").hasClass("counting")){
+			if($("#smoke-timer").hasClass("counting")){
 
 				//reset local vars
 				var daysSinceUse = 0,
@@ -429,6 +473,24 @@
 				json.sinceLastUse.seconds = 0,
 				json.sinceLastUse.totalSeconds = 0;	
 
+					//Insert timer values into timer
+						$("#use-content .secondsSinceLastClickSpan:first-child").html("0" + secondsSinceUse);
+						$("#use-content .minutesSinceLastClickSpan:first-child").html(minutesSinceUse);
+						$("#use-content .hoursSinceLastClickSpan:first-child").html(hoursSinceUse);
+						$("#use-content .daysSinceLastClickSpan:first-child").html(daysSinceUse);
+
+					if(!$("#use-content .fibonacci-timer").is(':visible')){  
+						 $("#use-content .fibonacci-timer:first-child").toggle();
+					}
+					while ($("#use-content .boxes div:visible").length > 1 ) {
+						$($("#use-content .boxes div:visible")[0]).toggle();
+						
+						
+						
+					}
+			
+
+
 			}else{
 
 				//reset timer from values
@@ -438,21 +500,42 @@
 					secondsSinceUse = json.sinceLastUse.seconds,
 					totalSecondsSinceUse = json.sinceLastUse.totalSeconds;
 
+					//Insert timer values into timer
+						 if(secondsSinceUse>=10){
+				                $("#use-content .secondsSinceLastClickSpan:first-child").html(secondsSinceUse);
+				            }else{
+				                $("#use-content .secondsSinceLastClickSpan:first-child").html("0" + secondsSinceUse);
+				            }
+						$("#use-content .minutesSinceLastClickSpan:first-child").html(minutesSinceUse);
+						$("#use-content .hoursSinceLastClickSpan:first-child").html(hoursSinceUse);
+						$("#use-content .daysSinceLastClickSpan:first-child").html(daysSinceUse);
+
+
+					//Hide timer boxes which have zero values
+						if($("#use-content .secondsSinceLastClickSpan:first-child").html() == 0){
+							$("#use-content .secondsSinceLastClickSpan").parent().toggle();
+						}
+
+						if($("#use-content .minutesSinceLastClickSpan:first-child").html() == 0){
+							$("#use-content .minutesSinceLastClickSpan").parent().toggle();
+
+						}
+
+						if($("#use-content .hoursSinceLastClickSpan:first-child").html() == 0){
+							$("#use-content .hoursSinceLastClickSpan").parent().toggle();
+						}
+
+						//this temporarily toggles seconds box
+						if($("#use-content .daysSinceLastClickSpan:first-child").html() == 0){
+							$("#use-content .daysSinceLastClickSpan").parent().toggle();
+						}
+
 			}
 
-		//Insert timer values into timer
-		$("#use-content .secondsSinceLastClickSpan:first-child").html("0" + secondsSinceUse);
-		$("#use-content .minutesSinceLastClickSpan:first-child").html(minutesSinceUse);
-		$("#use-content .hoursSinceLastClickSpan:first-child").html(hoursSinceUse);
-		$("#use-content .daysSinceLastClickSpan:first-child").html(daysSinceUse);
+		
 
 		//hide timer sections which are zero
-			if(!$("#use-content .fibonacci-timer").is(':visible')){  
-				 $("#use-content .fibonacci-timer:first-child").toggle();
-			}
-			while ($("#use-content .boxes div:visible").length > 1 ) {
-				$($("#use-content .boxes div:visible")[0]).toggle();
-			}
+			
 		
 
 
@@ -483,9 +566,14 @@
                 if ($("#use-content .boxes div:visible").length == 1 ) {
                     var numberOfBoxesHidden = $("#use-content .boxes div:hidden").length;
                     $($("#use-content .boxes div:hidden")[numberOfBoxesHidden - 1]).toggle();
+						
                 }
                 $("#use-content .minutesSinceLastClickSpan:first-child").html(minutesSinceUse);
                 $("#use-content .secondsSinceLastClickSpan:first-child").html(secondsSinceUse);
+				
+				adjustFibonacciTimerToBoxes();
+				
+				
             }
             if(minutesSinceUse>=60){
                
@@ -500,9 +588,14 @@
                 if ($("#use-content .boxes div:visible").length == 2 ) {
                     var numberOfBoxesHidden = $("#use-content .boxes div:hidden").length;
                     $($("#use-content .boxes div:hidden")[numberOfBoxesHidden - 1]).toggle();
+					
                 }
                 $("#use-content .minutesSinceLastClickSpan:first-child").html(minutesSinceUse);
                 $("#use-content .hoursSinceLastClickSpan:first-child").html(hoursSinceUse);
+				
+				
+				adjustFibonacciTimerToBoxes();
+				
             }
             if(hoursSinceUse>=24){
                 
@@ -517,10 +610,17 @@
                 if ($("#use-content .boxes div:visible").length == 3 ) {
                     var numberOfBoxesHidden = $('#use-content .boxes div:hidden').length;
                     $($("#use-content .boxes div:hidden")[numberOfBoxesHidden - 1]).toggle();
+					
+					console.log("3 visible boxes");
+					//adjustFibonacciTimerToBoxes();
+						
                 }
                 $("#use-content .hoursSinceLastClickSpan:first-child").html(hoursSinceUse);
                 $("#use-content .daysSinceLastClickSpan:first-child").html(daysSinceUse);
-            } 
+				
+				
+				
+            }
                 
            
         
@@ -615,19 +715,15 @@
 		
 	//GOAL TIMER	
 	function initiateGoalTimer(timerSection, sinceLastAction, currTimer){
-			 var jsonDaysString    = ("json." + sinceLastAction + ".days"),
-                    jsonHoursString   = ("json." + sinceLastAction + ".hours"),
-                    jsonMinutesString = ("json." + sinceLastAction + ".minutes"),
-                    jsonSecondsString = ("json." + sinceLastAction + ".seconds"),
-                    jsonTotalSecondsString = ("json." + sinceLastAction + ".totalSeconds");
 
 
-                clearInterval(goalTimer);
-                jsonDaysString = 1,
-                jsonHoursString = 0,
-                jsonMinutesString = 4,
-                jsonSecondsString = 15,
-                jsonTotalSecondsString = 90255;
+			clearInterval(goalTimer);
+			
+            var jsonDaysString = json.untilGoalEnd.days,
+                jsonHoursString = json.untilGoalEnd.hours,
+                jsonMinutesString = json.untilGoalEnd.minutes,
+                jsonSecondsString = json.untilGoalEnd.seconds,
+                jsonTotalSecondsString = json.untilGoalEnd.totalSeconds;
                 
                     $(timerSection + " .secondsSinceLastClickSpan:first-child").html(jsonSecondsString);
                     $(timerSection + " .minutesSinceLastClickSpan:first-child").html(jsonMinutesString);
@@ -777,17 +873,100 @@
 		
 		$("#goal-content .log-more-info-div button").click(function(){
 		
-				
+		
 					var timestampSeconds = new Date()/1000;
 					
-					//var goalStampSeconds;
-					//var goalType;
 					
-					//updateActionTable(timestampSeconds, "goal", "", goalStampSeconds, goalType);
+					//retrieve chosen date as mm/dd/yyyy
+					var requestedGoalEnd = $('#datepicker').datepicker({ dateFormat: 'yy-mm-dd' }).val();
+					
+						
+					//maybe perform checks if goal is too far forward? perhaps?
+					
+					
+					var goalStampSeconds = new Date(requestedGoalEnd).getTime() / 1000;
+					
+					
+					
+					var goalType = "";
+					/*
+					if($("#boughtInput").checked && $("#usedInput").checked){
+						//both are checked
+						goalType = "both";
+					}else{
+						if($("#boughtInput").checked){
+							goalType = "use";
+							
+						console.log("got in used box");
+						}
+						if($("#usedInput").checked){
+							goalType = "bought";
+							
+							 
+							console.log("got in bought box");
+						}
+						console.log("not both checkboxes");
+					}
+					
+					console.log(goalType);
+					*/
+					
+					updateActionTable(timestampSeconds, "goal", "", goalStampSeconds, goalType);
 					
 					//update display
 					
+					
 					closeClickDialog();
+					
+					
+					
+					//convert goalend to days hours minutes seconds
+					var totalSecondsUntilGoalEnd = Math.round(goalStampSeconds - timestampSeconds);
+					
+					
+					json.untilGoalEnd.days = 0;
+					json.untilGoalEnd.hours = 0;
+					json.untilGoalEnd.minutes = 0;
+					json.untilGoalEnd.seconds = 0;
+					json.untilGoalEnd.totalSeconds = totalSecondsUntilGoalEnd;
+					
+					
+					//calc mins and secs
+						if(totalSecondsUntilGoalEnd > 60){
+							json.untilGoalEnd.seconds = totalSecondsUntilGoalEnd % 60;
+							json.untilGoalEnd.minutes = Math.floor(totalSecondsUntilGoalEnd / 60);
+						}else{
+							json.untilGoalEnd.seconds = totalSecondsUntilGoalEnd;
+							json.untilGoalEnd.minutes = 0;
+						}
+					
+					//calc hours
+						if(totalSecondsUntilGoalEnd > (60*60)){
+							json.untilGoalEnd.minutes = json.untilGoalEnd.minutes % 60;
+							json.untilGoalEnd.hours = Math.floor(totalSecondsUntilGoalEnd / (60*60));
+							
+						}else{
+							json.untilGoalEnd.hours = 0;
+						}
+						
+					//calc days
+						if(totalSecondsUntilGoalEnd > (60*60*24)){
+							json.untilGoalEnd.hours = json.untilGoalEnd.hours % 24;
+							json.untilGoalEnd.days = Math.floor(totalSecondsUntilGoalEnd / (60*60*24));
+						}else{
+							json.untilGoalEnd.days = 0;
+						}
+					
+					/*
+					console.log(
+								  "days till complete: " + json.untilGoalEnd.days
+								+ "\nhours until: "      + json.untilGoalEnd.hours 
+								+ "\nminutes until: "    + json.untilGoalEnd.minutes
+								+ "\nseconds until: "    + json.untilGoalEnd.seconds 
+								+ "\ntotal seconds are: "+ json.untilGoalEnd.totalSeconds
+								);
+					*/
+					
 					
 					
 					//start timer
@@ -795,10 +974,14 @@
 						sinceLastAction = "untilGoalEnd";
 						currTimer = goalTimer;
 						
+						
 					initiateGoalTimer(timerSection, sinceLastAction, currTimer);	
 				
 			
 		});
+		
+		//INITIALIZE GOAL DATE TIME PICKER
+		$( "#datepicker" ).datepicker();
 
 
             /*dynamically add boxes */
@@ -816,7 +999,7 @@
 
         } else {
             //NO LOCAL STORAGE
-           alert("This app uses your local storage to store your data. That means we can honestly say we got nothing, if anyone ever demands to see your data. BUT, your browser doesn't support local storage, so your data cannot be saved! Sorry");
+           alert("This app uses your local storage to store your data. That means we can honestly say we got nothing, if anyone ever demands to see your data. BUT, your browser doesn't support local storage, so your data cannot be saved! You should update your browser or try Chrome, or Firefox!");
         }  
 
 
