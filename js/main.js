@@ -77,11 +77,12 @@
 					"statistics":
 						{
 							"craveCounter" : 0,
+							"cravingsInARow" : 0,
 							"smokeCounter" : 0,
 							"boughtCounter": 0,
 							"totalSpent" :   0,
-							"timeBetweenSpent": 0,
-							"timeBetweenUse":0
+							"secondsBetweenSpent": 0,
+							"secondsBetweenUse":0
 						}
 					
 				}
@@ -94,8 +95,14 @@
 				var jsonObject = JSON.parse(currJsonString);
 
 						//statistics
-						
-							//count number of records for crave, smoke, and bought
+							
+							//USE
+								//total USE actions
+									var useTabActions = jsonObject.action.filter(function(e){
+										return e.clickType == "used" || e.clickType == "craved";
+									});
+																
+								
 								//total uses
 									var smokeCount = jsonObject.action.filter(function(e){
 										return e.clickType == "used";
@@ -106,30 +113,50 @@
 									var sinceLastUse = smokeCount[smokeCount.length-1].timeStamp;
 									restartTimerAtValues("use", sinceLastUse);
 									
-								//average time between uses
-									//timestamp values summed / smokeCount
-									var timestampValues = jsonObject.action.filter(function(e){
-										return (e.clickType == "used" || e.clickType == "craved");
-									});
+								//average time between uses								
+									var runningTotalBetweenUses = 0;	
+										for(i=1; i< smokeCount.length; i++){
+											
+											var currTimeBetween = smokeCount[smokeCount.length - i].timeStamp - smokeCount[smokeCount.length - (i+1)].timeStamp;
+											runningTotalBetweenUses = runningTotalBetweenUses + currTimeBetween;
+											
+										}
+									var averageTimeBetweenUses = Math.round(runningTotalBetweenUses/(smokeCount.length -1));
+										json.statistics.secondsBetweenUse = averageTimeBetweenUses;
 									
-									var avgTimeBetween =0;
-									//for(i=1; i< timestampValues.length; i++){
-									//	avgTimeBetween = parseInt(timestampValues[i].timeStamp) - parseInt(timestampValues[i-1].timeStamp);
-									//}
 									
-									console.log(avgTimeBetween/timestampValues.length);
+									
 								//total craves
 									var craveCount = jsonObject.action.filter(function(e){
 										return e.clickType == "craved";
 									});
 									json.statistics.craveCounter = craveCount.length;
 								
+								//craves in a row
+									var cravesInARow = 0;
+										for(i = useTabActions.length - 1; i>=0 ;i--){
+											
+											if(useTabActions[i].clickType == "craved"){
+												cravesInARow++;
+											}else{
+												break;
+											}
+											
+										}
+									//update display	
+									$("#cravingsResistedInARow").html(cravesInARow);
+									//update json
+									json.statistics.cravingsInARow = cravesInARow;
+									
+									
 								//avg craves per smoke
-									var avgCravingsPerSmoke = Math.round( craveCount.length/smokeCount.length *10) /10;
+									var avgCravingsPerSmoke = Math.round( smokeCount.length/craveCount.length *10) /10;
 									//don't forget to call updates from clicking smoke and crave button
 									$("#avgCravingsPerSmoke").html(avgCravingsPerSmoke);
 									
-									
+								
+
+								
 								//total boughts
 									var boughtCount = jsonObject.action.filter(function(e){
 										return e.clickType == "bought";
@@ -177,15 +204,62 @@
 					
 			}
 			
-			
+		
+/* CONVERT JSON TO LIVE STATS */
+	
+		function reloadAverageTimeBetweenUses(){
+			//convert total seconds to ddhhmmss
+						
+						//s
+					var currSeconds = json.statistics.secondsBetweenUse % 60;
+					if(currSeconds<10){ currSeconds = "0" + currSeconds };
+					
+					var finalStringStatistic = currSeconds;	
+						
+						
+						//s	//m
+						if (json.statistics.secondsBetweenUse > (60)){
+							var currMintues = Math.floor(json.statistics.secondsBetweenUse /(60))%60;
+							 if(currMintues<10){ currMintues = "0" + currMintues };
+							 
+							finalStringStatistic =  currMintues + "<span>:</span>" + finalStringStatistic;
+						}
+							
+							//s //m //h
+						if (json.statistics.secondsBetweenUse > (60*60)){
+							var currHours = Math.floor(json.statistics.secondsBetweenUse /(60*60))%24;
+							if(currHours<10){ currHours = "0" + currHours };
+							 
+							finalStringStatistic = currHours + "<span>:</span>" + finalStringStatistic;
+						
+						}	
+
+							//s //m //h //d
+						if (json.statistics.secondsBetweenUse > (60*60*60)){
+							finalStringStatistic = Math.floor(json.statistics.secondsBetweenUse /(60*60*24)) + "<span>&nbsp;days&nbsp;&nbsp;</span>" + finalStringStatistic;
+						}	
+						
+						//insert HTML into span place holder
+					$("#averageTimeBetweenUses").html(finalStringStatistic);
+					
+		}
+		
+		
+		
+		
+		
 			
 			if(localStorage.actions){
 				retrieveActionTable();
 				
+			//set stats	
 				//set total clicks for each button
 				$("#use-total").html(json.statistics.smokeCounter);
 				$("#crave-total").html(json.statistics.craveCounter);
 				$("#bought-total").html(json.statistics.boughtCounter);
+				
+				//Average time between uses
+				reloadAverageTimeBetweenUses();	
 				
 			}else{
 				//replace this with empty action table
@@ -287,15 +361,37 @@
 							
 						}
 					
-				/*		
-				alert(  
-						"json seconds = " + json.sinceLastUse.seconds + 
-						"\njson minutes are = " + json.sinceLastUse.minutes +
-						"\njson Hours are = " + json.sinceLastUse.hours +
-						"\njson Days are = " + json.sinceLastUse.days
-					);		
-				*/
 			}
+	
+
+	//readjust timer box to correct size
+	function adjustFibonacciTimerToBoxes(){
+		if($("#use-content .boxes div:visible").length == 1){
+			//adjust .fibonacci-timer to timer height
+				document.getElementById("smoke-timer").style.width = "3.3rem";
+				document.getElementById("smoke-timer").style.height = "3.3rem";	
+		
+					
+		}else if($("#use-content .boxes div:visible").length == 2){
+			//adjust .fibonacci-timer to timer height
+				document.getElementById("smoke-timer").style.width = "6.4rem";
+				document.getElementById("smoke-timer").style.height = "3.3rem";
+			
+					
+		}else if($("#use-content .boxes div:visible").length == 3){
+			//adjust .fibonacci-timer to timer height
+				document.getElementById("smoke-timer").style.width = "9.4rem";
+				document.getElementById("smoke-timer").style.height = "6.4rem";
+				
+				
+		}else if($("#use-content .boxes div:visible").length == 4){
+			//adjust .fibonacci-timer to timer height
+				document.getElementById("smoke-timer").style.width = "9.4rem";
+				document.getElementById("smoke-timer").style.height = "16.1rem";
+	
+		}
+		
+	}
 	
 
 	//open more info div
@@ -349,7 +445,7 @@
             }else{
                 //start timer from json values
 				initiateSmokeTimer();
-						
+				adjustFibonacciTimerToBoxes();	
             }
 
             if(json.sinceLastBought.totalSeconds == 0){
@@ -370,36 +466,7 @@
 			
 		
 
-	//readjust 
-	function adjustFibonacciTimerToBoxes(){
-		if($("#use-content .boxes div:visible").length == 1){
-			//adjust .fibonacci-timer to timer height
-							document.getElementById("smoke-timer").style.width = "3.3rem";
-							document.getElementById("smoke-timer").style.height = "3.3rem";	
-					
-					
-					
-					
-		}else if($("#use-content .boxes div:visible").length == 2){
-			//adjust .fibonacci-timer to timer height
-						document.getElementById("smoke-timer").style.width = "6.4rem";
-						document.getElementById("smoke-timer").style.height = "3.3rem";
-					
-					
-					
-		}else if($("#use-content .boxes div:visible").length == 3){
-			//adjust .fibonacci-timer to timer height
-						document.getElementById("smoke-timer").style.width = "9rem";
-						document.getElementById("smoke-timer").style.height = "6.4rem";
-						
-		}else if($("#use-content .boxes div:visible").length == 4){
-			//adjust .fibonacci-timer to timer height
-						document.getElementById("smoke-timer").style.width = "9rem";
-						document.getElementById("smoke-timer").style.height = "16.1rem";
-			
-		}
-		
-	}
+	
 		
 	//SMOKE BUTTON		
 	//CRAVE BUTTON 					
@@ -409,7 +476,8 @@
               
                 //Detect section
                 var timerSection;
-				var timestampSeconds = new Date()/1000;
+				var timestampSeconds = Math.round(new Date()/1000);
+				
 				
 					if(this.id == "crave-button"){
 						timerSection = "#use-content";
@@ -420,7 +488,12 @@
 							updateActionTable(timestampSeconds, "craved");
 									
 							//updateCravingsPerSmokes();
-							
+								var currCravingsPerSmokes = Math.round(json.statistics.smokeCounter / json.statistics.craveCounter *10)/10;
+								$("#avgCravingsPerSmoke").html(currCravingsPerSmokes);
+								
+							//increment cravings in a row json and display
+								json.statistics.cravingsInARow++;
+								$("#cravingsResistedInARow").html(json.statistics.cravingsInARow);
 							
 						return 0;
 						
@@ -428,11 +501,25 @@
 						//updates
 							updateActionTable(timestampSeconds, "used");
 						//update display
-							json.statistics.smokeCounter++;
-							$("#use-total").html(json.statistics.smokeCounter);
-						//start timer
-							initiateSmokeTimer();	
-							adjustFibonacciTimerToBoxes();
+							//smoke count
+								json.statistics.smokeCounter++;
+								$("#use-total").html(json.statistics.smokeCounter);
+							//avg between smokes
+						
+						
+							//updateCravingsPerSmokes();
+									var currCravingsPerSmokes = Math.round(json.statistics.smokeCounter / json.statistics.craveCounter *10)/10;
+									$("#avgCravingsPerSmoke").html(currCravingsPerSmokes);
+							
+							//reset cravings in a row json
+								json.statistics.cravingsInARow = 0;
+								$("#cravingsResistedInARow").html(json.statistics.cravingsInARow);
+							
+							
+							
+							//start timer
+								initiateSmokeTimer();	
+								adjustFibonacciTimerToBoxes();
 							
 							
 					}else if(this.id == "bought-button"){
@@ -489,6 +576,7 @@
 						
 					}
 			
+					
 
 
 			}else{
@@ -533,8 +621,6 @@
 			}
 
 		
-
-		//hide timer sections which are zero
 			
 		
 
@@ -984,7 +1070,8 @@
 		$( "#datepicker" ).datepicker();
 
 
-            /*dynamically add boxes */
+            /*dynamically add boxes 
+			
             function addClicked() {
                 if ($('.boxes div:visible').length < 4 ) {
                     var numberOfBoxesHidden = $('.boxes div:hidden').length;
@@ -996,6 +1083,7 @@
                 $($('.boxes div:visible')[0]).toggle();
               }
             }
+			*/
 
         } else {
             //NO LOCAL STORAGE

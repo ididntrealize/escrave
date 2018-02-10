@@ -58,11 +58,13 @@ h4{
 
 	font-weight:500;
 }
-.statistics-recepticle p{
-	border-bottom: .5px solid black;
+.statistics-recepticle p,
+.timer-recepticle p{
+	display:table;
+	border-bottom: .5px dotted black;
 	padding-bottom: 3px;
 	margin-bottom: 3px;
-	margin-top: 12px;
+	margin-top: 20px;
 }
 
 .clickCounter{
@@ -122,8 +124,8 @@ h4{
 	}
 
 #avgCravingsPerSmoke,
-#cravingsResistedInARow{
-	font-size:1.2rem;
+#cravingsResistedInARow,
+#averageTimeBetweenUses{
 	font-weight:700;
 	
 }
@@ -144,7 +146,7 @@ h4{
 
 /*TIMER STYLES */
 	.timer-recepticle{
-		padding: 15px 5px;
+		padding: 0px 5px;
 
 	}
 
