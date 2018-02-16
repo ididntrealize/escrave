@@ -54,18 +54,38 @@ h4{
 
 }
 
+.statistics-recepticle{
+	text-align:center;
+	margin-bottom:20px;
+}
+
+
 .statistics-recepticle span{
 
-	font-weight:500;
+	font-weight:700;
 }
 .statistics-recepticle p,
 .timer-recepticle p{
 	display:table;
+	margin: 0 auto;
 	border-bottom: .5px dotted black;
 	padding-bottom: 3px;
 	margin-bottom: 3px;
 	margin-top: 20px;
 }
+
+.table{
+	margin-top:20px;
+}
+
+.table th{
+	text-align:right;
+	font-weight: 500;
+}
+.table thead td{
+	font-weight:700;
+}
+
 
 .clickCounter{
 	background:red;

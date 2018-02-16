@@ -5,41 +5,54 @@
 	//TO DO
 	/*
 		TIMERS
-		-style labels to be centered
-		-style backgtound to fit
 		-create a "clear timer" link restart timer
 		
-		BOUGHT PAGE
-		-create dropdown menu on click of bought
-			-recalculate stats
-				-set json values from localstorage
-				-update display values from json
+		USE PAGE
+		-limit clicks on did button
+			-retrieve timestamp, if it's not 10 seconds different, alert them
+		-potentially limit clicks on didnt button 
+			-check if >20 have been done in a minute, and then alert them and lock button for 10 seconds
 		
 		GOALS PAGE
-		-create a dropdown on click of set a goal	
-			
-			<datepicker/>
-				if (!goalsInActionTable && dateIsTooFarAway){
-					I understand that you want to quit right away, 
-					but goals this far in the future tend to be incredibly difficult to achieve,
-					without first trying to set a much shorter goal. 
-					Maybe try one in within the next week?
-					
-					restrictCalendarRange();
-					
-				}else{
-					
-					start countdown timer
-					
-					update action table
-						convert date to timeStampSeconds = goalStamp
-						goal type = Bought || Used || Both
-						clickType = "Goal"
-						timeStamp = timestampSeconds
-						
-				}
-					
+		-restart timer on load
+		-create a management system for achieving goals
+			-maybe a reward or a log?
 	*/
+	
+//MANAGE INACTIVITY!!!	
+	var userIsActive = true;
+	var idleTime = 0;
+		//Increment the idle time counter every minute.
+		var idleInterval = setInterval(timerIncrement, 60000); // 1 minute
+
+		//Zero the idle timer on mouse movement.
+		$(this).mousemove(function (e) {
+			idleTime = 0;
+		});
+		$(this).keypress(function (e) {
+			idleTime = 0;
+		});
+	
+
+	function timerIncrement() {
+		idleTime = idleTime + 1;
+		if (idleTime > 4) { // 5 minutes
+			
+			userIsActive = false;
+			$(this).mousemove(function (e) {
+				userIsActive = true;
+				window.location.reload();
+			});
+			$(this).keypress(function (e) {
+				userIsActive = true;
+				window.location.reload();
+				
+			});
+			
+		}
+	}
+	
+	
 	
         if (typeof(Storage) !== "undefined") {
             // Code for localStorage/sessionStorage.
@@ -81,6 +94,9 @@
 							"smokeCounter" : 0,
 							"boughtCounter": 0,
 							"totalSpent" :   0,
+							"spentThisWeek" : 0,
+							"spentThisMonth" : 0,
+							"spentThisYear" : 0,
 							"secondsBetweenSpent": 0,
 							"secondsBetweenUse":0
 						}
@@ -93,7 +109,11 @@
 				//convert localStorage to json
 				var currJsonString =  localStorage.actions;
 				var jsonObject = JSON.parse(currJsonString);
-
+				
+				//retrieve curr date for time relevant stats
+				timeNow = Math.round(new Date()/1000);
+				
+				
 						//statistics
 							
 							//USE
@@ -143,6 +163,8 @@
 											}
 											
 										}
+										
+									
 									//update display	
 									$("#cravingsResistedInARow").html(cravesInARow);
 									//update json
@@ -164,49 +186,68 @@
 									json.statistics.boughtCounter = boughtCount.length;
 									
 									
-							//cost - complex stats
-								//Total Spent
-									//handle action[clickType = "bought"]
-										//var totalSpent = each value of "spent" added together
-										//var firstSpentDate = timestamp from oldest clickType = "bought"
-											//var avgPerDay = totalSpent divided by number of days since first bought
-											//var avgPerWeek = totalSpent divided by number of weeks since first bought
-											//var avgPerMonth = totalSpent divided by number of months since first bought
+								//Restart timer value
+									var sinceLastBought = boughtCount[boughtCount.length-1].timeStamp;
+									restartTimerAtValues("bought", sinceLastBought);
+										
+								//calculate timestamps for past week
+								
+									//console.log(boughtCount);
+								
+									var oneWeekAgoTimeStamp = timeNow - (60*60*24*7);
+										oneMonthAgoTimeStamp = timeNow - (60*60*24*30),
+										oneYearAgoTimeStamp = timeNow - (60*60*24*365);
+
+									var runningTotalCost = 0,
+										runningTotalCostWeek = 0,
+										runningTotalCostMonth = 0,
+										runningTotalCostYear = 0;
+
+									
+									for (i = boughtCount.length - 1; i > 0; i--){
+										
+										//update every bought record into running total
+										runningTotalCost = runningTotalCost + parseInt(boughtCount[i].spent);
+
+										if (boughtCount[i].timeStamp > oneWeekAgoTimeStamp){
+											//update running week only with timestamps from past week
+											runningTotalCostWeek = runningTotalCostWeek + parseInt(boughtCount[i].spent);
+
+										}
+
+										if (boughtCount[i].timeStamp > oneMonthAgoTimeStamp){
+											//update any record in last month into running total month
+											runningTotalCostMonth = runningTotalCostMonth + parseInt(boughtCount[i].spent);
 											
-										//var spentToday total where timestamp < one day
-										//var spentThisWeek where timestamp < one week
-										//var spentThisMonth where timestamp < one month
+											}
 										
-								//average time between purchases
-									//retrieve all the time stamps for clicktype: bought 
-										//find difference of first and last stamps 
-										//divide that by total number of time stamps for clicktype: bought
+										if (boughtCount[i].timeStamp > oneYearAgoTimeStamp){
+											//update any record in last month into running total month
+											runningTotalCostYear = runningTotalCostYear + parseInt(boughtCount[i].spent);
+											//might have to fabricate this sucker to test it.
+											}
+
+									}
+									//console.log(runningTotalCost + " = total cost \n" + runningTotalCostWeek + " = cost this week\n"  + runningTotalCostMonth + " = cost this month\n" + runningTotalCostYear + " = cost this year");
 									
-									
-							
-							//use - complex stats
-								//cravings per use
-									//json.statistics.craveCounter / json.statistics.smokeCounter
-								//average time between uses
-									//retrieve all the time stamps for clicktype: use 
-										//find difference of first and last stamps 
-										//divide that by total number of time stamps for clicktype: use
-										
-										
-										
-							//goal 
-								//find most recent goalstamp
-								//take current timestamp
-								//subtract current timestamp from goalend stamp 
-									//set equal to json.untilGoalEnd.totalSeconds
-										//calculate days hours minutes seconds
-										//start goal timer from json
-					
+									//update display
+									$("#totalAmountSpent").html(runningTotalCost + "$");
+									$("#spentThisWeek").html(runningTotalCostWeek + "$");
+									$("#spentThisMonth").html(runningTotalCostMonth + "$");
+									$("#spentThisYear").html(runningTotalCostYear + "$");
+
+									//update json
+									json.statistics.totalSpent     = runningTotalCost;
+									json.statistics.spentThisWeek  = runningTotalCostWeek;
+									json.statistics.spentThisMonth = runningTotalCostMonth;
+									json.statistics.spentThisYear  = runningTotalCostYear;
+
+				
 			}
 			
 		
 /* CONVERT JSON TO LIVE STATS */
-	
+			
 		function reloadAverageTimeBetweenUses(){
 			//convert total seconds to ddhhmmss
 						
@@ -244,9 +285,31 @@
 					
 		}
 		
-		
-		
-		
+//TOGGLE ANY STATS WHICH ARE NOT ZERO 
+function toggleActiveStatistics(){
+
+	//click counters
+		//if equals zero toggleOff else toggleOn for following stats
+		//$("#bought-total")
+		//$("#use-total")
+		//$("#crave-total")
+
+	//bought page 
+		//if total == 0 toggleOff else toggleOn
+		//if week equals total toggleOff else toggleOn 
+		//if month equals week toggleOff else toggleOn 
+		//if year equals month toggleOff else toggleOn 
+
+	//use page 
+		//if average time == 0 (unset) toggleOff else toggleOn
+		//if dids/didnts == 0 || infinity toggleOff else toggleOn
+		//if dids in a row == 0 toggleOff else toggleOn
+
+
+}	
+
+		//convert this into a reset button for users
+		//localStorage.clear();
 		
 			
 			if(localStorage.actions){
@@ -263,7 +326,7 @@
 				
 			}else{
 				//replace this with empty action table
-				var newJsonString = '{ "action":[{"timeStamp": "1508276353", "clickType": "used"}, {"timeStamp": "1508276579", "clickType": "craved"}, {"timeStamp": "1508276596", "clickType": "bought", "spent": "10"}, {"timeStamp": "1508276609", "clickType": "bought", "spent": "15"}, {"timeStamp": "1508277166", "clickType": "goal", "goalStamp": "1508296434", "goalType": "use"}]}';
+				var newJsonString = '{ "action":[]}';
 					localStorage.setItem("actions", newJsonString);
 			}
 			
@@ -274,18 +337,20 @@
 				var jsonObject = JSON.parse(currJsonString);
 
 					ts = ts.toString();
-					
-				var newRecord = { timeStamp: ts, clickType: ct };
 				
-				/*	
-				if(ct == "bought"){
+				var newRecord;
+				
+				if(ct == "used" || ct == "craved"){
+					newRecord = { timeStamp: ts, clickType: ct };
+					
+				}else if(ct == "bought"){
+					
 					spt = spt.toString();
-					newRecord.push(', spent: ' + spt);
+					newRecord = { timeStamp: ts, clickType: ct, spent: spt};
 				}else if (ct == "goal"){
 					gs = gs.toString();
-					newRecord.push(', goalStamp: ' + gs + ', goalType: ' + gt);
-				}				
-				*/	
+					newRecord = {timestamp: ts, clickType: ct, goalStamp: gs, goalType: gt};
+				}	
 				
 					jsonObject["action"].push(newRecord);
 					
@@ -293,17 +358,6 @@
 					localStorage.actions = jsonString;
 			}
 			
-			
-
-            //goalStamp generated by datepicker=>timestamp function
-            //goalType generated by dropdown options (use, bought, both)
-
-            //if(){
-
-                //overwrite json values with locally stored values
-
-
-            //}
 	
 	function restartTimerAtValues(timerId, sinceLastAction){
 				var timeNow = new Date()/1000;
@@ -321,6 +375,11 @@
 						if(newTimerTotalSeconds > 60){
 							newTimerSeconds = newTimerTotalSeconds % 60;
 							newTimerMinutes = Math.floor(newTimerTotalSeconds / 60);
+							if(newTimerMinutes<10){
+								newTimerMinutes = "0" + newTimerMinutes;
+							}
+
+
 						}else{
 							newTimerSeconds = newTimerTotalSeconds;
 							newTimerMinutes = 0;
@@ -330,7 +389,13 @@
 						if(newTimerTotalSeconds > (60*60)){
 							newTimerMinutes = newTimerMinutes % 60;
 							newTimerHours = Math.floor(newTimerTotalSeconds / (60*60));
-							
+							if(newTimerMinutes<10){
+								newTimerMinutes = "0" + newTimerMinutes;
+							}
+							if(newTimerHours<10){
+								newTimerHours = "0" + newTimerHours;
+							}
+
 						}else{
 							newTimerHours = 0;
 						}
@@ -339,6 +404,10 @@
 						if(newTimerTotalSeconds > (60*60*24)){
 							newTimerHours = newTimerHours % 24;
 							newTimerDays = Math.floor(newTimerTotalSeconds / (60*60*24));
+							if(newTimerHours<10){
+								newTimerHours = "0" + newTimerHours;
+							}
+
 						}else{
 							newTimerDays = 0;
 						}
@@ -360,35 +429,73 @@
 							json.sinceLastBought.days = newTimerDays;
 							
 						}
-					
+						/*
+						console.log(  
+ 						"USE SECTION - json seconds = " + json.sinceLastUse.seconds + 
+ 						"\njson minutes are = " + json.sinceLastUse.minutes +
+ 						"\njson Hours are = " + json.sinceLastUse.hours +
+ 						"\njson Days are = " + json.sinceLastUse.days +
+ 					 
+ 						"BOUGHT SECTION - json seconds = " + json.sinceLastBought.seconds + 
+ 						"\njson minutes are = " + json.sinceLastBought.minutes +
+ 						"\njson Hours are = " + json.sinceLastBought.hours +
+ 						"\njson Days are = " + json.sinceLastBought.days
+ 					);	
+					*/
 			}
 	
 
 	//readjust timer box to correct size
-	function adjustFibonacciTimerToBoxes(){
-		if($("#use-content .boxes div:visible").length == 1){
-			//adjust .fibonacci-timer to timer height
-				document.getElementById("smoke-timer").style.width = "3.3rem";
-				document.getElementById("smoke-timer").style.height = "3.3rem";	
+	function adjustFibonacciTimerToBoxes(timerId){
 		
-					
-		}else if($("#use-content .boxes div:visible").length == 2){
-			//adjust .fibonacci-timer to timer height
-				document.getElementById("smoke-timer").style.width = "6.4rem";
-				document.getElementById("smoke-timer").style.height = "3.3rem";
+		var relevantPane = "";
+		
+		if(timerId == "smoke-timer"){
+			relevantPane = "use-content";
+		
+		}else if(timerId == "bought-timer"){
+			relevantPane = "cost-content";
 			
+		}else if(timerId == "goal-timer"){
+			relevantPane = "goal-content";
+			
+		}
+		
+		//console.log(relevantPane);
+		
+		if(userIsActive && $("#" + relevantPane).css("display") == "block"){
+			
+			//console.log("fibbo timer readjust fired with timerId = " + timerId);
+			
+			if($("#" + timerId + " .boxes div:visible").length == 1){
+				//adjust .fibonacci-timer to timer height
+					document.getElementById(timerId).style.width = "3.3rem";
+					document.getElementById(timerId).style.height = "3.3rem";	
+			
+						
+			}else if($("#" + timerId + " .boxes div:visible").length == 2){
+				//adjust .fibonacci-timer to timer height
+					document.getElementById(timerId).style.width = "6.4rem";
+					document.getElementById(timerId).style.height = "3.3rem";
+				
+						
+			}else if($("#" + timerId + " .boxes div:visible").length == 3){
+				//adjust .fibonacci-timer to timer height
+					document.getElementById(timerId).style.width = "9.4rem";
+					document.getElementById(timerId).style.height = "6.4rem";
 					
-		}else if($("#use-content .boxes div:visible").length == 3){
-			//adjust .fibonacci-timer to timer height
-				document.getElementById("smoke-timer").style.width = "9.4rem";
-				document.getElementById("smoke-timer").style.height = "6.4rem";
-				
-				
-		}else if($("#use-content .boxes div:visible").length == 4){
-			//adjust .fibonacci-timer to timer height
-				document.getElementById("smoke-timer").style.width = "9.4rem";
-				document.getElementById("smoke-timer").style.height = "16.1rem";
-	
+					
+			}else if($("#" + timerId + " .boxes div:visible").length == 4){
+				//adjust .fibonacci-timer to timer height
+					document.getElementById(timerId).style.width = "9.4rem";
+					document.getElementById(timerId).style.height = "15.9rem";
+		
+			}
+			document.getElementById(timerId).style.display = "block";
+			document.getElementById(timerId).style.margin = "0 auto";
+			
+		}else{
+			
 		}
 		
 	}
@@ -445,7 +552,6 @@
             }else{
                 //start timer from json values
 				initiateSmokeTimer();
-				adjustFibonacciTimerToBoxes();	
             }
 
             if(json.sinceLastBought.totalSeconds == 0){
@@ -453,7 +559,8 @@
 
             }else{
                 //start timer from json values
-
+				initiateBoughtTimer();
+				adjustFibonacciTimerToBoxes("bought-timer");	
             }
 
             if(json.untilGoalEnd.totalSeconds == 0){
@@ -465,7 +572,20 @@
             }
 			
 		
-
+	/*Actions on switch tab */
+	$(document).delegate("#cost-tab-toggler", 'click', function(e){
+		adjustFibonacciTimerToBoxes("bought-timer");
+	});
+	$(document).delegate("#use-tab-toggler", 'click', function(e){
+		adjustFibonacciTimerToBoxes("smoke-timer");
+	});
+	$(document).delegate("#goals-tab-toggler", 'click', function(e){
+		adjustFibonacciTimerToBoxes("goal-timer");
+	});
+	
+	
+	
+	
 	
 		
 	//SMOKE BUTTON		
@@ -482,44 +602,36 @@
 					if(this.id == "crave-button"){
 						timerSection = "#use-content";
 					
-						//updates
+						//update relevant statistics
 							json.statistics.craveCounter++;
 							$("#crave-total").html(json.statistics.craveCounter);
 							updateActionTable(timestampSeconds, "craved");
-									
-							//updateCravingsPerSmokes();
-								var currCravingsPerSmokes = Math.round(json.statistics.smokeCounter / json.statistics.craveCounter *10)/10;
-								$("#avgCravingsPerSmoke").html(currCravingsPerSmokes);
-								
-							//increment cravings in a row json and display
-								json.statistics.cravingsInARow++;
-								$("#cravingsResistedInARow").html(json.statistics.cravingsInARow);
+							
+							var currCravingsPerSmokes = Math.round(json.statistics.smokeCounter / json.statistics.craveCounter *10)/10;
+							$("#avgCravingsPerSmoke").html(currCravingsPerSmokes);
+							
+							json.statistics.cravingsInARow++;
+							$("#cravingsResistedInARow").html(json.statistics.cravingsInARow);
 							
 						return 0;
 						
 					}else if(this.id == "smoke-button"){
-						//updates
+						//update relevant statistics
 							updateActionTable(timestampSeconds, "used");
-						//update display
-							//smoke count
-								json.statistics.smokeCounter++;
-								$("#use-total").html(json.statistics.smokeCounter);
+						
+							json.statistics.smokeCounter++;
+							$("#use-total").html(json.statistics.smokeCounter);
 							//avg between smokes
 						
+							var currCravingsPerSmokes = Math.round(json.statistics.smokeCounter / json.statistics.craveCounter *10)/10;
+							$("#avgCravingsPerSmoke").html(currCravingsPerSmokes);
+					
+							json.statistics.cravingsInARow = 0;
+							$("#cravingsResistedInARow").html(json.statistics.cravingsInARow);
 						
-							//updateCravingsPerSmokes();
-									var currCravingsPerSmokes = Math.round(json.statistics.smokeCounter / json.statistics.craveCounter *10)/10;
-									$("#avgCravingsPerSmoke").html(currCravingsPerSmokes);
-							
-							//reset cravings in a row json
-								json.statistics.cravingsInARow = 0;
-								$("#cravingsResistedInARow").html(json.statistics.cravingsInARow);
-							
-							
-							
 							//start timer
-								initiateSmokeTimer();	
-								adjustFibonacciTimerToBoxes();
+							initiateSmokeTimer();	
+							adjustFibonacciTimerToBoxes("smoke-timer");
 							
 							
 					}else if(this.id == "bought-button"){
@@ -572,13 +684,10 @@
 					while ($("#use-content .boxes div:visible").length > 1 ) {
 						$($("#use-content .boxes div:visible")[0]).toggle();
 						
-						
-						
 					}
-			
 					
-
-
+				
+			
 			}else{
 
 				//reset timer from values
@@ -617,6 +726,9 @@
 						if($("#use-content .daysSinceLastClickSpan:first-child").html() == 0){
 							$("#use-content .daysSinceLastClickSpan").parent().toggle();
 						}
+						
+						adjustFibonacciTimerToBoxes("smoke-timer");	
+						
 
 			}
 
@@ -633,7 +745,15 @@
             //update json
             json.sinceLastUse.totalSeconds++;
             json.sinceLastUse.seconds++;
-            
+        	/*	
+			if($("#smoke-timer").width() > 200){
+				console.log("big box, eh?");
+				adjustFibonacciTimerToBoxes("smoke-timer");
+				
+			}
+			*/
+			
+			
             if(secondsSinceUse>=10){
                 $("#use-content .secondsSinceLastClickSpan:first-child").html(secondsSinceUse);
             }else{
@@ -654,10 +774,15 @@
                     $($("#use-content .boxes div:hidden")[numberOfBoxesHidden - 1]).toggle();
 						
                 }
-                $("#use-content .minutesSinceLastClickSpan:first-child").html(minutesSinceUse);
-                $("#use-content .secondsSinceLastClickSpan:first-child").html(secondsSinceUse);
 				
-				adjustFibonacciTimerToBoxes();
+					 if(minutesSinceUse>=10){
+						$("#use-content .minutesSinceLastClickSpan:first-child").html(minutesSinceUse);
+					}else{
+						$("#use-content .minutesSinceLastClickSpan:first-child").html("0" + minutesSinceUse);
+					}
+                $("#use-content .secondsSinceLastClickSpan:first-child").html("0" + secondsSinceUse);
+				
+				adjustFibonacciTimerToBoxes("smoke-timer");
 				
 				
             }
@@ -676,11 +801,17 @@
                     $($("#use-content .boxes div:hidden")[numberOfBoxesHidden - 1]).toggle();
 					
                 }
-                $("#use-content .minutesSinceLastClickSpan:first-child").html(minutesSinceUse);
-                $("#use-content .hoursSinceLastClickSpan:first-child").html(hoursSinceUse);
+				
+					if(hoursSinceUse>=10){
+						$("#use-content .hoursSinceLastClickSpan:first-child").html(hoursSinceUse);
+					}else{
+						$("#use-content .hoursSinceLastClickSpan:first-child").html("0" + hoursSinceUse);
+					}
+				
+                $("#use-content .minutesSinceLastClickSpan:first-child").html("0" + minutesSinceUse);
 				
 				
-				adjustFibonacciTimerToBoxes();
+				adjustFibonacciTimerToBoxes("smoke-timer");
 				
             }
             if(hoursSinceUse>=24){
@@ -697,11 +828,12 @@
                     var numberOfBoxesHidden = $('#use-content .boxes div:hidden').length;
                     $($("#use-content .boxes div:hidden")[numberOfBoxesHidden - 1]).toggle();
 					
-					console.log("3 visible boxes");
+					//console.log("3 visible boxes");
 					//adjustFibonacciTimerToBoxes();
 						
                 }
-                $("#use-content .hoursSinceLastClickSpan:first-child").html(hoursSinceUse);
+				
+                $("#use-content .hoursSinceLastClickSpan:first-child").html("0" + hoursSinceUse);
                 $("#use-content .daysSinceLastClickSpan:first-child").html(daysSinceUse);
 				
 				
@@ -721,72 +853,142 @@
 	//START BOUGHT TIMER
 	function initiateBoughtTimer(){
 
-		var jsonTotalSecondsString = 0,
-			jsonSecondsString = 0,
-			jsonMinutesString = 0,
-			jsonHoursString = 0,
-			jsonDaysString = 0;
-
-
-
+	
 		clearInterval(boughtTimer);
 
-			
-				$("#cost-content .secondsSinceLastClickSpan:first-child").html("0" + jsonSecondsString);
-				$("#cost-content .minutesSinceLastClickSpan:first-child").html(jsonMinutesString);
-				$("#cost-content .hoursSinceLastClickSpan:first-child").html(jsonHoursString);
-				$("#cost-content .daysSinceLastClickSpan:first-child").html(jsonDaysString);
+		
+		if($("#bought-timer").hasClass("counting")){
 
-			if(!$("#cost-content .fibonacci-timer").is(':visible')){  
-				 $("#cost-content .fibonacci-timer:first-child").toggle();
-			}
+				//reset local vars
+				var daysSinceBought = 0,
+					hoursSinceBought = 0,
+					minutesSinceBought = 0,
+					secondsSinceBought = 0,
+					totalSecondsSinceBought = 0;
+				//reset json vars
+				json.sinceLastBought.days = 0,
+				json.sinceLastBought.hours = 0,
+				json.sinceLastBought.minutes = 0,
+				json.sinceLastBought.seconds = 0,
+				json.sinceLastBought.totalSeconds = 0;	
 
-			while ($("#cost-content .boxes div:visible").length > 1 ) {
-				$($("#cost-content .boxes div:visible")[0]).toggle();
-			}
+					//Insert timer values into timer
+						$("#cost-content .secondsSinceLastClickSpan:first-child").html("0" + secondsSinceBought);
+						$("#cost-content .minutesSinceLastClickSpan:first-child").html(minutesSinceBought);
+						$("#cost-content .hoursSinceLastClickSpan:first-child").html(hoursSinceBought);
+						$("#cost-content .daysSinceLastClickSpan:first-child").html(daysSinceBought);
+
+					if(!$("#cost-content .fibonacci-timer").is(':visible')){  
+						 $("#cost-content .fibonacci-timer:first-child").toggle();
+					}
+					while ($("#cost-content .boxes div:visible").length > 1 ) {
+						$($("#cost-content .boxes div:visible")[0]).toggle();
+						
+					}
+					
+				
 			
+			}else{
+
+				//reset timer from values
+				var daysSinceBought = json.sinceLastBought.days,
+					hoursSinceBought = json.sinceLastBought.hours,
+					minutesSinceBought = json.sinceLastBought.minutes,
+					secondsSinceBought = json.sinceLastBought.seconds,
+					totalSecondsSinceBought = json.sinceLastBought.totalSeconds;
+
+					//Insert timer values into timer
+						 if(secondsSinceBought>=10){
+				               $("#cost-content .secondsSinceLastClickSpan:first-child").html(secondsSinceBought);
+				            }else{
+				                $("#cost-content .secondsSinceLastClickSpan:first-child").html("0" + secondsSinceBought);
+				            }
+						$("#cost-content .minutesSinceLastClickSpan:first-child").html(minutesSinceBought);
+						$("#cost-content .hoursSinceLastClickSpan:first-child").html(hoursSinceBought);
+						$("#cost-content .daysSinceLastClickSpan:first-child").html(daysSinceBought);
+
+				//Hide timer boxes which have zero values
+						if($("#cost-content .secondsSinceLastClickSpan:first-child").html() == 0){
+							$("#cost-content .secondsSinceLastClickSpan").parent().toggle();
+						}
+
+						if($("#cost-content .minutesSinceLastClickSpan:first-child").html() == 0){
+							$("#cost-content .minutesSinceLastClickSpan").parent().toggle();
+
+						}
+
+						if($("#cost-content .hoursSinceLastClickSpan:first-child").html() == 0){
+							$("#cost-content .hoursSinceLastClickSpan").parent().toggle();
+						}
+
+						//this temporarily toggles seconds box
+						if($("#cost-content .daysSinceLastClickSpan:first-child").html() == 0){
+							$("#cost-content .daysSinceLastClickSpan").parent().toggle();
+						}
+			
+				adjustFibonacciTimerToBoxes("bought-timer");	
+			}
+		
+		
+		
 		 boughtTimer = setInterval(function() {
 
 		 		
-                jsonTotalSecondsString++;
-                jsonSecondsString++;
+                totalSecondsSinceBought++;
+                secondsSinceBought++;
                 
-                if(jsonSecondsString>=10){
-                    $("#cost-content .secondsSinceLastClickSpan:first-child").html(jsonSecondsString);
+                if(secondsSinceBought>=10){
+                    $("#cost-content .secondsSinceLastClickSpan:first-child").html(secondsSinceBought);
                 }else{
-                    $("#cost-content .secondsSinceLastClickSpan:first-child").html("0" + jsonSecondsString);
+                    $("#cost-content .secondsSinceLastClickSpan:first-child").html("0" + secondsSinceBought);
                 }
                 
 
-                if(jsonSecondsString>=60){
-                    jsonSecondsString=0;
-                    jsonMinutesString++;
+                if(secondsSinceBought>=60){
+                    secondsSinceBought=0;
+                    minutesSinceBought++;
                     if ($("#cost-content .boxes div:visible").length == 1 ) {
                         var numberOfBoxesHidden = $("#cost-content .boxes div:hidden").length;
                         $($("#cost-content .boxes div:hidden")[numberOfBoxesHidden - 1]).toggle();
                     }
-                    $("#cost-content .minutesSinceLastClickSpan:first-child").html(jsonMinutesString);
-                    $("#cost-content .secondsSinceLastClickSpan:first-child").html(jsonSecondsString);
+					//add trailing zero to below 10 values
+						if(minutesSinceBought>=10){
+							 $("#cost-content .minutesSinceLastClickSpan:first-child").html(minutesSinceBought);
+						}else{
+							$("#cost-content .minutesSinceLastClickSpan:first-child").html("0" + minutesSinceBought);
+						}
+                    $("#cost-content .secondsSinceLastClickSpan:first-child").html("0" + secondsSinceBought);
+					
+					adjustFibonacciTimerToBoxes("bought-timer");
                 }
-                if(jsonMinutesString>=60){
-                    jsonMinutesString=0;
-                    jsonHoursString++;
+                if(minutesSinceBought>=60){
+                    minutesSinceBought=0;
+                    hoursSinceBought++;
                     if ($("#cost-content .boxes div:visible").length == 2 ) {
                         var numberOfBoxesHidden = $("#cost-content .boxes div:hidden").length;
                         $($("#cost-content .boxes div:hidden")[numberOfBoxesHidden - 1]).toggle();
                     }
-                    $("#cost-content .minutesSinceLastClickSpan:first-child").html(jsonMinutesString);
-                    $("#cost-content .hoursSinceLastClickSpan:first-child").html(jsonHoursString);
+						//add trailing zero to below 10 values
+						 if(hoursSinceBought>=10){
+							$("#cost-content .hoursSinceLastClickSpan:first-child").html(hoursSinceBought);
+						}else{
+							$("#cost-content .hoursSinceLastClickSpan:first-child").html("0" + hoursSinceBought);
+						}	
+                    $("#cost-content .minutesSinceLastClickSpan:first-child").html("0" + minutesSinceBought);
+					
+					adjustFibonacciTimerToBoxes("bought-timer");
                 }
-                if(jsonHoursString>=24){
-                    jsonHoursString=0;
-                    jsonDaysString++;
+                if(hoursSinceBought>=24){
+                    hoursSinceBought=0;
+                    daysSinceBought++;
                     if ($("#cost-content .boxes div:visible").length == 3 ) {
                         var numberOfBoxesHidden = $('#cost-content .boxes div:hidden').length;
                         $($("#cost-content .boxes div:hidden")[numberOfBoxesHidden - 1]).toggle();
                     }
-                    $("#cost-content .hoursSinceLastClickSpan:first-child").html(jsonHoursString);
-                    $("#cost-content .daysSinceLastClickSpan:first-child").html(jsonDaysString);
+                    $("#cost-content .hoursSinceLastClickSpan:first-child").html("0" + hoursSinceBought);
+                    $("#cost-content .daysSinceLastClickSpan:first-child").html(daysSinceBought);
+					
+					adjustFibonacciTimerToBoxes("bought-timer");
                 } 
                     
                
@@ -941,8 +1143,8 @@
 					alert("Please enter in a number!");
 					
 				}else{
-					var timestampSeconds = new Date()/1000;
-					updateActionTable(timestampSeconds, "bought");
+					var timestampSeconds = Math.round(new Date()/1000);
+					updateActionTable(timestampSeconds, "bought", amountSpent);
 					
 					//update display
 					json.statistics.boughtCounter++;
@@ -950,7 +1152,11 @@
 					closeClickDialog();
 					
 					initiateBoughtTimer();	
-				
+					
+					adjustFibonacciTimerToBoxes("bought-timer");
+
+					//update spent stats
+					
 				}
 			
 		});
@@ -960,7 +1166,7 @@
 		$("#goal-content .log-more-info-div button").click(function(){
 		
 		
-					var timestampSeconds = new Date()/1000;
+					var timestampSeconds = Math.round(new Date()/1000);
 					
 					
 					//retrieve chosen date as mm/dd/yyyy
@@ -970,7 +1176,7 @@
 					//maybe perform checks if goal is too far forward? perhaps?
 					
 					
-					var goalStampSeconds = new Date(requestedGoalEnd).getTime() / 1000;
+					var goalStampSeconds = Math.round(new Date(requestedGoalEnd).getTime() / 1000);
 					
 					
 					
