@@ -25,13 +25,45 @@
 	
 
 	<div class="container header-background">
-        <img class="header-logo" src="images/escrave-logo.png"/>
+       <div class="logo-and-tagline">
+	        <img class="header-logo" src="images/escrave-logo.png"/>
+			<p style="">Anonymous Addiction Manager</p>
+		</div>
+		<div class="hamburger">
+			<div class="navbar-header">
+				<nav class="navbar navbar-toggleable-md navbar-light bg-faded">
+		            <button class="navbar-toggler navbar-toggler-right" type="button" data-toggle="collapse" data-target="#options-collapse-menu" aria-controls="options-collapse-menu" aria-expanded="false" aria-label="Toggle navigation">
+					    <span class="navbar-toggler-icon"></span>
+					</button>
+				</nav>
+	        </div>
 
+		</div>
+		<nav id="options-navbar" class="navbar navbar-inverse navbar-static-top" role="navigation">
+			    <div class="container pull-right">
+			        
 
-		<p style="color:white;font-size:18px;">Anonymous Addiction Manager</p>
+			        <!-- Collect the nav links, forms, and other content for toggling -->
+			        <div class="collapse navbar-collapse" id="options-collapse-menu">
+			            
+			            <ul class="nav navbar-nav">
+			               <h4>App options</h4>
 
+			               	<li><a id="resetOptionsButton" href="#">Reset options</a></li>
+			                <li><a id="undoActionButton" href="#">Undo last click</a></li>
+			                <li><a id="resetStatsButton" href="#">Reset Stats</a></li>
+			                <li><a id="shareStatsButton" href="#">Share stats</a></li>
 
+			                	 <div class="dropdown-divider"></div>
 
+			                <h4>More info</h4>	 
+			                 <li><a href="index.php">Home</a></li>
+			                <li><a href="about.php">About</a></li>
+			                <li><a href="#portfolio">Contact</a></li>
+			            </ul>
+			        </div>
+			    </div>
+			</nav>
       <!--div class="jumbotron">
         <h1>Jumbotron heading</h1>
         <p class="lead">Cras justo odio, dapibus ac facilisis in, egestas eget quam. Fusce dapibus, tellus ac cursus commodo, tortor mauris condimentum nibh, ut fermentum massa justo sit amet risus.</p>
@@ -39,10 +71,10 @@
       </div -->
         
         <ul  class="nav nav-tabs">
-            <li role="presentation" class="active">
+            <li role="presentation">
                  <a id="cost-tab-toggler" href="#cost-content" data-toggle="tab">Cost</a>
             </li>
-            <li role="presentation" >
+            <li role="presentation" class="active">
                 <a id="use-tab-toggler" href="#use-content" data-toggle="tab">Use</a>
             </li>
             <li role="presentation">
@@ -56,7 +88,7 @@
 
 
             <!-- Start cost tab -->
-            <div class="tab-pane active" id="cost-content">
+            <div class="tab-pane" id="cost-content">
 			
 				 <h3 class="text-center">I wanted to...</h3>
 
@@ -79,7 +111,7 @@
 				  
 
                 <div class="row">
-                    <div class="col-sm-5">
+                    <div class="col-sm-6">
 							
 							<div class="timer-recepticle">
 								<p>Since last time</p> 	
@@ -118,10 +150,10 @@
 							</div>
 						</div>
 
-                    <div class="col-sm-7">
+                    <div class="col-sm-6">
                         
                        <div class="statistics-recepticle">
-								
+								<p>Amount spent</p>
 							<table class="table">
 								
 								<tbody>
@@ -179,12 +211,12 @@
 
 
             <!-- Start Use tab -->
-            <div class="tab-pane" id="use-content">
+            <div class="tab-pane active" id="use-content">
                  
                 <h3 class="text-center">I wanted to...</h3>
 
                 <div class="row no-gutters">
-                    <div class="col-sm-6" style="padding-right:3px;">
+                    <div class="col-6" style="padding-right:3px;">
 						
 						<!-- USE TOTAL STATISTIC -->
 						<div id="use-total" class="clickCounter">
@@ -227,37 +259,46 @@
 							
                         </div>
 						<div class="statistics-recepticle">
+								<div class="statistic-group">
 									<p>
-									Average time
-								</p>
-									<span id="averageTimeBetweenUses" class="statistic"></span>
-								
-								 
-						
+										Average time
+									</p>
+									<span id="averageTimeBetweenUses" class="statistic">
+										test
+									</span>
+								</div>
+
 						</div>
                     </div>
 
-                    <div class="col-sm-6">
+                    <div class="col-6">
 					
 							<div id="crave-total" class="clickCounter">
 								0
 							</div>
 							
-                        <button id="crave-button" class="btn btn-lg btn-dark btn-block">But I didn't</button>
+                        <button id="crave-button" class="btn btn-lg btn-dark btn-block">
+                        	But I didn't
+                        </button>
                         
 
                         <div class="statistics-recepticle ">
-								 	
+							<div class="statistic-group"> 	
 								<p>
-								Dids/Didnts
+									Dids/Didnts
 								</p>
-								<span id="avgCravingsPerSmoke" class="statistic">test
+								<span id="avgCravingsPerSmoke" class="statistic">
+									test
 								</span>
-								
+							</div>
+							<div class="statistic-group"> 
 								 <p>
-								 Didnts in a row
+									 Didnts in a row
 								 </p>
-								<span id="cravingsResistedInARow" class="statistic">test</span> 
+								<span id="cravingsResistedInARow" class="statistic">
+									test
+								</span> 
+							</div>
                                 <div class="craving-log">
 									
 								</div>
@@ -280,8 +321,9 @@
 					<h3 class="text-center">I don't want to</h3>
 					<div style="display:block;text-align:center;">
 						
-						<label for="boughtInput" ><input id="boughtInput" type="checkbox" checked /> Buy</label>
-						<label for="usedInput" ><input id="usedInput" type="checkbox" checked /> Use</label>
+						<label for="boughtInput" ><input id="boughtInput" type="checkbox" checked /> Buy it</label>
+						<br/>
+						<label for="usedInput" ><input id="usedInput" type="checkbox" checked /> Do it</label>
 						
 						
 					</div>
@@ -297,7 +339,10 @@
 				    <div class="col-sm-6">
 						   
 							<div class="timer-recepticle">
-							  
+							 
+							  <p class="">Until Next time</p>
+								
+
 							  <div id="goal-timer" class="fibonacci-timer">
 			
 									<div class="boxes"> 
@@ -325,9 +370,7 @@
 
 									
 								</div>  
-									<span style="display:table;">Until Next time</span>
-								
-
+									
 
 							</div>
 							

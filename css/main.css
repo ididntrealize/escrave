@@ -32,9 +32,48 @@ h4{
 	background:url("../images/mayan-ruin-background.jpg");
 	padding-left:7px;
 	padding-right:7px;
+	padding-top:10px;
+}
+.header-background .logo-and-tagline{
+	display: inline-block;
+	width: calc(100% - 90px);
+}
+.header-background .hamburger{
+	display: inline-block;
+	float: right;
+	width: 90px;
+}
+.header-background .logo-and-tagline p{
+	color:white;
+	font-size:18px;
 }
 
+/* Options hamburger and menu */
+.hamburger .navbar-toggler{
+	background: white;
+	cursor: pointer;
+	margin-top:5px;
+}
+#options-navbar{
+	display: inline-block;
+	position: absolute;
+	right: 10px;
+	top: 65px;
+	padding-top: 0px;
+	z-index: 1000;
 
+}
+#options-navbar .container{
+	background: white;
+	max-width: 245px;
+	
+
+}
+#options-collapse-menu{
+	padding:7px;
+}
+
+/* app main tab menu - Cost, Use, Goals */
 .nav-tabs li {
 	background: white;
 	width:33.3%;
@@ -44,10 +83,10 @@ h4{
 	border-top-left-radius: 13px;
 }
 
-
 .nav-tabs{
 	margin: 17px 0px 0px 0px;
 }
+
 .tab-pane{
 	background: white;
 	padding: 14px 7px;
