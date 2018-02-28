@@ -2,6 +2,7 @@
 	
 	var scriptIsRunning;
 
+	console.log("on branch");
 	//TO DO
 	/*
 		TIMERS
