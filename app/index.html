@@ -1,0 +1,444 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <meta name="description" content="">
+    <meta name="author" content="">
+    <link rel="icon" href="#">
+
+    <title>esCravings</title>
+
+    <!-- Bootstrap core CSS -->
+    <link href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0-beta.2/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-PsH8R72JQ3SOdhVi3uxftmaW6Vc51MKb0q5P2rRUpPvrszuE4W1povHYgTpBfshb" crossorigin="anonymous">
+	
+	<!-- jQuery UI css -->
+	<link rel="stylesheet"  media="all" href="https://code.jquery.com/ui/1.12.1/themes/base/jquery-ui.css">	
+	
+	<!-- Custom styles for this template -->
+    <link href="app.css" rel="stylesheet">
+  </head>
+
+  <body>
+		<!-- div which greys out background -->
+		<div id="greyed-out-div"></div>
+	
+
+	<div class="container header-background">
+       
+		<div class="hamburger">
+			<div class="navbar-header">
+				<nav class="navbar navbar-toggleable-md navbar-light bg-faded">
+		            <button class="navbar-toggler navbar-toggler-right" type="button" data-toggle="collapse" data-target="#options-collapse-menu" aria-controls="options-collapse-menu" aria-expanded="false" aria-label="Toggle navigation">
+					    <span class="navbar-toggler-icon"></span>
+					</button>
+				</nav>
+	        </div>
+
+		</div>
+		<div class="logo-and-tagline">
+	        <img class="header-logo" src="../images/escrave-logo.png"/>
+			<p style="">Anonymous Habit Tracker</p>
+		</div>
+		<nav id="options-navbar" class="navbar navbar-inverse navbar-static-top" role="navigation">
+			    <div class="container pull-right">
+			        
+
+			        <!-- Collect the nav links, forms, and other content for toggling -->
+			        <div class="collapse navbar-collapse" id="options-collapse-menu">
+			            
+			        <!-- 
+					Options
+						-Share stats
+							?esCrave does not track anything, to ensure that your habits remain confidential. 
+							However, we want to improve our app based on how you use it, so please share your current stats with us by clicking this button!
+
+						-Undo last click 	
+						
+						-Start over
+							?We understand that you may have to try multiple times before being done with esCrave for good, 
+							so give it another shot by clicking this button!
+
+					-->
+
+
+			            <ul class="nav navbar-nav">
+			            	 
+			               <!--li><a id="shareStatsButton" href="#">Share stats</a></li>
+ 							<div class="dropdown-divider"></div-->
+
+			                <li><a id="undoActionButton" href="#">Undo last click</a></li>
+
+			                 <div class="dropdown-divider"></div>
+
+			                <li><a id="clearTablesButton" href="#">Start over</a></li>
+
+			                	 <div class="dropdown-divider"></div>
+
+			               
+			                 <li><a href="index.php">Home</a></li>
+			                <li><a href="about.php">About</a></li>
+			                <li><a href="#portfolio">Contact</a></li>
+			            </ul>
+			        </div>
+			    </div>
+			</nav>
+      <!--div class="jumbotron">
+        <h1>Jumbotron heading</h1>
+        <p class="lead">Cras justo odio, dapibus ac facilisis in, egestas eget quam. Fusce dapibus, tellus ac cursus commodo, tortor mauris condimentum nibh, ut fermentum massa justo sit amet risus.</p>
+        <p><a class="btn btn-lg btn-success" href="#" role="button">Sign up today</a></p>
+      </div -->
+        
+        <ul class="nav nav-tabs">
+            <li role="presentation">
+                 <a id="cost-tab-toggler" href="#cost-content" data-toggle="tab">Cost</a>
+            </li>
+            <li role="presentation" class="active">
+                <a id="use-tab-toggler" href="#use-content" data-toggle="tab">Use</a>
+            </li>
+            <li role="presentation">
+                <a id="goal-tab-toggler" href="#goal-content" data-toggle="tab">Goals</a>
+            </li>
+
+        </ul>
+   
+        <div class="tab-content">
+           
+            <!-- Start cost tab -->
+            <div class="tab-pane" id="cost-content">
+			
+				 <!--h3 class="text-center">I wanted to...</h3-->
+
+							<div id="bought-total" class="clickCounter">
+								0
+							</div>
+                  <button id="bought-button" class="btn btn-lg btn-dark btn-block">I bought some</button>
+			
+				<!-- LOG MORE INFO DIV -->	  
+				  <div class="log-more-info-div">
+					<div>
+						<h3 class="text-center">I spent:</h3>
+						<label ><input id="spentInput" type="number" /> $ </label>
+					</div>
+					<button href="#" class="btn btn-dark btn-md btn-block">
+						Submit
+					</button>
+				  </div>
+				  
+				  
+
+                <div class="row">
+                    <div class="col-sm-6">
+							
+							<div class="timer-recepticle">
+								<p>Since last time</p> 	
+							 
+							 <div id="bought-timer" class="fibonacci-timer">
+			
+									<div class="boxes"> 
+									  <div>
+										<span class="timerSpan daysSinceLastClickSpan">0</span>
+										<span>Days</span>
+									  </div>
+									  
+									  <div>
+										<span class="timerSpan hoursSinceLastClickSpan">0</span>
+										<span>Hours</span>
+									  </div>
+									  
+									  <div>
+										<span class="timerSpan minutesSinceLastClickSpan">0</span>
+										<span>Mins</span>
+									  </div>
+									  
+									  <div>
+										<span class="timerSpan secondsSinceLastClickSpan">00</span>
+										<span>Secs</span>
+									  </div>
+									</div>
+								
+
+									
+								
+								</div>  
+
+
+
+							</div>
+						</div>
+
+                    <div class="col-sm-6">
+                        
+                       <div class="statistics-recepticle">
+								<p>Amount spent</p>
+							<table class="table">
+								
+								<tbody>
+									<!--thead>
+										<th></th>
+										<td>Current</td>
+										<td>Average</td>
+									</thead-->
+									<tr>
+										<th>Total</th>
+										<td>
+											<span id="totalAmountSpent" class="statistic">
+												test
+											</span>
+										</td>
+										<!--td>20$</td-->
+									</tr>
+									<tr>
+										<th>Week</th>
+										<td>
+											<span id="spentThisWeek" class="statistic">
+												test
+											</span>
+										</td>
+										<!--td>20$</td-->
+									</tr>
+									<tr>
+										<th>Month</th>
+										<td>
+											<span id="spentThisMonth" class="statistic">
+												test
+											</span>
+										</td>
+										<!--td>30$</td-->
+									</tr>
+									<tr>
+										<th>Year</th>
+										<td>
+											<span id="spentThisYear" class="statistic">
+												test
+											</span>
+										</td>
+										<!--td>90$</td-->
+									</tr>
+								</tbody>
+							</table>
+
+                           
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+
+
+
+            <!-- Start Use tab -->
+            <div class="tab-pane active" id="use-content">
+                 
+                <!--h3 class="text-center">I wanted to...</h3-->
+
+                <div class="row no-gutters">
+                    <div class="col-6" style="padding-right:3px;">
+						
+						<!-- USE TOTAL STATISTIC -->
+						<div id="use-total" class="clickCounter">
+						</div>
+						
+						
+                        <button id="smoke-button" class="btn btn-lg btn-dark btn-block">I did it</button>
+
+                        <div class="timer-recepticle">
+							
+							<p >Since last time</p>
+
+							
+                          <div id="smoke-timer" class="fibonacci-timer">
+        
+								<div class="boxes"> 
+								  <div>
+									<span class="timerSpan daysSinceLastClickSpan">0</span>
+									<span>Days</span>
+								  </div>
+								  
+								  <div>
+									<span class="timerSpan hoursSinceLastClickSpan">0</span>
+									<span>Hours</span>
+								  </div>
+								  
+								  <div>
+									<span class="timerSpan minutesSinceLastClickSpan">0</span>
+									<span>Mins</span>
+								  </div>
+								  
+								  <div>
+									<span class="timerSpan secondsSinceLastClickSpan">00</span>
+									<span>Secs</span>
+								  </div>
+								</div>
+								
+								
+							</div>  
+							
+                        </div>
+						<div class="statistics-recepticle">
+								<div class="statistic-group">
+									<p>
+										Avg time between
+									</p>
+									<span id="averageTimeBetweenUses" class="statistic">
+										test
+									</span>
+								</div>
+
+						</div>
+                    </div>
+
+                    <div class="col-6">
+					
+							<div id="crave-total" class="clickCounter">
+								0
+							</div>
+							
+                        <button id="crave-button" class="btn btn-lg btn-dark btn-block">
+                        	I didn't
+                        </button>
+                        
+
+                        <div class="statistics-recepticle ">
+							<div class="statistic-group"> 	
+								<p>
+									Didnts/did ratio
+								</p>
+								<span id="avgDidntPerDid" class="statistic">
+									test
+								</span>
+							</div>
+							<div class="statistic-group"> 
+								 <p>
+									 Didnts in a row
+								 </p>
+								<span id="cravingsResistedInARow" class="statistic">
+									test
+								</span> 
+							</div>
+                                <div class="craving-log">
+									
+								</div>
+                           
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+
+            <!-- Start Goal tab -->
+            <div class="tab-pane" id="goal-content">
+			
+				<!--h3 class="text-center">I wanted to...</h3-->
+
+                <button id="goal-button" class="btn btn-lg btn-success btn-block">Set a goal</button>
+				
+				<!-- LOG MORE INFO DIV -->	  
+				  <div class="log-more-info-div">
+					<h3 class="text-center">I don't want to</h3>
+					<div style="display:block;text-align:center;">
+						
+						<label for="boughtInput" ><input id="boughtInput" type="checkbox" checked /> Buy it</label>
+						<br/>
+						<label for="usedInput" ><input id="usedInput" type="checkbox" checked /> Do it</label>
+						
+						
+					</div>
+					<h3 class="text-center">Until at least</h3>
+					<!-- DATE PICKER -->
+					<div id="datepicker"></div>
+						
+					<button href="#" class="btn btn-dark btn-md btn-block">
+						Submit
+					</button>
+				  </div>
+				  <div class="row">
+				    <div class="col-sm-12">
+						   
+							<div class="timer-recepticle">
+							 
+							  <p class="">Until Next time</p>
+								
+
+							  <div id="goal-timer" class="fibonacci-timer">
+			
+									<div class="boxes"> 
+									  <div>
+										<span class="timerSpan daysSinceLastClickSpan">0</span>
+										<span>Days</span>
+									  </div>
+									  
+									  <div>
+										<span class="timerSpan hoursSinceLastClickSpan">0</span>
+										<span>Hours</span>
+									  </div>
+									  
+									  <div>
+										<span class="timerSpan minutesSinceLastClickSpan">0</span>
+										<span>Mins</span>
+									  </div>
+									  
+									  <div>
+										<span class="timerSpan secondsSinceLastClickSpan">00</span>
+										<span>Secs</span>
+									  </div>
+									</div>
+								
+
+									
+								</div>  
+									
+
+							</div>
+							
+							
+							
+							
+						</div>
+						<!-- div class="col-sm-6">
+							<div class="statistics-recepticle">
+									<div class="statistic-group">
+										<p>
+											Goals completed
+										</p>
+										<span id="numberOfGoalsCompleted" class="statistic">
+											test
+										</span>
+									</div>
+									<div class="statistic-group">
+										<p>
+											Longest goal completed
+										</p>
+										<span id="longestGoalCompleted" class="statistic">
+											test
+										</span>
+									</div>
+
+							</div>
+						
+						</div -->
+				  </div>
+            </div>
+        </div><!-- end tab content -->
+
+
+
+    <footer class="footer">
+        <p class="text-center" style="color:white;">&copy; Corey Boiko 2017</p>
+    </footer>
+
+    </div> <!-- /container -->
+
+    <!-- jQuery -->
+	<script src="https://code.jquery.com/jquery-3.2.1.min.js" integrity="sha256-hwg4gsxgFZhOsEEamdOYGBf13FyQuiTwlAQgxVSNgt4=" crossorigin="anonymous"></script>
+	<!-- jQuery UI -->
+	<script src="https://code.jquery.com/ui/1.12.1/jquery-ui.js"></script>
+	
+	<!-- Popper -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.11.0/umd/popper.min.js" integrity="sha384-b/U6ypiBEHpOf/4+1nzFpr53nxSS+GLCkfwBdFNTxtclqqenISfwAzpKaMNFNmj4" crossorigin="anonymous"></script>
+    <!-- Bootstrap -->
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0-beta/js/bootstrap.min.js" integrity="sha384-h0AbiXch4ZDo7tp9hKZ4TsHbi047NrKGLO3SEJAg45jXxnGIfYzk4Si90RDIqNm1" crossorigin="anonymous"></script>
+
+    <script type="application/javascript" src="app.js" ></script>	
+  </body>
+</html>
