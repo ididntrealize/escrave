@@ -1,6 +1,5 @@
 # escrave
 
-BASIC DESCRIPTION
 esCrave is a front-end web app made in HTML, CSS, and Javascript/jQuery.
 It helps you keep track of spending and use habits for behaviors you want to cut back on.
 The little voice in your head encouraging you to do more than you should often slips through the cracks.
