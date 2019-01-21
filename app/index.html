@@ -138,7 +138,7 @@
           </div>
 
           <div class="row">
-            <div class="col-6">
+            <div class="col-7 col-sm-6">
               <div class="timer-recepticle">
                 <div id="bought-timer" class="fibonacci-timer">
                   <div class="boxes">
@@ -177,7 +177,7 @@
 								</div>
             </div>
 
-            <div class="col-6">
+            <div class="col-5 col-sm-6">
               <div class="statistics-recepticle">
                 <table class="table">
                   <tbody>
@@ -229,15 +229,27 @@
         <!-- Start Use tab -->
         <div class="tab-pane active" id="use-content">
           <!--h3 class="text-center">I wanted to...</h3-->
+          <div class="row">
+            <!-- USE TOTAL STATISTIC -->
+              <div class="col-6" style="padding: 0px 6px 0px 12px;">
+                <div id="use-total" class="clickCounter"></div>
 
+                <button id="smoke-button" class="btn btn-lg btn-dark btn-block">
+                  I did it
+                </button>
+              </div>
+              <div class="col-6" style="padding: 0px 12px 0px 6px;">
+                  <div id="crave-total" class="clickCounter">0</div>
+
+                  <button id="crave-button" class="btn btn-lg btn-dark btn-block">
+                    I didn't
+                  </button>
+              </div>
+
+          </div>
           <div class="row no-gutters">
-            <div class="col-6" style="padding-right:3px;">
-              <!-- USE TOTAL STATISTIC -->
-              <div id="use-total" class="clickCounter"></div>
-
-              <button id="smoke-button" class="btn btn-lg btn-dark btn-block">
-                I did it
-              </button>
+            <div class="col-7 col-sm-6" style="padding-right:3px;">
+              
 
               <div class="timer-recepticle">
                 <div id="smoke-timer" class="fibonacci-timer">
@@ -277,12 +289,8 @@
               </div>
             </div>
 
-            <div class="col-6">
-              <div id="crave-total" class="clickCounter">0</div>
-
-              <button id="crave-button" class="btn btn-lg btn-dark btn-block">
-                I didn't
-              </button>
+            <div class="col-5 col-sm-6">
+             
 
               <div class="statistics-recepticle ">
                 <div class="statistic-group">
@@ -477,7 +485,7 @@
             </button>
           </div>
           <div class="row">
-            <div class="col-6">
+            <div class="col-7 col-sm-6">
               <div class="timer-recepticle">
                 <div id="goal-timer" class="fibonacci-timer">
                   <div class="boxes">
@@ -507,7 +515,7 @@
                 <p class="">Until Next time</p>
               </div>
             </div>
-            <div class="col-6">
+            <div class="col-5 col-sm-6">
               <div class="statistics-recepticle">
                 <div class="statistic-group">
                   <span id="numberOfGoalsCompleted" class="statistic">

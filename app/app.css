@@ -229,6 +229,14 @@ h4{
 		text-align: center;
 	}
 
+	select.time-picker-hour,
+	select.time-picker-minute,
+	select.time-picker-am-pm,
+	.time-picker-container span.label{
+		font-size:2.4rem;
+	}
+
+
 
 #avgDidntPerDid,
 #cravingsResistedInARow,
@@ -332,28 +340,39 @@ h4{
 	 }
 
 
-
-
-
 /* TEMPLATE STYLES */
 /* Notifications styles */
 
 .notification {
 	position: relative;
-
-	background:#efefef; 
+	background:url(../images/mayan-notification-background.png); 
+	background-size: cover;
 	border: 1px solid #d6d6d6; 
 	border-radius: 4px; 
 	padding:5px 12px;
 	margin-bottom:3px;
+	transition:all 0.3s ease-in-out;
 }
+.notification.rotate-left{
+	-webkit-transform: rotateZ(-7deg);
+	-ms-transform: rotateZ(-7deg);
+	transform: rotateZ(-7deg);
+}
+.notification.rotate-right{
+	-webkit-transform: rotateZ(3deg);
+	-ms-transform: rotateZ(3deg);
+	transform: rotateZ(3deg);
+}
+
 .notification-message{
 	display: flex;
     align-items: center;
+    padding-top: 10px;
 }
 .notification p{
 	margin-bottom:0px;
 	font-style:italic;
+    font-weight: 550;
 	color:#111111;
 }
 .notification-text{

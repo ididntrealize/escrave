@@ -26,11 +26,35 @@ var scriptIsRunning;
 
 						if(responseTools){
 							template+= '<div class="notification-response-tools">' + responseTools + '</div>';
+						}else{
+							template+= '<div class="spacer" style="height:15px;"></div>';
 						}
 
 			template +=	'</div><!--end notification div-->';
 
 		$('#notifications-container').append(template);
+
+		highlightNotification();
+
+	}
+
+	function highlightNotification(){
+		//find last notification appended to container
+		
+
+			setTimeout(function(){	
+				$($(".notification")[$(".notification").length - 1]).addClass("rotate-left");
+				
+				setTimeout(function(){
+					$($(".notification")[$(".notification").length - 1]).removeClass("rotate-left");
+					$($(".notification")[$(".notification").length - 1]).addClass("rotate-right");
+				
+					setTimeout(function(){
+						$($(".notification")[$(".notification").length - 1]).removeClass("rotate-right");
+			
+					}, 300);
+				}, 300);
+			}, 300);	
 
 	}
 
@@ -134,7 +158,7 @@ responseTools = '<!-- custom Time picker-->' +
 						'onclick="' + 
 							'var tempEndStamp = convertDateTimeToTimestamp(\'#datepicker-notification\', \'#goalEndTimePicker\' );' +
 								'if(tempEndStamp - ' + startStamp + ' > 0 || ' + endStamp + ' - tempEndStamp < 0){' +
-									'changeGoalStatus(2, ' + goalType + ', tempEndStamp);' +
+									'changeGoalStatus(2, ' + '\'' + goalType + '\'' + ', tempEndStamp);' +
 									'placeGoalIntoLog(' + startStamp + ', tempEndStamp ,' + '\'' + goalType + '\'' +  ');' + 
 									'clearNotification.call(this, event);' + 
 								'}else{alert(\'Please choose a time within your goal range!\');}">' +
@@ -143,7 +167,7 @@ responseTools = '<!-- custom Time picker-->' +
 			createNotification(message, responseTools);
 			
 			//need to pull most recent clickType goal 
-			//min = this.timeStamp;
+			//min = this.timestamp;
 			//max = this.goalStamp;
 
 			//var target = $( "#datepicker-notification" ),
@@ -251,7 +275,6 @@ responseTools = '<!-- custom Time picker-->' +
 		var jsonString = JSON.stringify(jsonObject);
 		localStorage.esCrave = jsonString;
 	}
-
 
 	function convertSecondsToDateFormat(rangeInSeconds){
 				
@@ -397,10 +420,14 @@ var userIsActive = true;
 							"firstUseClickStamp" : 0,
 							"firstBoughtClickStamp" : 0,
 							"longestGoalTotalSeconds": 0,
-							"completedGoals" : 0,
+							"numberOfGoalsCompleted" : 0,
 							"activeGoalUse" : 0,
 							"activeGoalBought" : 0,
-							"activeGoalBoth": 0
+							"activeGoalBoth": 0,
+							"lastClickStampUse": 0,
+							"lastClickStampBought" : 0,
+							"lastClickStampCrave" : 0,
+							"lastClickStampGoal" : 0,
 
 						},
 					"options":
@@ -414,7 +441,90 @@ var userIsActive = true;
 				
 				var jsonRefactored = {
 					/*
-				REORGANIZED LOCAL JSON OBJECT SHOULD IT BECOME NECESSARY
+				REFACTORED JSON -- CUZ it was getting really messy, and could make issues
+
+					json.sinceLastBought =>
+					json.statistics.cost.sinceTimerStart
+
+					json.sinceLastUse =>
+					json.statistics.use.sinceTimerStart
+
+					json.untilGoalEnd =>
+					json.statistics.goal.untilTimerEnd
+					
+						(child stats equivalent)
+
+
+
+					json.statistics.boughtCounter =>
+					json.statistics.cost.clickCounter
+
+					json.statistics.useCounter =>
+					json.statistics.use.clickCounter
+
+					json.statistics.goalCounter =>
+					json.statistics.goal.clickCounter
+
+
+
+
+					json.statistics.totalSpent =>
+					json.statistics.cost.total
+
+					json.statistics.spentThisWeek =>
+					json.statistics.cost.thisWeek
+
+					json.statistics.spentThisMonth =>
+					json.statistics.cost.thisMonth
+
+					json.statistics.spentThisYear =>
+					json.statistics.cost.thisYear
+
+
+
+					
+					json.statistics.firstUseClickStamp =>
+					json.statistics.use.firstClickStamp
+					
+					json.statistics.firstBoughtClickStamp =>
+					json.statistics.cost.fistClickStamp
+
+
+
+					json.statistics.secondsBetweenBought =>
+					json.statistics.cost.averageBetweenClicks
+
+					json.statistics.secondsBetweenUse =>
+					json.statistics.use.averageBetweenClicks
+
+
+
+					json.statistics.craveCounter =>
+					json.statistics.use.craveCounter
+
+					json.statistics.cravingsInARow =>
+					json.statistics.use.cravingsInARow
+
+					
+					json.statistics.activeGoalBought =>
+					json.statistics.goal.activeType = "cost || use || both"
+
+					json.statistics.activeGoalUse =>
+					json.statistics.goal.activeType = "cost || use || both"
+
+					json.statistics.activeGoalBoth =>
+					json.statistics.goal.activeType = "cost || use || both"
+
+
+
+					json.statistics.longestGoalCompleted =>
+					json.statistics.goal.bestTimeSeconds
+
+					json.statistics.completedGoals =>
+					json.statistics.goal.percentCompleted
+
+					
+				*/
 					"statistics": 
 						{
 							"cost":
@@ -451,10 +561,11 @@ var userIsActive = true;
 									"craveCounter" : 0,
 									"cravingsInARow" : 0,
 									"firstClickStamp" : 0,
+									"lastClickStamp" : 0,
 									"secondsBetweenClicks" : 0
 								},
 
-							"goals": 
+							"goal": 
 								{
 									"untilGoalEnd" :
 										{
@@ -465,6 +576,7 @@ var userIsActive = true;
 											"seconds" : 0
 										},
 									"goalCounter" : 0,
+									"lastClickStamp" : 0,
 									"longestGoalTotalSeconds": 0,
 									"completedGoals" : 0,
 									"activeGoalUse" : 0,
@@ -476,61 +588,6 @@ var userIsActive = true;
 					"options" : 
 						{
 							"activeTab": "use-content"
-						}
-
-				*/
-					"sinceLastUse":
-						{
-							"totalSeconds" : 0,
-							"days" : 0,
-							"hours" : 0,
-							"minutes" : 0,
-							"seconds" : 0
-							
-						},
-
-					"sinceLastBought":
-						{
-							"totalSeconds" : 0,
-							"days" : 0,
-							"hours" : 0,
-							"minutes" : 0,
-							"seconds" : 0
-							
-
-						},
-
-					"untilGoalEnd":
-						{
-							"totalSeconds" : 0,
-							"days" : 0,
-							"hours" : 0,
-							"minutes" : 0,
-							"seconds" : 0
-							
-							
-						},
-
-					"statistics":
-						{
-							"craveCounter" : 0,
-							"cravingsInARow" : 0,
-							"useCounter" : 0,
-							"boughtCounter": 0,
-							"goalCounter": 0,
-							"totalSpent" :   0,
-							"spentThisWeek" : 0,
-							"spentThisMonth" : 0,
-							"spentThisYear" : 0,
-							"secondsBetweenBought": 0,
-							"secondsBetweenUse": 0,
-							"firstUseClickStamp" : 0,
-							"firstBoughtClickStamp" : 0
-						},
-					"options":
-						{
-							"activeTab" : "use-content"
-
 						}
 					
 				};
@@ -561,11 +618,11 @@ var userIsActive = true;
 								
 								//Restart timer value
 								if(useCount.length>0){
-									var sinceLastUse = useCount[useCount.length-1].timeStamp;
+									var sinceLastUse = useCount[useCount.length-1].timestamp;
 									restartTimerAtValues("use", sinceLastUse);
 
 									//average time between uses	
-										var totalTimeBetweenUses = useCount[useCount.length - 1].timeStamp - useCount[0].timeStamp,
+										var totalTimeBetweenUses = useCount[useCount.length - 1].timestamp - useCount[0].timestamp,
 											averageTimeBetweenUses = Math.round(totalTimeBetweenUses/(useCount.length));
 
 										if ($.isNumeric(averageTimeBetweenUses)){
@@ -574,7 +631,11 @@ var userIsActive = true;
 
 
 									//used to calculate avg time between from json obj, live
-										json.statistics.firstUseClickStamp = useCount[0].timeStamp;
+										json.statistics.firstUseClickStamp = useCount[0].timestamp;
+
+									//timestamp of most recent click - to limit clicks in a row
+										json.statistics.lastClickStampUse = useCount[useCount.length-1].timestamp;
+										
 								}
 
 							
@@ -595,11 +656,17 @@ var userIsActive = true;
 											}
 											
 										}
-										
 									//update display	
 									$("#cravingsResistedInARow").html(cravesInARow);
 									//update json
 									json.statistics.cravingsInARow = cravesInARow;
+
+									
+								//timestamp of most recent click - to limit clicks in a row
+								if(craveCount.length > 0){
+									json.statistics.lastClickStampCrave = craveCount[craveCount.length-1].timestamp;
+								}
+
 									
 								//avg craves per smoke
 									var avgDidntPerDid = Math.round( craveCount.length/useCount.length *10) /10;
@@ -616,11 +683,11 @@ var userIsActive = true;
 									
 								//Restart timer value
 								if(boughtCount.length>0){
-									var sinceLastBought = boughtCount[boughtCount.length-1].timeStamp;
+									var sinceLastBought = boughtCount[boughtCount.length-1].timestamp;
 									restartTimerAtValues("bought", sinceLastBought);
 
 									//average time between boughts
-										var totalTimeBetweenBoughts = boughtCount[boughtCount.length - 1].timeStamp - boughtCount[0].timeStamp,
+										var totalTimeBetweenBoughts = boughtCount[boughtCount.length - 1].timestamp - boughtCount[0].timestamp,
 											averageTimeBetweenBoughts = Math.round(totalTimeBetweenBoughts/(boughtCount.length));
 
 									if ($.isNumeric(averageTimeBetweenBoughts)){
@@ -628,12 +695,15 @@ var userIsActive = true;
 									}
 									
 									//used to calculate avg time between from json obj, live
-										json.statistics.firstBoughtClickStamp = boughtCount[0].timeStamp;
+										json.statistics.firstBoughtClickStamp = boughtCount[0].timestamp;
 
+									//timestamp of most recent click - to limit clicks in a row
+										json.statistics.lastClickStampBought = boughtCount[boughtCount.length-1].timestamp;
+										
+									
 								}
 								//calculate timestamps for past week
 								
-									//console.log(boughtCount);
 								
 									var oneWeekAgoTimeStamp = timeNow - (60*60*24*7);
 										oneMonthAgoTimeStamp = timeNow - (60*60*24*30),
@@ -650,19 +720,19 @@ var userIsActive = true;
 										//update every bought record into running total
 										runningTotalCost = runningTotalCost + parseInt(boughtCount[i].spent);
 
-										if (boughtCount[i].timeStamp > oneWeekAgoTimeStamp){
+										if (boughtCount[i].timestamp > oneWeekAgoTimeStamp){
 											//update running week only with timestamps from past week
 											runningTotalCostWeek = runningTotalCostWeek + parseInt(boughtCount[i].spent);
 
 										}
 
-										if (boughtCount[i].timeStamp > oneMonthAgoTimeStamp){
+										if (boughtCount[i].timestamp > oneMonthAgoTimeStamp){
 											//update any record in last month into running total month
 											runningTotalCostMonth = runningTotalCostMonth + parseInt(boughtCount[i].spent);
 											
 											}
 										
-										if (boughtCount[i].timeStamp > oneYearAgoTimeStamp){
+										if (boughtCount[i].timestamp > oneYearAgoTimeStamp){
 											//update any record in last month into running total month
 											runningTotalCostYear = runningTotalCostYear + parseInt(boughtCount[i].spent);
 											//might have to fabricate this sucker to test it.
@@ -700,6 +770,9 @@ var userIsActive = true;
 									
 									var inactiveGoals = goalCount.filter(function(e){ return e.status == 2 || e.status == 3 });
 									//console.log("inside retrieveActionTable, inactiveGoals = " + inactiveGoals);	
+									
+									//timestamp of most recent click - to limit clicks in a row
+									json.statistics.lastClickStampGoal = goalCount[goalCount.length-1].timestamp;
 									
 									json.statistics.goalCounter = goalCount.length;
 									if (activeGoals.length > 0){
@@ -743,9 +816,11 @@ var userIsActive = true;
 									}
 
 									if(inactiveGoals.length > 0){
-										//create dialog with user about if the goal really was completed
-										//potentially limit this based on if the use has been interacting in other ways
-										
+
+										//used for finding longest goal completed
+										var largestDiff = 0;
+
+										//iterate through goals for goal log
 										for(var i = 0; i < inactiveGoals.length; i++){
 
 											var currStartStamp = inactiveGoals[i].timestamp,
@@ -757,11 +832,19 @@ var userIsActive = true;
 											/* only display a certain number of goals per page */
 												//if(i == 4){
 													//$("#goal-log-show-more").toggle();
-													//return false;
+													//break;
 												//}
 
+											//find longest completed goal
+											var currDiff = currEndStamp - currStartStamp;
+
+											if(largestDiff < currDiff){
+												largestDiff = currDiff;
+											}
+											
 										}
-												
+
+										json.statistics.longestGoalTotalSeconds = largestDiff;
 
 									}
 
@@ -850,6 +933,13 @@ var userIsActive = true;
 
 		}
 
+
+		function displayLongestGoal(){
+			var html = convertSecondsToDateFormat(json.statistics.longestGoalTotalSeconds);
+			$("#longestGoalCompleted").html(html);
+			
+		}
+
 		//If json action table doesn't exist, create it
 			if(localStorage.esCrave){
 				retrieveActionTable();
@@ -863,6 +953,7 @@ var userIsActive = true;
 				//Average time between
 				displayAverageTimeBetween("uses");	
 				displayAverageTimeBetween("boughts");	
+				displayLongestGoal();
 			}else{
 				//replace this with empty action table
 				var newJsonString = '{ "action":[], "option": { "activeTab" : "use-content"} }';
@@ -947,10 +1038,10 @@ function hideInactiveStatistics(relevantPane){
 		if(json.statistics.longestGoalTotalSeconds === 0){
 			$("#longestGoalCompleted").parent().hide();
 		}
-
-		if(json.statistics.longestGoalTotalSeconds === 0){
+		if(json.statistics.numberOfGoalsCompleted === 0){
 			$("#numberOfGoalsCompleted").parent().hide();
 		}
+
 		//figure a way to mark goals complete
 			//track in clickType:goal records in action table
 			//goalStatus: 1 (pending), 2 (unverified), 3 (partial - ended), 4 (achieved - ended)
@@ -1035,6 +1126,10 @@ function showActiveStatistics(relevantPane){
 			$("#goal-content .timer-recepticle").show();
 		}
 
+		if(json.statistics.longestGoalTotalSeconds !== 0){
+			$("#longestGoalCompleted").parent().show();
+		}
+
 		//track in clickType:goal records in action table
 		//goalStatus: 1 (pending), 2 (partial), 3 (achieved)
 		/*
@@ -1106,7 +1201,7 @@ function showActiveStatistics(relevantPane){
 
 
 			
-			//timeStamp, clicktype, spent, goalStamp, goalType
+			//timestamp, clicktype, spent, goalStamp, goalType
 			function updateActionTable(ts, ct, spt, gs, gt){
 				var currJsonString =  localStorage.esCrave;
 				var jsonObject = JSON.parse(currJsonString);
@@ -1116,11 +1211,11 @@ function showActiveStatistics(relevantPane){
 				var newRecord;
 				
 				if(ct == "used" || ct == "craved"){
-					newRecord = { timeStamp: ts, clickType: ct };
+					newRecord = { timestamp: ts, clickType: ct };
 					
 				}else if(ct == "bought"){
 					spt = spt.toString();
-					newRecord = { timeStamp: ts, clickType: ct, spent: spt};
+					newRecord = { timestamp: ts, clickType: ct, spent: spt};
 
 				}else if (ct == "goal"){
 					gs = gs.toString();
@@ -1442,20 +1537,30 @@ function showActiveStatistics(relevantPane){
 				
 					if(this.id == "crave-button"){
 						//timerSection = "#use-content";
-					
-						//update relevant statistics
-							json.statistics.craveCounter++;
-							$("#crave-total").html(json.statistics.craveCounter);
-							updateActionTable(timestampSeconds, "craved");
-							
-							var currCravingsPerSmokes = Math.round(json.statistics.craveCounter / json.statistics.useCounter *10)/10;
-							$("#avgDidntPerDid").html(currCravingsPerSmokes);
-							
-							json.statistics.cravingsInARow++;
-							$("#cravingsResistedInARow").html(json.statistics.cravingsInARow);
-							
-							showActiveStatistics("use-content");
-							hideInactiveStatistics("use-content");
+						
+						//don't allow clicks more recent than 10 seconds
+						if(timestampSeconds - json.statistics.lastClickStampCrave > 10){
+
+							//update relevant statistics
+								json.statistics.craveCounter++;
+								$("#crave-total").html(json.statistics.craveCounter);
+								updateActionTable(timestampSeconds, "craved");
+								
+								var currCravingsPerSmokes = Math.round(json.statistics.craveCounter / json.statistics.useCounter *10)/10;
+								$("#avgDidntPerDid").html(currCravingsPerSmokes);
+								
+								json.statistics.cravingsInARow++;
+								$("#cravingsResistedInARow").html(json.statistics.cravingsInARow);
+								
+								//keep lastClickStamp up to date while using app
+									json.statistics.lastClickStampCrave = timestampSeconds;
+
+
+								showActiveStatistics("use-content");
+								hideInactiveStatistics("use-content");
+						}else{
+							alert("You just clicked this button! Wait a bit longer before clicking it again");
+						}
 
 						
 					}else if(this.id == "smoke-button"){
@@ -1480,6 +1585,8 @@ function showActiveStatistics(relevantPane){
 							json.statistics.cravingsInARow = 0;
 							$("#cravingsResistedInARow").html(json.statistics.cravingsInARow);
 						
+							
+
 							//start timer
 							initiateSmokeTimer();	
 
@@ -1491,13 +1598,17 @@ function showActiveStatistics(relevantPane){
 							if(json.statistics.activeGoalUse !== 0 || json.statistics.activeGoalBoth !==0){
 								if(json.statistics.activeGoalUse !== 0){
 									var goalType = "use";
-									var message = 'Looks like you had an active goal to not do it.' +
-												'Don\'t worry, you still recieve points for how long you held back!';
+									var message = 'Your goal just ended! ' +
+												'But, you still get a percentage of points!';
+									
+									json.statistics.activeGoalUse = 0;
 								
 								}else if(json.statistics.activeGoalBoth !==0){
 									var goalType = "both";
-									var message = 'Looks like you had an active goal to not do or buy it.' +
-												'Don\'t worry, you still recieve points for how long you held back!';
+									var message = 'Your goal just ended! ' +
+												'But, you still get a percentage of points!';
+
+									json.statistics.activeGoalBoth = 0;
 								
 								}
 
@@ -1507,7 +1618,16 @@ function showActiveStatistics(relevantPane){
 								
 								$("#goal-content .timer-recepticle").hide();
 								hideInactiveStatistics("goal-content");
+
+								//place a goal into the goal log
+								var startStamp = json.statistics.lastClickStampGoal;
+								var actualEnd = timestampSeconds;
+								placeGoalIntoLog(startStamp, actualEnd, goalType);
+
 							}
+							//keep lastClickStamp up to date while using app
+							json.statistics.lastClickStampUse = timestampSeconds;
+
 							
 							
 					}else if(this.id == "bought-button"){
@@ -1938,31 +2058,38 @@ function showActiveStatistics(relevantPane){
 								}
 
 						}else{
+							/* ENTIRE GOAL IS DONE */
 							jsonSecondsString=0;
 							clearInterval(goalTimer);
 							$(timerSection + " .fibonacci-timer").parent().toggle();
 							hideInactiveStatistics("goal-content");
-							//window.location.reload();
-							//find most recent goal type
-							var goalType = "";
-							if(json.statistics.activeGoalBoth == 1){
-								goalType = "both";
-							}else if(json.statistics.activeGoalBought == 1){
-								goalType = "bought";
-							}else if(json.statistics.activeGoalUse == 1){
+							
 
-							}
-							console.log("goal ended while user was present. goalType = " + goalType +
-										"about to change goal status, and add to goal log");
-							var actualEnd = Math.round(new Date()/1000);
+							//find most recent goal type
+								var goalType = "";
+								if(json.statistics.activeGoalBoth == 1){
+									goalType = "both";
+									json.statistics.activeGoalBoth = 0;
+
+								}else if(json.statistics.activeGoalBought == 1){
+									goalType = "bought";
+									json.statistics.activeGoalBought = 0;
+
+								}else if(json.statistics.activeGoalUse == 1){
+									goalType = "use";
+									json.statistics.activeGoalUse = 0;
+								}
+								
+								var actualEnd = Math.round(new Date()/1000);
 
 							changeGoalStatus(3, goalType, actualEnd);
-							//how am i supposed to fin startStamp??
+
 							//(startStamp, endStamp, goalType) =>
-							//placeGoalIntoLog();
+							var startStamp = json.statistics.lastClickStampGoal;
+							placeGoalIntoLog(startStamp, actualEnd, goalType);
 
 							//notify user that goal ended
-							var message = "your goal just ended, congratulations! Check your goal log for details.";
+							var message = "your goal just ended, congrats! Check your goal log for details.";
 							createNotification(message);
 
 						}
@@ -2082,13 +2209,17 @@ function showActiveStatistics(relevantPane){
 					if(json.statistics.activeGoalBought !== 0 || json.statistics.activeGoalBoth !==0){
 						if(json.statistics.activeGoalBought !== 0){
 							var goalType = "bought";
-							var message = 'Looks like you had an active goal to not buy it.' +
-										'Don\'t worry, you still recieve points for how long you held back!';
+							var message = 'Your goal just ended! ' +
+										'But, you still get a percentage of points!';
+							
+							json.statistics.activeGoalBought = 0;
 						
 						}else if(json.statistics.activeGoalBoth !==0){
 							var goalType = "both";
-							var message = 'Looks like you had an active goal to not do or buy it.' +
-										'Don\'t worry, you still recieve points for how long you held back!';
+							var message = 'Your goal just ended! ' +
+										'But, you still get a percentage of points!';
+							
+							json.statistics.activeGoalBoth = 0;
 						
 						}
 
@@ -2098,7 +2229,17 @@ function showActiveStatistics(relevantPane){
 						
 						$("#goal-content .timer-recepticle").hide();
 						hideInactiveStatistics("goal-content");
+
+						//place a goal into the goal log
+						var startStamp = json.statistics.lastClickStampGoal;
+						var actualEnd = timestampSeconds;
+						placeGoalIntoLog(startStamp, actualEnd, goalType);
 					}
+					
+					//keep lastClickStamp up to date while using app
+					json.statistics.lastClickStampBought = timestampSeconds;
+
+
 				}
 			
 		});
@@ -2160,8 +2301,7 @@ function showActiveStatistics(relevantPane){
 			var date = new Date();
 
 			var timestampSeconds = Math.round(date/1000);
-		
-
+			
 			//get time selection from form
 				var requestedTimeEndHours = parseInt($("#goal-content select.time-picker-hour").val());
 				var requestedTimeEndMinutes = parseInt($("#goal-content select.time-picker-minute").val());
@@ -2222,24 +2362,38 @@ function showActiveStatistics(relevantPane){
 			if(json.statistics.activeGoalUse !== 0 || json.statistics.activeGoalBought !== 0 || json.statistics.activeGoalBoth !==0){
 				if(json.statistics.activeGoalUse !== 0){
 					var goalType = "use";
-					var message = 'Looks like you had an active goal to not do it. ' +
-								'Don\'t worry, you still recieve points for how long you held back!';
+					var message = 'Your goal just ended! ' +
+								'But, you still get a percentage of points!';
+								
+								json.statistics.activeGoalUse = 0;
 				
 				}else if(json.statistics.activeGoalBought !== 0){
 					var goalType = "bought";
-					var message = 'Looks like you had an active goal to not buy it. ' +
-								'Don\'t worry, you still recieve points for how long you held back!';
+					var message = 'Your goal just ended! ' +
+								'But, you still get a percentage of points!';
+
+								json.statistics.activeGoalBought = 0;
 				
 				}else if(json.statistics.activeGoalBoth !==0){
 					var goalType = "both";
-					var message = 'Looks like you had an active goal to not do or buy it. ' +
-								'Don\'t worry, you still recieve points for how long you held back!';
+					var message = 'Your goal just ended! ' +
+								'But, you still get a percentage of points!';
+
+								json.statistics.activeGoalBoth = 0;
 				
 				}
 
 				changeGoalStatus(2, goalType, timestampSeconds);
 				createNotification(message);
+
+				//place a goal into the goal log
+				var startStamp = json.statistics.lastClickStampGoal;
+				var actualEnd = timestampSeconds;
+				placeGoalIntoLog(startStamp, actualEnd, goalType);
 			}
+			//keep lastClickStamp up to date while using app
+			json.statistics.lastClickStampGoal = timestampSeconds;
+
 
 
 				//set local json goal type which is active
