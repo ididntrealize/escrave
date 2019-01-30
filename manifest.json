@@ -1,0 +1,21 @@
+{
+    "short_name": "esCrave",
+    "name": "esCrave - Habit tracker",
+    "icons": [
+      {
+        "src": "images/graph-logo-small-icon.png",
+        "type": "image/png",
+        "sizes": "192x192"
+      },
+      {
+        "src": "images/graph-logo-large-icon.png",
+        "type": "image/png",
+        "sizes": "512x512"
+      }
+    ],
+    "start_url": "app/app.html",
+    "background_color": "#efefef",
+    "display": "standalone",
+    "scope": "/",
+    "theme_color": "#6B334E"
+  }

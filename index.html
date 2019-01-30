@@ -1,94 +1,621 @@
 <!DOCTYPE html>
 <html lang="en">
   <head>
-    <meta charset="utf-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
-    <meta name="description" content="">
-    <meta name="author" content="">
-    <link rel="icon" href="#">
+    <meta charset="utf-8" />
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1, shrink-to-fit=no"
+    />
+    <meta
+      name="description"
+      content="esCrave is an anonymous habit tracking web app which creates statistics from your inputs to put your habit into your own hands. The app helps users get and keep control of their guilty pleasure."
+    />
+    <meta name="author" content="Corey Boiko" />
+    <link rel="icon" href="images/favicon.ico" />
+    
+    <link rel="manifest" href="manifest.json" />
 
-    <title>esCravings</title>
+    <title>esCrave - The habit tracking app</title>
 
-    <!-- Bootstrap core CSS -->
-    <link href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0-beta.2/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-PsH8R72JQ3SOdhVi3uxftmaW6Vc51MKb0q5P2rRUpPvrszuE4W1povHYgTpBfshb" crossorigin="anonymous">
-	
-	<!-- jQuery UI css -->
-	<link rel="stylesheet"  media="all" href="https://code.jquery.com/ui/1.12.1/themes/base/jquery-ui.css">	
-	
-	<!-- Custom styles for this template -->
-    <link href="css/main.css" rel="stylesheet">
+    <!-- Bootstrap core CSS
+    <link
+      href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0-beta.2/css/bootstrap.min.css"
+      rel="stylesheet"
+      integrity="sha384-PsH8R72JQ3SOdhVi3uxftmaW6Vc51MKb0q5P2rRUpPvrszuE4W1povHYgTpBfshb"
+      crossorigin="anonymous"
+    />
+  -->
+    <link rel="stylesheet" href="css/bootstrap.min.css" />
+
+    <!-- jQuery UI css 
+    <link
+      rel="stylesheet"
+      media="all"
+      href="https://code.jquery.com/ui/1.12.1/themes/base/jquery-ui.css"
+    />
+    -->
+
+    <link rel="stylesheet" href="css/jquery-ui.css" />
+
+    <!-- Font awesome
+    <link
+      rel="stylesheet"
+      href="https://use.fontawesome.com/releases/v5.7.0/css/all.css"
+      integrity="sha384-lZN37f5QGtY3VHgisS14W3ExzMWZxybE1SJSEsQp9S+oqd12jhcu+A56Ebc1zFSJ"
+      crossorigin="anonymous"
+    />
+  -->
+    <link href="fontawesome/css/all.css" rel="stylesheet" />
+
+    <!-- Custom styles for this template -->
+    <link href="css/main.css" rel="stylesheet" />
   </head>
 
   <body>
-		<!-- div which greys out background -->
-		<div id="greyed-out-div"></div>
-	
+    <!-- Navigation -->
+    <nav
+      class="navbar fixed-top navbar-expand-lg navbar-light bg-white fixed-top"
+    >
+      <div class="container">
+        <a class="navbar-brand logo-and-tagline" href="index.html">
+          <img class="img-fluid" src="images/graph-logo-large.png" style="padding-bottom:10px;" />
+          <span class="tagline">esCrave</span>
+        </a>
+        <button
+          class="navbar-toggler navbar-toggler-right"
+          type="button"
+          data-toggle="collapse"
+          data-target="#navbarResponsive"
+          aria-controls="navbarResponsive"
+          aria-expanded="false"
+          aria-label="Toggle navigation"
+        >
+          <span class="navbar-toggler-icon"></span>
+        </button>
+        <div class="collapse navbar-collapse" id="navbarResponsive">
+          <ul class="navbar-nav ml-auto">
+            <li class="nav-item">
+             <a class="nav-link" href="#value-proposition">Benefits</a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link" href="#functionality">Functionality</a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link" href="#privacy">Privacy</a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link" href="#habits">Habits</a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link" href="#methods">Methods</a>
+            </li>
+            <li class="nav-item d-none d-md-block">
+              <a class="nav-btn btn btn-success" href="app/app.html">Try it!</a>
+            </li>
+            <li class="nav-item d-md-none">
+                <a class="nav-link" href="app/app.html"><b style="color:#28a745;">Try it!</b></a>
+              </li>
+          </ul>
+        </div>
+      </div>
+    </nav>
 
-	<div class="container header-background">
-       <div class="logo-and-tagline">
-	        <img class="header-logo" src="images/escrave-logo.png"/>
-			<p style="">Anonymous Addiction Manager</p>
-		</div>
-		<div class="hamburger">
-			<div class="navbar-header">
-				<nav class="navbar navbar-toggleable-md navbar-light bg-faded">
-		            <button class="navbar-toggler navbar-toggler-right" type="button" data-toggle="collapse" data-target="#options-collapse-menu" aria-controls="options-collapse-menu" aria-expanded="false" aria-label="Toggle navigation">
-					    <span class="navbar-toggler-icon"></span>
-					</button>
-				</nav>
-	        </div>
+    <header>
+      <div class="main-offer">
+        <div class="item active" >
+          <div class="caption d-md-block">
+           
+            <div class="d-flex">
+                <div class="image-holder">
+                     <img class="img-fluid d-none d-sm-block" src="images/thumbesc.png" />
+                </div>
+                <div class="text-holder">
+                    <h3 class="text-sm-left">
+                        <span class="d-none d-xl-inline"><!--Take steps to -->It's time to </span>take control of your
+                        guilty pleasure
+                    </h3>
+                    <p class="text-center text-sm-left">
+                        esCrave is an anonymous habit tracking web app which helps you incrementally achieve your goals.
+            
+                    </p>
+                    <div class="text-center text-sm-left">
+                        <a href="#value-proposition" class="btn btn-outline-primary btn-lg">
+                            Learn more
+                        </a>
 
-		</div>
-		<nav id="options-navbar" class="navbar navbar-inverse navbar-static-top" role="navigation">
-			    <div class="container pull-right">
-			        
+                        <a href="app/app.html" class="btn btn-outline-success btn-lg">
+                        Get Started!
+                        </a>
+                    </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </header>
 
-			        <!-- Collect the nav links, forms, and other content for toggling -->
-			        <div class="collapse navbar-collapse" id="options-collapse-menu">
-			            
-			            <ul class="nav navbar-nav">
-			               <h4>App options</h4>
+    <section id="value-proposition">
+   
+   <!-- SECTION Header-->
+   <div class="container-fluid section-header">
+     <h2 class="text-center">Why use esCrave</h2>
+   </div>
+   
+        <!-- Page Content -->
 
-			               	<li><a id="resetOptionsButton" href="#">Reset options</a></li>
-			                <li><a id="undoActionButton" href="#">Undo last click</a></li>
-			                <li><a id="resetStatsButton" href="#">Reset Stats</a></li>
-			                <li><a id="shareStatsButton" href="#">Share stats</a></li>
 
-			                	 <div class="dropdown-divider"></div>
+    <div class="container">
+        <!-- Marketing Icons Section -->
+        <div class="row">
+          <div class="col-lg-4 mb-4">
+            <div class="card-icon"><i class="fas fa-7x fa-eye-slash"></i></div>
+            <div class="card">
+              <h4 class="card-header">It's discrete</h4>
+              <div class="card-body">
+                <p class="card-text">
+                  You don’t have to specify what habit you’re tracking, and
+                  don’t need an account to use it.
+                </p>
+                <a href="#privacy" class="btn btn-outline-primary btn-lg">
+                    More about privacy
+                </a>
+              </div>
+              <!--div class="card-footer">
+              <a href="#" class="btn btn-primary">Learn More</a>
+            </div-->
+            </div>
+          </div>
+          <div class="col-lg-4 mb-4">
+            <div class="card-icon">
+              <i class="fas fa-7x fa-balance-scale"></i>
+            </div>
+            <div class="card">
+              <h4 class="card-header">It's non-judgmental</h4>
+              <div class="card-body">
+                <p class="card-text">
+                  You could be tracking anything from a very serious addiction
+                  to a slight annoyance, so the app remains impartial.
+                </p>
+                <a href="#habits" class="btn btn-outline-primary btn-lg">
+                 More about tracking habits
+                </a>
+              </div>
+              <!--div class="card-footer">
+              <a href="#" class="btn btn-primary">Learn More</a>
+            </div-->
+            </div>
+          </div>
+          <div class="col-lg-4 mb-4">
+            <div class="card-icon">
+                <i class="fas fa-7x fa-chart-line"></i>
+            </div>
+            <div class="card">
+              <h4 class="card-header">It's incremental</h4>
+              <div class="card-body">
+                <p class="card-text">
+                  With hard data about your usage, it’s easy to incrementally
+                  cut back to a level you’re comfortable with.
+                </p>
+                <a href="#methods" class="btn btn-outline-primary btn-lg">
+                    Methods to cut back
+                </a>
+              </div>
+              <!--div class="card-footer">
+              <a href="#" class="btn btn-primary">Learn More</a>
+            </div-->
+            </div>
+          </div>
+        </div>
+        <!-- /.row -->
+    </div>
+    <!--end .container-->
+      </section>
 
-			                <h4>More info</h4>	 
-			                 <li><a href="index.php">Home</a></li>
-			                <li><a href="about.php">About</a></li>
-			                <li><a href="#portfolio">Contact</a></li>
-			            </ul>
-			        </div>
-			    </div>
-			</nav>
-      <!--div class="jumbotron">
-        <h1>Jumbotron heading</h1>
-        <p class="lead">Cras justo odio, dapibus ac facilisis in, egestas eget quam. Fusce dapibus, tellus ac cursus commodo, tortor mauris condimentum nibh, ut fermentum massa justo sit amet risus.</p>
-        <p><a class="btn btn-lg btn-success" href="#" role="button">Sign up today</a></p>
-      </div -->
+
+      <!-- Functionality Section -->
+      <section id="functionality">
+        <!-- SECTION Header-->
+        <div class="container-fluid section-header">
+            <h2 class="text-center">What esCrave does</h2>
+        </div> 
+
+          <div class="container">
+        <div class="row" style="margin-bottom:35px;">
+          <div class="col-md-2 offset-md-3">
+
+                <img class="" src="images/thumbesc-goals.png" />
+          </div>
+          <div class="col-md-4 ">
+            
+            <p style="margin-top:35px;">
+              esCrave builds statistics from data that you enter in 
+              to help you cut back usage and spending. The more you know,
+              the easier it becomes to gain control of your habits. The statistics
+              which esCrave makes available can be separated into 3 main
+              categories: 
+            </p>
+            <ul>
+                <li>Cost</li>
+                <li>Use</li>
+                <li>Goals</li>
+            </ul>
+            
+            <a href="app/app.html" class="btn btn-outline-success btn-lg">
+              See it in action!
+            </a>
+          </div>
+        </div>
+        <!-- /.row -->
+        <!-- icon-paragraph Section -->
+        <div class="row mb-4 icon-paragraph">
+          <div class="col-md-3 text-center text-md-right">
+           
+            <i class="fas fa-5x  fa-search-dollar"></i>
+          </div>
+          <div class="col-md-7">
+              <h3>Track Cost</h3>
+            <h4>When you spend on your habit</h4>
+            <p>
+              By clicking a buy button when you make a habit-related purchase,
+              you can track how much you spend over time, how long it’s been
+              since the last time you’ve spent money on your habit, and how long
+              on average you wait in between purchases. esCrave also makes you a
+              breakdown of what you've spent total, this week, this month, and
+              this year.
+            </p>
+          </div>
+        </div>
+        <!-- / icon-paragraph Section -->
+        <!--  icon-paragraph Section -->
+        <div class="row mb-4 icon-paragraph">
+          <div class="col-md-3 text-center text-md-right">
+           
+            <i class="fas fa-5x fa-cookie-bite"></i>
+          </div>
+          <div class="col-md-7">
+            <h3>Track use</h3>
+            <h4>When you do your habit</h4>
+            <p>
+              By clicking on a button whenever you do your habit, you will be able
+              to know the amount of time how long it's been since you last did it, and how long on average you wait.
+              Simultaneously, esCrave presents you with an option to click when you don’t do it.
+              When you click for your resisted cravings, you can track the ratio between how often
+              you give in to a craving versus successfully resisting a craving. Your body may
+              already be subconsciously choosing not to give in to your cravings very often, without you noticing.
+              esCrave makes it more obvious, by telling you how many cravings you've resisted in a row.
+            </p>
+          </div>
+        </div>
+        <!-- / icon-paragraph Section -->
+        <!--  icon-paragraph Section -->
+        <div class="row mb-4  icon-paragraph">
+          <div class="col-md-3 text-center text-md-right">
+            
+            <i class="far fa-5x fa-calendar-check"></i>
+          </div>
+          <div class="col-md-7">
+            <h3>Make goals</h3>
+            <h4>To effectively manage your habit</h4>
+            <p>
+              esCrave gives you the ability to declare goals, which subsequently
+              start a countdown timer that you can refer to at any time to see
+              the current amount of time left to complete your goal. Every time
+              a goal ends, the app will automatically add it to a list of
+              completed goals showing the date ended and the total amount of
+              time elapsed. Goals can be ended early, if the user marks that
+              they have spent money on their habit or done it. With the idea
+              that any amount of progress is still progress, these goals are
+              also added to your goal log!
+            </p>
+          </div>
+        </div>
+        <!-- /Call to Action Section -->
+    </div>
+    <!--end .container-->
+      </section>
+
+      <!-- Privacy Section -->
+      <section id="privacy">
+           <!-- SECTION Header-->
+        <div class="container-fluid section-header">
+            <h2 class="text-center">esCrave privacy</h2>
+        </div> 
+
+        <div class="container">
+            <div class="row horizontal-align-into-section">
+                <div class="col-md-4">
+                    <!-- 
+                                    <img
+                                    class="img-fluid rounded"
+                                    src="http://placehold.it/700x450"
+                                    alt=""
+                                    />
+                                -->
+                    <div class="text-center text-md-right">
+                        <i class="fas fa-9x fa-user-secret"></i>
+                    </div>
+                </div>
+                <div class="col-md-6">
+                    
+                    <b>
+                        <h3>Keeping your guilty pleasure anonymous</h3>
+                    </b>
+
+            <p>
+              esCrave is available to use <i>without creating an account</i> and
+              operates entirely on your personal device. This means that we do
+              not store any of the data you create with it. The decentralized
+              nature of data created by this app makes it much harder for other
+              companies to collect or use.
+            </p>
+            <p>
+              As an added level of security and anonymity, you do not specify to esCrave 
+              what you’re using it to track. That makes it
+              easier to be honest with the app, as you are the only person
+              judging yourself for how frequent you do it or how much you spend on
+              it.
+            </p>
+          </div>
+          
+        </div>
+        <!-- /.row -->
+    </div>
+    <!--end .container-->
+      </section>
+
+
+      <section id="habits">
+          <!-- SECTION Header-->
+          <div class="container-fluid section-header">
+              <h2 class="text-center">What to track</h2>
+          </div>
+      <div class="container">
+            
+          <div class="row horizontal-align-into-section">
+              <div class="col-12" style="margin-bottom:25px;">
+                  <h3 class="text-center">Everybody has a guilty pleasure</h3>
+              </div>
+            
+              <div class="col-md-4 offset-md-1">
+                      <div class="card" style="margin-bottom:25px;">
+                              <b><p class="card-header">
+                                    Examples of what to track
+                              </p></b>
+                              <div class="card-body">
+                                <p class="card-text">
+                                      <ul>
+                                              <li>smoking cigarettes</li>
+                                              <li>using recreational drugs</li>
+                                              <li>eating meat/carbs/sugar</li>
+                                              <li>using social media</li>
+                                              <li>watching youtube/netflix </li>
+                                              <li>listening to Top 40 radio</li>
+                                          </ul>
+                                </p>
+                                
+                              </div>
+                            
+                            </div>
+                  
+                  
+              </div>
+              <div class="col-md-6">
+                    
+                  <p>
+                      No matter how strong their resolution, anybodies habit(s) can start to get the best of them.
+                      If you're struggling to find something that you could track,
+                      this page can help you figure out what your guilty pleasure is.
+                      esCrave can be used to track nearly anything you want in terms of doing or buying something less often.
+                      The app makes the most sense if your chosen habit is related to a specific action and can be spent
+                      money on.
+                      So try to think of things you do or spend more money on than you would like.
+
+                  </p>
+              </div>
+
+
+          </div>
+      </div>
+
+
+      </section>
+
+
+      <section id="methods">
+        <!-- SECTION Header-->
+        <div class="container-fluid section-header">
+            <h2 class="text-center">Methods to cut back</h2>
+        </div>
+    
+        <div class="container">
+          <div class="row">
+            <div class="col-md-8 offset-md-2 col-sm-10 offset-sm-1">
+              <div class="method-chunk">
+                <h3>The old paradigm:</h3>
+                <p>
+                  When people fail at ‘quitting’ something, they tend to give up trying to quit entirely. So even if they
+                  lasted a lot longer than they normally do, they feel like they failed and so stop trying to achieve
+                  their goals. That’s why esCrave is based on helping you make gradual improvements until you feel that
+                  you do your guilty pleasure at an acceptable amount, rather than being focused entirely on quitting.
+                </p>
+              </div>
+              <div class="method-chunk">
+                <h3>Committing to logging:</h3>
+                <p>
+                  You might say that opening esCrave and entering in data every time you do or buy your guilty pleasure
+                  is too much of a time commitment. I would say that extra time commitment is directly in line with the
+                  purpose of this app. The longer you can wait, the greater the chance that you will be able to resist.
+                </p>
+              </div>
+              <div class="method-chunk">
+                <h3>Making conscious decisions:</h3>
+                <p>
+                  Whenever you open esCrave to mark a behavior, you are presented with consciously committing to a choice
+                  to do or not to do. If you’ve made a conscious decision to cut back, being reminded of your own
+                  commitment at the last moment could be the difference between doing or not.
+                </p>
+              </div>
+              <div class="method-chunk">
+                <h3>Recognizing and accepting cravings:</h3>
+                <p>
+                  It’s not so difficult to know how much you spend on a habit, most people are already keeping track in
+                  their heads. You can probably convert the money into an approximation of how much you do your habit,
+                  however, figuring out how many times you consider doing it but decide not to, is nearly impossible
+                  without help. Recognizing those incremental successes is incredibly important, because they are
+                  entirely what your end goal is composed of. esCrave helps you give that choice of inaction enough
+                  weight that it doesn’t slip through the cracks.
+                </p>
+              </div>
+              <div class="method-chunk">
+                <h3>Extending esCrave</h3>
+                <p>
+                  For esCrave to be effective, you must consistently log your behaviors into it, so how can you get into
+                  the habit of opening esCrave each time you do your guilty pleasure? First, you should figure out the
+                  physical location where you go to do/buy it. Then, put a reminder somewhere that you can see it. For
+                  example, if you are tracking cigarettes, a post-it note on your pack could do the trick.
+                </p>
+              </div>
+            </div>
+          </div>
+        </div>
         
-       <h1>THIS WILL EVENTUALLY BE THE SPLASH PAGE FOR THE MARKETING SITE</h1>
+      </section>
+
+        <!--
+        <section id="the-catch">
+          <div class="container-fluid section-header">
+              <h2 class="text-center">Is there a catch?</h2>
+          </div>
+      
+          <div class="container">
+            <div class="row">
+              <div class="col-md-8 offset-md-2 col-sm-10 offset-sm-1">
+                <div class="method-chunk">
+                <h3>What am I getting out of this whole thing?</h3>
+                <p>
+                  You're probably wondering what's the catch for this application?
+                  Many people are worried these days that the applications they use 
+                  are gathering data on them, for sale to marketers. 
+                  esCrave runs without the need of a server of external database,
+                  which means <b>I don't even have your data</b>.
 
 
-    <footer class="footer">
-        <p class="text-center" style="color:white;">&copy; Corey Boiko 2017</p>
+                </p>
+                <p>
+                  I <em>am</em> planning to do some opt-in research with this app to finish my undergrad in style,
+                  but that is far down the road.
+
+                </p>
+                </div>
+              </div>
+            </div>
+            <div class="row">
+                <div class="col-md-6">
+                  <h3>Buy me a coffee!</h3>
+
+                </div>
+                <div class="col-md-6">
+                    <h3>Buy a reminder sticker!</h3>
+  
+                </div>
+            </div>
+                <div class="method-chunk">
+                  <h3>How esCrave came to be</h3>
+                  <p>
+                    Midway through my psychology degree, I realized that I would need something extra if I were going to be successful in life.
+                    So I designed the hell out of a simple application, thinking the idea was so powerful, it would take off.
+                    I encouraged a friend of mine in a computer science undergrad program to help me build it,
+                    which is when I discovered that I didn't really know the scope of what I was asking him,
+                    and didn't have as detailed a vision as I would need to build out the app.
+                     dropped out of school and learn how to code. 
+                  </p>
+                </div>
+              
+              </div>
+            </div>
+          </div>
+          
+          </section>
+        -->
+
+
+    <!-- Footer -->
+    <footer class="py-5 bg-dark">
+      <div class="container">
+        <p class="m-0 text-center text-white">
+        &copy;2019 Corey Boiko &nbsp;&nbsp;<a alt="portfolio of the creator of this site/app" href="http://coreyb.org" target="_blank">CoreyB.org</a>
+        </p>
+      </div>
+      <!-- /.container -->
     </footer>
 
-    </div> <!-- /container -->
+    <!-- jQuery 
+    <script
+      src="https://code.jquery.com/jquery-3.2.1.min.js"
+      integrity="sha256-hwg4gsxgFZhOsEEamdOYGBf13FyQuiTwlAQgxVSNgt4="
+      crossorigin="anonymous"
+    ></script>
+    -->
+    <script src="js/jquery-3.2.1.min.js"></script>
 
-    <!-- jQuery -->
-	<script src="https://code.jquery.com/jquery-3.2.1.min.js" integrity="sha256-hwg4gsxgFZhOsEEamdOYGBf13FyQuiTwlAQgxVSNgt4=" crossorigin="anonymous"></script>
-	<!-- jQuery UI -->
-	<script src="https://code.jquery.com/ui/1.12.1/jquery-ui.js"></script>
-	
-	<!-- Popper -->
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.11.0/umd/popper.min.js" integrity="sha384-b/U6ypiBEHpOf/4+1nzFpr53nxSS+GLCkfwBdFNTxtclqqenISfwAzpKaMNFNmj4" crossorigin="anonymous"></script>
-    <!-- Bootstrap -->
-    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0-beta/js/bootstrap.min.js" integrity="sha384-h0AbiXch4ZDo7tp9hKZ4TsHbi047NrKGLO3SEJAg45jXxnGIfYzk4Si90RDIqNm1" crossorigin="anonymous"></script>
+    <!-- jQuery UI
+    <script src="https://code.jquery.com/ui/1.12.1/jquery-ui.js"></script>
+    -->
 
-    <!--script type="application/javascript" src="js/main.js" ></script-->	
+    <script src="js/jquery-ui.js"></script>
+
+    <!-- Popper 
+    <script
+      src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.11.0/umd/popper.min.js"
+      integrity="sha384-b/U6ypiBEHpOf/4+1nzFpr53nxSS+GLCkfwBdFNTxtclqqenISfwAzpKaMNFNmj4"
+      crossorigin="anonymous"
+    ></script>
+    -->
+    <script src="js/popper.js"></script>
+
+    <!-- Bootstrap 
+    <script
+      src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0-beta/js/bootstrap.min.js"
+      integrity="sha384-h0AbiXch4ZDo7tp9hKZ4TsHbi047NrKGLO3SEJAg45jXxnGIfYzk4Si90RDIqNm1"
+      crossorigin="anonymous"
+    ></script>
+    -->
+    <script src="js/bootstrap.min.js"></script>
+
+    <script type="text/javascript">
+    $(document).ready(function(){
+
+      //make sure service worker exists
+        if('serviceWorker' in navigator){
+            //console.log('got a service worker supporting browser here');
+            window.addEventListener('load', function(){
+                navigator.serviceWorker
+                    .register('sw_cached_pages.js')
+                    .then(function(registered){
+                        //console.log('service worker reigistered: ' + registered);
+                    })
+                    .catch(function(err){
+                        //console.log('service worker error: ' + err);
+                    })
+            })
+        }
+
+
+      /* shrink menu on scroll */
+      $(window).scroll(function() {
+        if ($(document).scrollTop() > 50) {
+          $('.navbar-brand img').addClass('shrink');
+          $('.navbar-brand .tagline').addClass('shrink');
+            $(window).unbind('scroll');
+        } else {
+            $('.navbar-brand img').removeClass('shrink');
+            $('.navbar-brand .tagline').removeClass('shrink');
+        }
+        });
+
+
+    });
+   
+    </script>
   </body>
 </html>

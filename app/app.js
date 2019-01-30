@@ -1,27 +1,485 @@
+var welcomeToMyJavascriptDoc;
+/****************************************************************************
+ * This document is kinda long, like over 2000 lines,
+ * so let me give you a quick overview of how everything works
+ * that is, assuming it IS working. It usually does, I swear...
+ * 
+ * ANYWAYS, 
+ * the app accepts 4 inputs: I bought it, I did it, i didn't do it, Make a goal
+ * the goal input extends to a date and time picker,
+ * the bought input extends to accept an amount of money,
+ * the did and didn't inputs take no additional parameters.
+ * 
+ * The rest of the app updates statistics about this data onLoad and onClick.
+ * Each type of click has a live timer, which is kept in sync even if users close the site, or go inactive.
+ * Statistics are shown or hidden based on if they have a relevant value, 
+ * there's a function to show relevant statistics, and one to hide them if there isn't enough data for them to be relevant.
+ * Most of the functions are related to formatting and displaying statistics about user input, 
+ * however, a large amount are dedicated to handling goal completion.
+ * onLoad, there is a check if a goal has completed since the user has visited the site,
+ * if a goal has ended, they are prompted to either confirm the goal as complete, or to mark the date their goal really ended.
+ * Any completed goal will populate into a list of completed goals, demonstrating amount of time spent and when the goal ended.
+ * 
+ * Additionally, there are some rudimentary controls built in, to help the user recieve relevant data from the app:
+ * There is a button that removes the last click action in storage (UNDO), 
+ * a button to completely wipe storage (START OVER), 
+ * and one to dump their storage for debugging purposes.
+ * 
+ * Dig in, and please get back to me about any inconsistencies, or improvements. 
 
-var scriptIsRunning;
+*********************************************************************************/
 
-//global scope functions
 
-	//these functions are in global scope, because when notifications are dynamically added, their onClick attr needs access.
+$( document ).ready(function() {
+
+//MANAGE INACTIVITY!!!	
+
+var userIsActive = true;
+(function manageInactivity(){
+	var idleTime = 0;
+		//Increment the idle time counter every minute.
+		var idleInterval = setInterval(timerIncrement, 60000); // 1 minute
+
+		//Zero the idle timer on mouse movement.
+		$(this).mousemove(function (e) {
+			idleTime = 0;
+		});
+		$(this).keypress(function (e) {
+			idleTime = 0;
+		});
+	
+
+	function timerIncrement() {
+		idleTime = idleTime + 1;
+		if (idleTime >= 5) { // 5 minutes
+			
+			userIsActive = false;
+			$(this).mousemove(function (e) {
+				if(!userIsActive){
+					window.location.reload();
+				}
+				userIsActive = true;
+			});
+			$(this).keypress(function (e) {
+				if(!userIsActive){
+					window.location.reload();
+				}
+				userIsActive = true;
+				
+			});
+			
+		}
+	}
+
+
+})();
+	
+        if (typeof(Storage) !== "undefined") {
+
+
+				var json = {
+					
+					"statistics":
+					{
+						"cost":
+						{
+							"sinceTimerStart":
+							{
+								"totalSeconds": 0,
+								"days": 0,
+								"hours": 0,
+								"minutes": 0,
+								"seconds": 0
+							},
+							"clickCounter": 0,
+							"total": 0,
+							"thisWeek": 0,
+							"thisMonth": 0,
+							"thisYear": 0,
+							"firstClickStamp": 0,
+							"lastClickStamp": 0,
+							"averageBetweenClicks": 0
+						},
+
+						"use":
+						{
+							"sinceTimerStart":
+							{
+								"totalSeconds": 0,
+								"days": 0,
+								"hours": 0,
+								"minutes": 0,
+								"seconds": 0
+							},
+							"clickCounter": 0,
+							"craveCounter": 0,
+							"cravingsInARow": 0,
+							"firstClickStamp": 0,
+							"lastClickStamp": 0,
+							"lastClickStampCrave" : 0,
+							"averageBetweenClicks": 0
+						},
+
+						"goal":
+						{
+							"untilTimerEnd":
+							{
+								"totalSeconds": 0,
+								"days": 0,
+								"hours": 0,
+								"minutes": 0,
+								"seconds": 0
+							},
+							"clickCounter": 0,
+							"lastClickStamp": 0,
+							"bestTimeSeconds": 0,
+							"completedGoals": 0,
+							"activeGoalUse": 0,
+							"activeGoalBought": 0,
+							"activeGoalBoth": 0
+						}
+					},
+
+					"options":
+					{
+						"activeTab": "use-content"
+					}
+
+				};
+				
+					 
+			function retrieveActionTable(){
+				
+				//convert localStorage to json
+				var currJsonString =  localStorage.esCrave;
+				var jsonObject = JSON.parse(currJsonString);
+				
+				//retrieve curr date for time relevant stats
+				var timeNow = Math.round(new Date()/1000);
+				
+						
+							
+						/* USE STATISTICS */
+								//total USE actions
+									var useTabActions = jsonObject.action.filter(function(e){
+										return e.clickType == "used" || e.clickType == "craved";
+									});
+																
+								//total uses
+									var useCount = jsonObject.action.filter(function(e){
+										return e.clickType == "used";
+									});
+									json.statistics.use.clickCounter = useCount.length;
+								
+								//Restart timer value
+								if(useCount.length>0){
+									var sinceLastUse = useCount[useCount.length-1].timestamp;
+									restartTimerAtValues("use", sinceLastUse);
+
+									//average time between uses	
+										var totalTimeBetweenUses = useCount[useCount.length - 1].timestamp - useCount[0].timestamp,
+											averageTimeBetweenUses = Math.round(totalTimeBetweenUses/(useCount.length));
+
+										if ($.isNumeric(averageTimeBetweenUses)){
+											json.statistics.use.averageBetweenClicks = averageTimeBetweenUses;
+										}
+
+
+									//used to calculate avg time between from json obj, live
+										json.statistics.use.firstClickStamp = useCount[0].timestamp;
+
+									//timestamp of most recent click - to limit clicks in a row
+										json.statistics.use.lastClickStamp = useCount[useCount.length-1].timestamp;
+										
+								}
+
+							
+								//total craves
+									var craveCount = jsonObject.action.filter(function(e){
+										return e.clickType == "craved";
+									});
+									json.statistics.use.craveCounter = craveCount.length;
+								
+								//craves in a row
+									var cravesInARow = 0;
+										for(i = useTabActions.length - 1; i>=0 ;i--){
+											
+											if(useTabActions[i].clickType == "craved"){
+												cravesInARow++;
+											}else{
+												break;
+											}
+											
+										}
+									//update display	
+									$("#cravingsResistedInARow").html(cravesInARow);
+									//update json
+									json.statistics.use.cravingsInARow = cravesInARow;
+
+									
+								//timestamp of most recent click - to limit clicks in a row
+								if(craveCount.length > 0){
+									json.statistics.use.lastClickStampCrave = craveCount[craveCount.length-1].timestamp;
+								}
+
+									
+								//avg craves per smoke
+									var avgDidntPerDid = Math.round( craveCount.length/useCount.length *10) /10;
+									//don't forget to call updates from clicking smoke and crave button
+									$("#avgDidntPerDid").html(avgDidntPerDid);
+									
+						/* COST STATISTICS */		
+								//total boughts
+									var boughtCount = jsonObject.action.filter(function(e){
+										return e.clickType == "bought";
+									});
+									json.statistics.cost.clickCounter = boughtCount.length;
+									
+									
+								//Restart timer value
+								if(boughtCount.length>0){
+									var sinceLastBought = boughtCount[boughtCount.length-1].timestamp;
+									restartTimerAtValues("cost", sinceLastBought);
+
+									//average time between boughts
+										var totalTimeBetweenBoughts = boughtCount[boughtCount.length - 1].timestamp - boughtCount[0].timestamp,
+											averageTimeBetweenBoughts = Math.round(totalTimeBetweenBoughts/(boughtCount.length));
+
+									if ($.isNumeric(averageTimeBetweenBoughts)){
+										json.statistics.cost.averageBetweenClicks = averageTimeBetweenBoughts;
+									}
+									
+									//used to calculate avg time between from json obj, live
+										json.statistics.cost.firstClickStamp = boughtCount[0].timestamp;
+
+									//timestamp of most recent click - to limit clicks in a row
+										json.statistics.cost.lastClickStamp = boughtCount[boughtCount.length-1].timestamp;
+										
+									
+								}
+								//calculate timestamps for past week
+								
+								
+									var oneWeekAgoTimeStamp = timeNow - (60*60*24*7);
+										oneMonthAgoTimeStamp = timeNow - (60*60*24*30),
+										oneYearAgoTimeStamp = timeNow - (60*60*24*365);
+
+									var runningTotalCost = 0,
+										runningTotalCostWeek = 0,
+										runningTotalCostMonth = 0,
+										runningTotalCostYear = 0;
+
+									
+									for (i = boughtCount.length - 1; i >= 0; i--){
+										
+										//update every bought record into running total
+										runningTotalCost = runningTotalCost + parseInt(boughtCount[i].spent);
+
+										if (boughtCount[i].timestamp > oneWeekAgoTimeStamp){
+											//update running week only with timestamps from past week
+											runningTotalCostWeek = runningTotalCostWeek + parseInt(boughtCount[i].spent);
+
+										}
+
+										if (boughtCount[i].timestamp > oneMonthAgoTimeStamp){
+											//update any record in last month into running total month
+											runningTotalCostMonth = runningTotalCostMonth + parseInt(boughtCount[i].spent);
+											
+											}
+										
+										if (boughtCount[i].timestamp > oneYearAgoTimeStamp){
+											//update any record in last month into running total month
+											runningTotalCostYear = runningTotalCostYear + parseInt(boughtCount[i].spent);
+											//might have to fabricate this sucker to test it.
+											}
+
+									}
+									//console.log(runningTotalCost + " = total cost \n" + runningTotalCostWeek + " = cost this week\n"  + runningTotalCostMonth + " = cost this month\n" + runningTotalCostYear + " = cost this year");
+									
+									//update display
+									$("#totalAmountSpent").html(runningTotalCost + "$");
+									$("#spentThisWeek").html(runningTotalCostWeek + "$");
+									$("#spentThisMonth").html(runningTotalCostMonth + "$");
+									$("#spentThisYear").html(runningTotalCostYear + "$");
+
+									//update json
+									json.statistics.cost.total    = runningTotalCost;
+									json.statistics.cost.thisWeek  = runningTotalCostWeek;
+									json.statistics.cost.thisMonth = runningTotalCostMonth;
+									json.statistics.cost.thisYear  = runningTotalCostYear;
+
+						/* GOAL STATISTICS*/
+									
+								var goalCount = jsonObject.action.filter(function(e){
+										return e.clickType == "goal";
+									});
+								//goal status
+								//1 == active goal
+								//2 == partially completed goal
+								//3 == completed goal
+								
+							
+								if(goalCount.length>0){
+									var activeGoals = goalCount.filter(function(e){ return e.status == 1});
+									//console.log("inside retrieveActionTable, activeGoals = " + activeGoals);
+									
+									var inactiveGoals = goalCount.filter(function(e){ return e.status == 2 || e.status == 3 });
+									//console.log("inside retrieveActionTable, inactiveGoals = " + inactiveGoals);	
+									
+									//timestamp of most recent click - to limit clicks in a row
+									json.statistics.goal.lastClickStamp = goalCount[goalCount.length-1].timestamp;
+									
+									json.statistics.goal.clickCounter = goalCount.length;
+									if (activeGoals.length > 0){
+										var mostRecentGoal = activeGoals[activeGoals.length - 1];
+
+										//set var in json for if there is an active goal of X type - 
+										//to be used on click of relevant buttons to end goal
+										if(mostRecentGoal.goalType == "both"){
+											json.statistics.goal.activeGoalBoth = 1;
+
+										}else if(mostRecentGoal.goalType == "use"){
+											json.statistics.goal.activeGoalUse = 1;
+
+										}else if(mostRecentGoal.goalType == "bought"){
+											json.statistics.goal.activeGoalBought = 1;
+
+										}
+
+
+										var totalSecondsUntilGoalEnd = mostRecentGoal.goalStamp - timeNow;
+							
+										if (totalSecondsUntilGoalEnd > 0){
+										
+											loadGoalTimerValues(totalSecondsUntilGoalEnd);
+											initiateGoalTimer();	
+										}else{
+											//goal ended ewhile user was away
+											var mostRecentGoal = goalCount[goalCount.length - 1];
+											createGoalEndNotification(mostRecentGoal);
+											//last made goal time has concluded
+												//hide empty timer
+												$("#goal-content .timer-recepticle").hide();
+										}
+									}else{
+										
+										//last made goal time has concluded
+										//hide empty timer
+											$("#goal-content .timer-recepticle").hide();
+									}
+
+									if(inactiveGoals.length > 0){
+
+										//number of goals Completed
+										json.statistics.goal.completedGoals = inactiveGoals.length;
+
+										//used for finding longest goal completed
+										var largestDiff = 0;
+
+										//iterate through goals for longest goal
+										for(var i = 0; i < inactiveGoals.length; i++){
+
+											var currStartStamp = inactiveGoals[i].timestamp,
+												currEndStamp = inactiveGoals[i].goalStopped;
+
+											//find longest completed goal
+											var currDiff = currEndStamp - currStartStamp;
+
+											if(largestDiff < currDiff){
+												largestDiff = currDiff;
+											}
+											
+										}
+
+											json.statistics.goal.completedGoals = inactiveGoals.length;
+											$("#numberOfGoalsCompleted").html(json.statistics.goal.completedGoals);
+											
+											json.statistics.goal.bestTimeSeconds = largestDiff;
+											$("#longestGoalCompleted").html(json.statistics.goal.bestTimeSeconds);
+
+										/* only display a certain number of goals per page */
+										var goalsToAddMax = inactiveGoals.length - 1,
+											goalsToAddMin = inactiveGoals.length - 10;
+
+										function addMoreIntoGoalLog(){
+											if(goalsToAddMin > 0){
+												for(var i = goalsToAddMax; i >= goalsToAddMin; i--){
+													console.log("i in add to log = " + i);
+												var currStartStamp = inactiveGoals[i].timestamp,
+													currEndStamp = inactiveGoals[i].goalStopped,
+													currGoalType = inactiveGoals[i].goalType;
+													//append 10 new goals
+													placeGoalIntoLog(currStartStamp, currEndStamp, currGoalType, true);
+
+													if(i == goalsToAddMin){
+														goalsToAddMin -= 10;
+														goalsToAddMax -= 10;
+														//if button is not displayed
+															if($("#goal-log-show-more").hasClass("d-none")){
+																$("#goal-log-show-more").removeClass("d-none");
+																$("#goal-log-show-more").click(addMoreIntoGoalLog);
+															}
+														break;
+													}
+												}
+											}else{
+												//console.log("no more entries");
+											}
+										}
+										addMoreIntoGoalLog();
+										
+									}
+
+								}
+					//NEEEWWWWW USERRR
+					if(useCount == 0 && craveCount == 0 && boughtCount == 0 && goalCount == 0){				
+						var introMessage = "<b>Welcome to esCrave</b> - the anonymous habit tracking app that shows you statistics about any habit as you record data about it!";
+						createNotification(introMessage);
+					}	
+							
+			}
+
+
+			function retrieveOptionTable(){
+				var currJsonString =  localStorage.esCrave;
+				var jsonObject = JSON.parse(currJsonString);
+
+				//set local json from option in local storage
+				json.options.activeTab = localStorage.getItem("activeTab");
+			}
+
+		
+
+			
+		//Restrict possible dates chosen in goal tab datepicker
+
+		//restrictGoalRange();
+		$( "#goalEndPicker" ).datepicker({minDate: 0});
+		//INITIALIZE GOAL DATE TIME PICKER
+		$( "#goalEndPicker" ).datepicker();
+
+/* NOTIFICATION CREATION AND RESPONSES */
+
 	var clearNotification = function(event){
-		event.preventDefault();
+
 		//when user clicks X on a notification, slide it off the screen.
-		var currNotification = $(this).parent().parent();
-		var notificationWidth = currNotification.css("width");
+		var currNotification = $(event).parent().parent();
+		//var notificationWidth = currNotification.css("width");
+		//	notificationWidth = -1 * parseInt(notificationWidth);
+		var animateLeft = -1*(6400);
 			currNotification.animate(
-				{right: notificationWidth}, 300, 
+				{left: animateLeft}, 600, 
 				function(){
 					currNotification.css("display", "none");
 				});	
 	}
 
-	//one of the buttons created dynamically needs this function to be globalscope to use this
+
 	function createNotification(message, responseTools){
-		var template =  '<div class="notification" style="">' + 
+		var template =  '<div class="notification" style="left:600px;">' + 
 							'<div class="notification-message">' +
 								'<p class="notification-text">' + message + '</p>' + 
-								'<a class="notification-close" href="#" onclick="clearNotification.call(this, event);">X</a>' +
+								'<a class="notification-close" href="#">X</a>' +
 							'</div>';
 
 						if(responseTools){
@@ -40,7 +498,10 @@ var scriptIsRunning;
 
 	function highlightNotification(){
 		//find last notification appended to container
-		
+
+			$($(".notification")[$(".notification").length - 1]).animate({
+						left: 0
+			},300);
 
 			setTimeout(function(){	
 				$($(".notification")[$(".notification").length - 1]).addClass("rotate-left");
@@ -74,139 +535,140 @@ var scriptIsRunning;
 		var message = 'Your most recent goal ended since your last visit. ' +
 						'Did you make it without ' + goalTypeGerund + ' it?';
 		var responseTools = 
-					'<button class="notification-response-tool" href="#" ' + 
-						'onclick="clearNotification.call(this, event);' + 
-						'		respondToGoalEnd(true,' + goalHandle.timestamp + ',' + goalHandle.goalStamp + ',' + '\'' + goalHandle.goalType + '\'' +  ')">' + 
+					'<button class="notification-response-tool goal-ended-on-time" href="#" >' + 
 					'Yes</button>' + 
-					'<button class="notification-response-tool" href="#" ' + 
-						'onclick="clearNotification.call(this, event);' + 
-						'respondToGoalEnd(false,' + goalHandle.timestamp + ',' + goalHandle.goalStamp + ',' + '\'' + goalHandle.goalType + '\'' +  ')">' + 
+					'<button class="notification-response-tool goal-ended-early" href="#">' + 
 					'No</button>';
 		
 		createNotification(message, responseTools);
 
 	}
 
-	function respondToGoalEnd(success, startStamp, endStamp, goalType){
 
-			var message = "",
-				responseTools = "";
+/* Notification button events */
 
-		if(success){
-				message = "Congrats on completing your goal! " + 
-						"It's been added to the bottom of your goal tab";
-				responseTools = '<script type="script/javascript">' +
-								'placeGoalIntoLog(' + startStamp + ',' + endStamp + ',' + '\'' + goalType + '\'' + ');' + 
-								'</script>';
-				createNotification(message, responseTools);
-				
-				//goal status
-					//1 == active goal
-					//2 == partially completed goal
-					//3 == completed goal
-				changeGoalStatus(3, goalType);
-		}else{
+	$('#notifications-container').on('click', '.notification-close', function(event){
+		clearNotification.call(event, this); 
+	});
 
-			var now = Math.round(new Date()/1000);
-
-			var min = new Date(startStamp).getTime();
-			var max = new Date(endStamp).getTime();
-
-			var	minFormatted = Math.floor((now - min) / 86400),
-				maxFormatted = Math.floor((now - max) / 86400);
-				if(minFormatted == 0){
-					minFormatted = "-" + (minFormatted);
-				}
-				if(maxFormatted == 0){
-					maxFormatted = "-" + (maxFormatted);
-				}
-
+	$('#notifications-container').on('click', '.notification-response-tool', function(event){
 		
-			message = "You can still get a percentage of points for how long you waited. " + 
-					"Around when do you think you broke your goal?";
+		//need these variables: startStamp, endStamp, goalType
+			//convert localStorage to json
+			var currJsonString = localStorage.esCrave;
+			var jsonObject = JSON.parse(currJsonString);
 
-responseTools = '<!-- custom Time picker-->' +
-					'<div id="goalEndTimePicker" class="time-picker-container">' +
-						'<select class="time-picker-hour" data-min="0" data-max="23" data-step="1">' +
-							'<option value="0">12</option>' +
-							'<option value="1">1</option>' +
-							'<option value="2">2</option>' +
-							'<option value="3">3</option>' +
-							'<option value="4">4</option>' +
-							'<option value="5">5</option>' +
-							'<option value="6">6</option>' +
-							'<option value="7">7</option>' +
-							'<option value="8">8</option>' +
-							'<option value="9">9</option>' +
-							'<option value="10">10</option>' +
-							'<option value="11">11</option>' +
-						'</select>' +
-						'<select class="time-picker-am-pm">' +
-								'<option value="AM">AM</option>' +
-								'<option value="PM">PM</option>' +
-						'</select>' +
-					'</div>' +
-				'<div id="datepicker-notification" style="display:inline-block;"></div>' +
-				'<script type="text/javascript">' + 
-					'$( "#datepicker-notification" ).datepicker({ minDate:' + minFormatted + ', maxDate:' + maxFormatted + '});' +
-					'$( "#datepicker-notification" ).datepicker();' +
-					'var currHours = new Date().getHours();' +
-					'$("#goalEndTimePicker .time-picker-hour").val(currHours%12);' +
-					'if(currHours>=12){ $("#goalEndTimePicker .time-picker-am-pm").val("PM"); }' +
-				'</script><br/>' +
-				'<button class="notification-response-tool" href="#" ' + 
-						'onclick="' + 
-							'var tempEndStamp = convertDateTimeToTimestamp(\'#datepicker-notification\', \'#goalEndTimePicker\' );' +
-								'if(tempEndStamp - ' + startStamp + ' > 0 || ' + endStamp + ' - tempEndStamp < 0){' +
-									'changeGoalStatus(2, ' + '\'' + goalType + '\'' + ', tempEndStamp);' +
-									'placeGoalIntoLog(' + startStamp + ', tempEndStamp ,' + '\'' + goalType + '\'' +  ');' + 
-									'clearNotification.call(this, event);' + 
-								'}else{alert(\'Please choose a time within your goal range!\');}">' +
-				'Submit</button>';
-			
-			createNotification(message, responseTools);
-			
-			//need to pull most recent clickType goal 
-			//min = this.timestamp;
-			//max = this.goalStamp;
+			//return active goal
+			var activeGoals = jsonObject.action.filter(function(e){ 
+				return e.clickType == "goal" && e.status == 1;
+			});	
 
-			//var target = $( "#datepicker-notification" ),
-			//	min = -7,
-			//	max = -0;
-			//target.datepicker({ minDate: min, maxDate: max });
-			//target.datepicker();
-			
-			
-		}	
-	}
-	function convertDateTimeToTimestamp(datePickerTarget, timePickerTarget){
-		var tempEndStamp = $(datePickerTarget).datepicker({dateFormat: 'yy-mm-dd'}).val(); 
-			tempEndStamp = Math.round(new Date(tempEndStamp).getTime() / 1000);
-		
-			console.log("tempEndStamp after pulled from datepicker = " + tempEndStamp);
-			//get time selection from form
-				var requestedTimeEndHours = parseInt($( timePickerTarget + " select.time-picker-hour").val());
+			var mostRecentGoal = activeGoals[activeGoals.length-1];
+
+			//grab relevant data from object
+			var startStamp = mostRecentGoal.timestamp,
+				endStamp = mostRecentGoal.goalStamp,
+				goalType = mostRecentGoal.goalType;
+
+		//your last goal has finished, was it successful?
+			//yes
+			if($(this).hasClass("goal-ended-on-time")){
+							clearNotification.call(event, this); 
+
+							placeGoalIntoLog(startStamp, endStamp, goalType, false);
+							
+							var message = "Congrats on completing your goal! " + 
+									"It's been added to the your goal tab";
+							createNotification(message);
+							
+							changeGoalStatus(3, goalType);
+
+			//no
+			}else if($(this).hasClass("goal-ended-early")){
+							clearNotification.call(event, this); 
+						
+							var now = Math.round(new Date()/1000);
+
+							var min = new Date(parseInt(startStamp)).getTime();
+							var max = new Date(parseInt(endStamp)).getTime();
+
+							var	minFormatted = Math.floor((now - min) / 86400),
+								maxFormatted = Math.floor((now - max) / 86400);
+								
+								console.log("min = " + min + "\nMax = " + max);
+								if(minFormatted == 0){
+									minFormatted = "-" + (minFormatted);
+								}
+								if(maxFormatted == 0){
+									maxFormatted = "-" + (maxFormatted);
+								}
+								
+							var message = "You can still get a percentage of points for how long you waited. " + 
+									"Around when do you think you broke your goal?";
 				
-				//12 am is actually the first hour in a day... goddamn them.
-				if(requestedTimeEndHours == 12){
-					requestedTimeEndHours = 0;
-				}	
-				//account for am vs pm from userfriendly version of time input
-				if($(timePickerTarget + " select.time-picker-am-pm").val() == "PM"){
-					requestedTimeEndHours = requestedTimeEndHours + 12;
+							var responseTools = '<!-- custom Time picker-->' +
+									'<div id="goalEndTimePicker" class="time-picker-container">' +
+										'<select class="time-picker-hour" data-min="0" data-max="23" data-step="1">' +
+											'<option value="0">12</option>' +
+											'<option value="1">1</option>' +
+											'<option value="2">2</option>' +
+											'<option value="3">3</option>' +
+											'<option value="4">4</option>' +
+											'<option value="5">5</option>' +
+											'<option value="6">6</option>' +
+											'<option value="7">7</option>' +
+											'<option value="8">8</option>' +
+											'<option value="9">9</option>' +
+											'<option value="10">10</option>' +
+											'<option value="11">11</option>' +
+										'</select>' +
+										'<select class="time-picker-am-pm">' +
+												'<option value="AM">AM</option>' +
+												'<option value="PM">PM</option>' +
+										'</select>' +
+									'</div>' +
+								'<div id="datepicker-notification" style="display:inline-block;"></div>' +
+								'<script type="text/javascript">' + 
+									'$( "#datepicker-notification" ).datepicker({ minDate:' + minFormatted + ', maxDate:' + maxFormatted + '});' +
+									'$( "#datepicker-notification" ).datepicker();' +
+									'var currHours = new Date().getHours();' +
+									'$("#goalEndTimePicker .time-picker-hour").val(currHours%12);' +
+									'if(currHours>=12){ $("#goalEndTimePicker .time-picker-am-pm").val("PM"); }' +
+								'</script><br/>' +
+								'<button class="notification-response-tool submit-new-goal-time" href="#" >' + 
+										
+								'Submit</button>';
+							
+							createNotification(message, responseTools);
 
-				}
 
-				tempEndStamp += requestedTimeEndHours*(60*60);
-				console.log("tempEndStamp after timepicker hours added = " + tempEndStamp);
-
-				
-				return tempEndStamp;
-
-				
 			}
 
-	function placeGoalIntoLog(startStamp, endStamp, goalType){
+		//if goal ended ahead of schedule, when did it end?
+			//submitted new date/time
+			if($(this).hasClass("submit-new-goal-time")){
+
+
+							var tempEndStamp = convertDateTimeToTimestamp('#datepicker-notification', '#goalEndTimePicker' ); 
+								if(tempEndStamp - startStamp  > 0 || endStamp  - tempEndStamp < 0){
+									changeGoalStatus(2, goalType, tempEndStamp);
+									placeGoalIntoLog(startStamp, tempEndStamp, goalType, false); 
+									
+									clearNotification.call(event, this); 
+
+
+								}else{
+									alert('Please choose a time within your goal range!');
+								}
+			}
+
+
+	});
+
+
+/* GOAL LOG FUNCTIONS */
+
+	function placeGoalIntoLog(startStamp, endStamp, goalType, placeBelow){
 		
 		
 			//data seems to be in order
@@ -231,18 +693,29 @@ responseTools = '<!-- custom Time picker-->' +
 			}
 
 			var template =  '<div class="item">' +
-								'<p class="title">' +
+								'<hr/><p class="title">' +
 									'You waited <b><span class="timeElapsed">' + timeElapsed + '</span></b>&nbsp;' +
 									'to <span class="actionGerund">' + actionGerund + '</span> it!' +
 								'</p>' +
 								'<p class="goal-date" style="text-align:center;color:D8D8D8">' +
 									'<span class="dayOfTheWeek">' + dayOfTheWeek + '</span>,&nbsp;' +
 									'<span class="shortHandDate">' + shortHandDate + '</span>' +
-								'</p><hr/>' + 
+								'</p>' + 
 							'</div><!--end goal-log item div-->';
 
 
-			$('#goal-log').prepend(template);
+			if(placeBelow){
+				
+				$('#goal-log').append(template);
+			}else{
+				
+				$('#goal-log').prepend(template);
+
+			}	
+
+			
+			//and make sure the heading exists too
+			$("#goal-log-heading").show();
 	}
 
 	function changeGoalStatus(newGoalStatus, goalType, actualEnd){
@@ -258,14 +731,14 @@ responseTools = '<!-- custom Time picker-->' +
 			var jsonObject = JSON.parse(currJsonString);
 
 		var goals = jsonObject.action.filter(function(e){
-			 return e.clickType == 'goal' && e.goalType == goalType
+			return e.clickType == 'goal' && e.goalType == goalType
 		});
 		var mostRecentGoal = goals[goals.length - 1];
 			mostRecentGoal.status = newGoalStatus;
 
 		//actual end was passed to function	
 		if(actualEnd){
-			console.log("actualEnd returns true, and is = " + actualEnd)
+			//console.log("actualEnd returns true, and is = " + actualEnd)
 			mostRecentGoal.goalStopped = actualEnd;
 		}else{
 			//else set the actual end to end of goal endDate
@@ -326,639 +799,171 @@ responseTools = '<!-- custom Time picker-->' +
 
 
 
-$( document ).ready(function() {
-	
 
-//MANAGE INACTIVITY!!!	
-
-var userIsActive = true;
-(function manageInactivity(){
-	var idleTime = 0;
-		//Increment the idle time counter every minute.
-		var idleInterval = setInterval(timerIncrement, 60000); // 1 minute
-
-		//Zero the idle timer on mouse movement.
-		$(this).mousemove(function (e) {
-			idleTime = 0;
-		});
-		$(this).keypress(function (e) {
-			idleTime = 0;
-		});
-	
-
-	function timerIncrement() {
-		idleTime = idleTime + 1;
-		if (idleTime >= 5) { // 5 minutes
-			
-			userIsActive = false;
-			$(this).mousemove(function (e) {
-				if(!userIsActive){
-					window.location.reload();
-				}
-				userIsActive = true;
-			});
-			$(this).keypress(function (e) {
-				if(!userIsActive){
-					window.location.reload();
-				}
-				userIsActive = true;
+/* CONVERT JSON TO LIVE STATS */
+	function convertDateTimeToTimestamp(datePickerTarget, timePickerTarget){
+		var tempEndStamp = $(datePickerTarget).datepicker({dateFormat: 'yy-mm-dd'}).val(); 
+			tempEndStamp = Math.round(new Date(tempEndStamp).getTime() / 1000);
+		
+			//console.log("tempEndStamp after pulled from datepicker = " + tempEndStamp);
+			//get time selection from form
+				var requestedTimeEndHours = parseInt($( timePickerTarget + " select.time-picker-hour").val());
 				
-			});
-			
-		}
+				//12 am is actually the first hour in a day... goddamn them.
+				if(requestedTimeEndHours == 12){
+					requestedTimeEndHours = 0;
+				}	
+				//account for am vs pm from userfriendly version of time input
+				if($(timePickerTarget + " select.time-picker-am-pm").val() == "PM"){
+					requestedTimeEndHours = requestedTimeEndHours + 12;
+
+				}
+
+				tempEndStamp += requestedTimeEndHours*(60*60);
+				//console.log("tempEndStamp after timepicker hours added = " + tempEndStamp);
+
+				
+				return tempEndStamp;
+
+				
+	}
+
+	function displayAverageTimeBetween(actionType){
+		//convert total seconds to ddhhmmss
+			var htmlDestination = "";
+
+				if(actionType == "use"){
+					htmlDestination = "#averageTimeBetweenUses";
+
+				}else if(actionType == "cost"){
+					htmlDestination = "#averageTimeBetweenBoughts";
+					
+				}
+				
+				var finalStringStatistic = convertSecondsToDateFormat(json.statistics[actionType].averageBetweenClicks);
+				
+					//insert HTML into span place holder
+				$(htmlDestination).html(finalStringStatistic);
+				
+	}
+
+	function calculateAverageTimeBetween(actionType){
+		//current timestamp
+			var currTimestamp = Math.round(new Date()/1000);
+
+		//set key to the correct calculation ((currTimestamp - firstTimestamp) / (totalClicks))
+		var totalTimeBetween = parseInt(currTimestamp) - parseInt(json.statistics[actionType].firstClickStamp),
+			totalClicks = parseInt(json.statistics[actionType].clickCounter);
+		json.statistics[actionType].averageBetweenClicks = Math.round(totalTimeBetween / totalClicks);
+		
+		//call function to display new stat
+		displayAverageTimeBetween(actionType);
+
+	}
+
+	function displayLongestGoal(){
+		var html = convertSecondsToDateFormat(json.statistics.goal.bestTimeSeconds);
+		$("#longestGoalCompleted").html(html);
+		
 	}
 
 
-})();
+//return to last active tab
+function returnToActiveTab(){
+	if(json.options.activeTab){
+		var tabName = json.options.activeTab.split("-")[0];
+		$("#" + tabName + "-tab-toggler").click();
+		//console.log(json.options.activeTab);
+		//console.log($("#" + tabName + "-tab-toggler"));
+	}else{
+		//console.log("options is null");
+		$("#" + "use" + "-tab-toggler").click();
+	}
+
+	/*
+	//toggle active class on nav-tabs
+		$(".nav-tabs li").removeClass("active");
+		$("#" + tabName + "-tab-toggler").parent().addClass("active");
+	//toggle active class on actual tab content
+		$(".tab-pane").removeClass("active");
+		$("#" + tabName + "-content").addClass("active");
+	*/	
+
+}
+//save current tab on switch
+function saveActiveTab(){
+	//update instance json
+	json.options.activeTab = $(".tab-pane.active").attr('id');
+	//console.log("save active tab fired");
+	//console.log($(".tab-pane.active").attr('id'));
+	//update in options table
+	localStorage.setItem("activeTab", $(".tab-pane.active").attr('id'));
+}
+
 	
-        if (typeof(Storage) !== "undefined") {
-            // Code for localStorage/sessionStorage.
-       
-				var json = {
-					"sinceLastUse":
-						{
-							"totalSeconds" : 0,
-							"days" : 0,
-							"hours" : 0,
-							"minutes" : 0,
-							"seconds" : 0
-							
-						},
-					"sinceLastBought":
-						{
-							"totalSeconds" : 0,
-							"days" : 0,
-							"hours" : 0,
-							"minutes" : 0,
-							"seconds" : 0
-							
-
-						},
-					"untilGoalEnd":
-						{
-							"totalSeconds" : 0,
-							"days" : 0,
-							"hours" : 0,
-							"minutes" : 0,
-							"seconds" : 0
-							
-							
-						},
-					"statistics":
-						{
-							"craveCounter" : 0,
-							"cravingsInARow" : 0,
-							"useCounter" : 0,
-							"boughtCounter": 0,
-							"goalCounter": 0,
-							"totalSpent" :   0,
-							"spentThisWeek" : 0,
-							"spentThisMonth" : 0,
-							"spentThisYear" : 0,
-							"secondsBetweenBought": 0,
-							"secondsBetweenUse": 0,
-							"firstUseClickStamp" : 0,
-							"firstBoughtClickStamp" : 0,
-							"longestGoalTotalSeconds": 0,
-							"numberOfGoalsCompleted" : 0,
-							"activeGoalUse" : 0,
-							"activeGoalBought" : 0,
-							"activeGoalBoth": 0,
-							"lastClickStampUse": 0,
-							"lastClickStampBought" : 0,
-							"lastClickStampCrave" : 0,
-							"lastClickStampGoal" : 0,
-
-						},
-					"options":
-						{
-							"activeTab" : "use-content"
-
-						}
-					
-				};
-				
-				
-				var jsonRefactored = {
-					/*
-				REFACTORED JSON -- CUZ it was getting really messy, and could make issues
-
-					json.sinceLastBought =>
-					json.statistics.cost.sinceTimerStart
-
-					json.sinceLastUse =>
-					json.statistics.use.sinceTimerStart
-
-					json.untilGoalEnd =>
-					json.statistics.goal.untilTimerEnd
-					
-						(child stats equivalent)
-
-
-
-					json.statistics.boughtCounter =>
-					json.statistics.cost.clickCounter
-
-					json.statistics.useCounter =>
-					json.statistics.use.clickCounter
-
-					json.statistics.goalCounter =>
-					json.statistics.goal.clickCounter
-
-
-
-
-					json.statistics.totalSpent =>
-					json.statistics.cost.total
-
-					json.statistics.spentThisWeek =>
-					json.statistics.cost.thisWeek
-
-					json.statistics.spentThisMonth =>
-					json.statistics.cost.thisMonth
-
-					json.statistics.spentThisYear =>
-					json.statistics.cost.thisYear
-
-
-
-					
-					json.statistics.firstUseClickStamp =>
-					json.statistics.use.firstClickStamp
-					
-					json.statistics.firstBoughtClickStamp =>
-					json.statistics.cost.fistClickStamp
-
-
-
-					json.statistics.secondsBetweenBought =>
-					json.statistics.cost.averageBetweenClicks
-
-					json.statistics.secondsBetweenUse =>
-					json.statistics.use.averageBetweenClicks
-
-
-
-					json.statistics.craveCounter =>
-					json.statistics.use.craveCounter
-
-					json.statistics.cravingsInARow =>
-					json.statistics.use.cravingsInARow
-
-					
-					json.statistics.activeGoalBought =>
-					json.statistics.goal.activeType = "cost || use || both"
-
-					json.statistics.activeGoalUse =>
-					json.statistics.goal.activeType = "cost || use || both"
-
-					json.statistics.activeGoalBoth =>
-					json.statistics.goal.activeType = "cost || use || both"
-
-
-
-					json.statistics.longestGoalCompleted =>
-					json.statistics.goal.bestTimeSeconds
-
-					json.statistics.completedGoals =>
-					json.statistics.goal.percentCompleted
-
-					
-				*/
-					"statistics": 
-						{
-							"cost":
-								{
-									"sinceLastBought":
-										{
-											"totalSeconds" : 0,
-											"days" : 0,
-											"hours" : 0,
-											"minutes" : 0,
-											"seconds" : 0
-										},
-									"boughtCounter" : 0,
-									"TotalSpent" : 0,
-									"spentThisWeek" : 0,
-									"spentThisMonth" : 0,
-									"spentThisYear" : 0,
-									"firstClickStamp" : 0,
-									"lastClickStamp" : 0,
-									"secondsBetweenClicks" : 0
-								},
-
-							"use":
-								{
-									"sinceLastUse" : 
-										{
-											"totalSeconds" : 0,
-											"days" : 0,
-											"hours" : 0,
-											"minutes" : 0,
-											"seconds" : 0
-										},
-									"useCounter" : 0,
-									"craveCounter" : 0,
-									"cravingsInARow" : 0,
-									"firstClickStamp" : 0,
-									"lastClickStamp" : 0,
-									"secondsBetweenClicks" : 0
-								},
-
-							"goal": 
-								{
-									"untilGoalEnd" :
-										{
-											"totalSeconds" : 0,
-											"days" : 0,
-											"hours" : 0,
-											"minutes" : 0,
-											"seconds" : 0
-										},
-									"goalCounter" : 0,
-									"lastClickStamp" : 0,
-									"longestGoalTotalSeconds": 0,
-									"completedGoals" : 0,
-									"activeGoalUse" : 0,
-									"activeGoalBought" : 0,
-									"activeGoalBoth": 0
-								}
-						},
-
-					"options" : 
-						{
-							"activeTab": "use-content"
-						}
-					
-				};
-				
-					 
-			function retrieveActionTable(){
-				
-				//convert localStorage to json
-				var currJsonString =  localStorage.esCrave;
-				var jsonObject = JSON.parse(currJsonString);
-				
-				//retrieve curr date for time relevant stats
-				var timeNow = Math.round(new Date()/1000);
-				
-						
-							
-						/* USE STATISTICS */
-								//total USE actions
-									var useTabActions = jsonObject.action.filter(function(e){
-										return e.clickType == "used" || e.clickType == "craved";
-									});
-																
-								//total uses
-									var useCount = jsonObject.action.filter(function(e){
-										return e.clickType == "used";
-									});
-									json.statistics.useCounter = useCount.length;
-								
-								//Restart timer value
-								if(useCount.length>0){
-									var sinceLastUse = useCount[useCount.length-1].timestamp;
-									restartTimerAtValues("use", sinceLastUse);
-
-									//average time between uses	
-										var totalTimeBetweenUses = useCount[useCount.length - 1].timestamp - useCount[0].timestamp,
-											averageTimeBetweenUses = Math.round(totalTimeBetweenUses/(useCount.length));
-
-										if ($.isNumeric(averageTimeBetweenUses)){
-											json.statistics.secondsBetweenUse = averageTimeBetweenUses;
-										}
-
-
-									//used to calculate avg time between from json obj, live
-										json.statistics.firstUseClickStamp = useCount[0].timestamp;
-
-									//timestamp of most recent click - to limit clicks in a row
-										json.statistics.lastClickStampUse = useCount[useCount.length-1].timestamp;
-										
-								}
-
-							
-								//total craves
-									var craveCount = jsonObject.action.filter(function(e){
-										return e.clickType == "craved";
-									});
-									json.statistics.craveCounter = craveCount.length;
-								
-								//craves in a row
-									var cravesInARow = 0;
-										for(i = useTabActions.length - 1; i>=0 ;i--){
-											
-											if(useTabActions[i].clickType == "craved"){
-												cravesInARow++;
-											}else{
-												break;
-											}
-											
-										}
-									//update display	
-									$("#cravingsResistedInARow").html(cravesInARow);
-									//update json
-									json.statistics.cravingsInARow = cravesInARow;
-
-									
-								//timestamp of most recent click - to limit clicks in a row
-								if(craveCount.length > 0){
-									json.statistics.lastClickStampCrave = craveCount[craveCount.length-1].timestamp;
-								}
-
-									
-								//avg craves per smoke
-									var avgDidntPerDid = Math.round( craveCount.length/useCount.length *10) /10;
-									//don't forget to call updates from clicking smoke and crave button
-									$("#avgDidntPerDid").html(avgDidntPerDid);
-									
-						/* COST STATISTICS */		
-								//total boughts
-									var boughtCount = jsonObject.action.filter(function(e){
-										return e.clickType == "bought";
-									});
-									json.statistics.boughtCounter = boughtCount.length;
-									
-									
-								//Restart timer value
-								if(boughtCount.length>0){
-									var sinceLastBought = boughtCount[boughtCount.length-1].timestamp;
-									restartTimerAtValues("bought", sinceLastBought);
-
-									//average time between boughts
-										var totalTimeBetweenBoughts = boughtCount[boughtCount.length - 1].timestamp - boughtCount[0].timestamp,
-											averageTimeBetweenBoughts = Math.round(totalTimeBetweenBoughts/(boughtCount.length));
-
-									if ($.isNumeric(averageTimeBetweenBoughts)){
-										json.statistics.secondsBetweenBought = averageTimeBetweenBoughts;
-									}
-									
-									//used to calculate avg time between from json obj, live
-										json.statistics.firstBoughtClickStamp = boughtCount[0].timestamp;
-
-									//timestamp of most recent click - to limit clicks in a row
-										json.statistics.lastClickStampBought = boughtCount[boughtCount.length-1].timestamp;
-										
-									
-								}
-								//calculate timestamps for past week
-								
-								
-									var oneWeekAgoTimeStamp = timeNow - (60*60*24*7);
-										oneMonthAgoTimeStamp = timeNow - (60*60*24*30),
-										oneYearAgoTimeStamp = timeNow - (60*60*24*365);
-
-									var runningTotalCost = 0,
-										runningTotalCostWeek = 0,
-										runningTotalCostMonth = 0,
-										runningTotalCostYear = 0;
-
-									
-									for (i = boughtCount.length - 1; i >= 0; i--){
-										
-										//update every bought record into running total
-										runningTotalCost = runningTotalCost + parseInt(boughtCount[i].spent);
-
-										if (boughtCount[i].timestamp > oneWeekAgoTimeStamp){
-											//update running week only with timestamps from past week
-											runningTotalCostWeek = runningTotalCostWeek + parseInt(boughtCount[i].spent);
-
-										}
-
-										if (boughtCount[i].timestamp > oneMonthAgoTimeStamp){
-											//update any record in last month into running total month
-											runningTotalCostMonth = runningTotalCostMonth + parseInt(boughtCount[i].spent);
-											
-											}
-										
-										if (boughtCount[i].timestamp > oneYearAgoTimeStamp){
-											//update any record in last month into running total month
-											runningTotalCostYear = runningTotalCostYear + parseInt(boughtCount[i].spent);
-											//might have to fabricate this sucker to test it.
-											}
-
-									}
-									//console.log(runningTotalCost + " = total cost \n" + runningTotalCostWeek + " = cost this week\n"  + runningTotalCostMonth + " = cost this month\n" + runningTotalCostYear + " = cost this year");
-									
-									//update display
-									$("#totalAmountSpent").html(runningTotalCost + "$");
-									$("#spentThisWeek").html(runningTotalCostWeek + "$");
-									$("#spentThisMonth").html(runningTotalCostMonth + "$");
-									$("#spentThisYear").html(runningTotalCostYear + "$");
-
-									//update json
-									json.statistics.totalSpent     = runningTotalCost;
-									json.statistics.spentThisWeek  = runningTotalCostWeek;
-									json.statistics.spentThisMonth = runningTotalCostMonth;
-									json.statistics.spentThisYear  = runningTotalCostYear;
-
-						/* GOAL STATISTICS*/
-									
-								var goalCount = jsonObject.action.filter(function(e){
-										return e.clickType == "goal";
-									});
-								//goal status
-								//1 == active goal
-								//2 == partially completed goal
-								//3 == completed goal
-									
-							
-								if(goalCount.length>0){
-									var activeGoals = goalCount.filter(function(e){ return e.status == 1});
-									//console.log("inside retrieveActionTable, activeGoals = " + activeGoals);
-									
-									var inactiveGoals = goalCount.filter(function(e){ return e.status == 2 || e.status == 3 });
-									//console.log("inside retrieveActionTable, inactiveGoals = " + inactiveGoals);	
-									
-									//timestamp of most recent click - to limit clicks in a row
-									json.statistics.lastClickStampGoal = goalCount[goalCount.length-1].timestamp;
-									
-									json.statistics.goalCounter = goalCount.length;
-									if (activeGoals.length > 0){
-										var mostRecentGoal = activeGoals[activeGoals.length - 1];
-
-										//set var in json for if there is an active goal of X type - 
-										//to be used on click of relevant buttons to end goal
-										if(mostRecentGoal.goalType == "both"){
-											json.statistics.activeGoalBoth = 1;
-
-										}else if(mostRecentGoal.goalType == "use"){
-											json.statistics.activeGoalUse = 1;
-
-										}else if(mostRecentGoal.goalType == "bought"){
-											json.statistics.activeGoalBought = 1;
-
-										}
-
-
-										var totalSecondsUntilGoalEnd = mostRecentGoal.goalStamp - timeNow;
-							
-										if (totalSecondsUntilGoalEnd > 0){
-										
-											loadGoalTimerValues(totalSecondsUntilGoalEnd);
-											initiateGoalTimer();	
-										}else{
-											//goal ended ewhile user was away
-											var mostRecentGoal = goalCount[goalCount.length - 1];
-											createGoalEndNotification(mostRecentGoal);
-											//last made goal time has concluded
-												//hide empty timer
-												$("#goal-content .timer-recepticle").hide();
-												hideInactiveStatistics("goal-content");
-										}
-									}else{
-										
-										//last made goal time has concluded
-										//hide empty timer
-											$("#goal-content .timer-recepticle").hide();
-											hideInactiveStatistics("goal-content");
-									}
-
-									if(inactiveGoals.length > 0){
-
-										//used for finding longest goal completed
-										var largestDiff = 0;
-
-										//iterate through goals for goal log
-										for(var i = 0; i < inactiveGoals.length; i++){
-
-											var currStartStamp = inactiveGoals[i].timestamp,
-												currEndStamp = inactiveGoals[i].goalStopped,
-												currGoalType = inactiveGoals[i].goalType;
-
-											placeGoalIntoLog(currStartStamp, currEndStamp, currGoalType);
-
-											/* only display a certain number of goals per page */
-												//if(i == 4){
-													//$("#goal-log-show-more").toggle();
-													//break;
-												//}
-
-											//find longest completed goal
-											var currDiff = currEndStamp - currStartStamp;
-
-											if(largestDiff < currDiff){
-												largestDiff = currDiff;
-											}
-											
-										}
-
-										json.statistics.longestGoalTotalSeconds = largestDiff;
-
-									}
-
-								}
-					//NEEEWWWWW USERRR
-					if(useCount == 0 && craveCount == 0 && boughtCount == 0 && goalCount == 0){				
-						var introMessage = "Welcome to esCrave! Try clicking some buttons, you can reset the app from the menu at any time.";
-						createNotification(introMessage);
-					}	
-							
-			}
-
-
-			function retrieveOptionTable(){
-				var currJsonString =  localStorage.esCrave;
-				var jsonObject = JSON.parse(currJsonString);
-
-				//set local json from option in local storage
-				json.options.activeTab = localStorage.getItem("activeTab");
-			}
-
+function restartTimerAtValues(timerArea, sinceLastAction){
+	var timeNow = new Date()/1000;
+	
+	//console.log("timer is trying to restart " + sinceLastAction);
+	//update json with previous timer values
+	var newTimerTotalSeconds = Math.floor(timeNow - sinceLastAction);
+	
+	var newTimerSeconds = -1,
+		newTimerMinutes = -1,
+		newTimerHours   = -1,
+		newTimerDays    = -1;
 		
-
-			
-		//Restrict possible dates chosen in goal tab datepicker
-
-		//restrictGoalRange();
-		$( "#goalEndPicker" ).datepicker({minDate: 0});
-		//INITIALIZE GOAL DATE TIME PICKER
-		$( "#goalEndPicker" ).datepicker();
-		
-
-/* CONVERT JSON TO LIVE STATS */
-		
-		function displayAverageTimeBetween(actionType){
-			//convert total seconds to ddhhmmss
-				var jsonHandle = "",
-				htmlDestination = "";
-					if(actionType == "uses"){
-						jsonHandle = "secondsBetweenUse";
-						htmlDestination = "#averageTimeBetweenUses";
-						//console.log("uses");
-
-					}else if(actionType == "boughts"){
-						jsonHandle = "secondsBetweenBought";
-						htmlDestination = "#averageTimeBetweenBoughts";
-						//console.log("boughts display stat()");
-					}
-					var finalStringStatistic = convertSecondsToDateFormat(json.statistics[jsonHandle]);
-					
-						//insert HTML into span place holder
-					$(htmlDestination).html(finalStringStatistic);
-					
-		}
+		//calc mins and secs
+			if(newTimerTotalSeconds > 60){
+				newTimerSeconds = newTimerTotalSeconds % 60;
+				newTimerMinutes = Math.floor(newTimerTotalSeconds / 60);
+				if(newTimerMinutes<10){
+					newTimerMinutes = "0" + newTimerMinutes;
+				}
 
 
-		
-		function calculateAverageTimeBetween(actionType){
-			//current timestamp
-				var currTimestamp = Math.round(new Date()/1000);
-
-			//read & write to correct json keys
-				var clickCountKey = "",
-					firstTimestampKey = "",
-					avgTimeBetweenKey = "";
-					if(actionType == "uses"){
-						clickCountKey = "useCounter";
-						firstTimestampKey = "firstUseClickStamp";
-						avgTimeBetweenKey = "secondsBetweenUse";
-						//console.log("uses");
-
-					}else if(actionType == "boughts"){
-						clickCountKey = "boughtCounter";
-						firstTimestampKey = "firstBoughtClickStamp";
-						avgTimeBetweenKey = "secondsBetweenBought";
-						//console.log("boughts");
-					}
-
-			//set key to the correct calculation ((currTimestamp - firstTimestamp) / (totalClicks))
-			var totalTimeBetween = parseInt(currTimestamp) - parseInt(json.statistics[firstTimestampKey]),
-				totalClicks = parseInt(json.statistics[clickCountKey]);
-			json.statistics[avgTimeBetweenKey] = Math.round(totalTimeBetween / totalClicks);
-			
-			//call function to display new stat
-			displayAverageTimeBetween(actionType);
-
-		}
-
-
-		function displayLongestGoal(){
-			var html = convertSecondsToDateFormat(json.statistics.longestGoalTotalSeconds);
-			$("#longestGoalCompleted").html(html);
-			
-		}
-
-		//If json action table doesn't exist, create it
-			if(localStorage.esCrave){
-				retrieveActionTable();
-				retrieveOptionTable();
-			//set stats	
-				//set total clicks for each button
-				$("#use-total").html(json.statistics.useCounter);
-				$("#crave-total").html(json.statistics.craveCounter);
-				$("#bought-total").html(json.statistics.boughtCounter);
-				
-				//Average time between
-				displayAverageTimeBetween("uses");	
-				displayAverageTimeBetween("boughts");	
-				displayLongestGoal();
 			}else{
-				//replace this with empty action table
-				var newJsonString = '{ "action":[], "option": { "activeTab" : "use-content"} }';
-					localStorage.setItem("esCrave", newJsonString);
+				newTimerSeconds = newTimerTotalSeconds;
+				newTimerMinutes = 0;
 			}
+		
+		//calc hours
+			if(newTimerTotalSeconds > (60*60)){
+				newTimerMinutes = newTimerMinutes % 60;
+				newTimerHours = Math.floor(newTimerTotalSeconds / (60*60));
+				if(newTimerMinutes<10){
+					newTimerMinutes = "0" + newTimerMinutes;
+				}
+				if(newTimerHours<10){
+					newTimerHours = "0" + newTimerHours;
+				}
+
+			}else{
+				newTimerHours = 0;
+			}
+			
+		//calc days
+			if(newTimerTotalSeconds > (60*60*24)){
+				newTimerHours = newTimerHours % 24;
+				newTimerDays = Math.floor(newTimerTotalSeconds / (60*60*24));
+				if(newTimerHours<10){
+					newTimerHours = "0" + newTimerHours;
+				}
+
+			}else{
+				newTimerDays = 0;
+			}
+		
+		//update appropriate JSON values
+				json.statistics[timerArea].sinceTimerStart.totalSeconds = newTimerTotalSeconds;
+				json.statistics[timerArea].sinceTimerStart.seconds = newTimerSeconds;
+				json.statistics[timerArea].sinceTimerStart.minutes = newTimerMinutes;					
+				json.statistics[timerArea].sinceTimerStart.hours = newTimerHours;	
+				json.statistics[timerArea].sinceTimerStart.days = newTimerDays;
+				
+			
+}
+
 
 //TOGGLE ANY STATS WHICH ARE NOT ZERO 
 function hideInactiveStatistics(relevantPane){
@@ -966,38 +971,38 @@ function hideInactiveStatistics(relevantPane){
 	//console.log("hide inactive");
 	//bought page 
 	if(relevantPane == "cost-content"){	
-		if (json.statistics.boughtCounter === 0){
+		if (json.statistics.cost.clickCounter === 0){
 			$("#bought-total").hide();
 			$("#cost-content .timer-recepticle").hide();
 
 		}
-		if(json.statistics.secondsBetweenBought === 0){
+		if(json.statistics.cost.averageBetweenClicks === 0){
 			$("#averageTimeBetweenBoughts").parent().hide();
 
 		}
-		if (json.statistics.totalSpent === 0){
+		if (json.statistics.cost.total === 0){
 			//console.log("total spent is 0: " + json.statistics.totalSpent);
 			//toggle all
-			$("#cost-content .statistics-recepticle").hide();
+			$("#cost-content .statistic-recepticle").hide();
 			$("#totalAmountSpent").parent().parent().hide();
 			$("#spentThisWeek").parent().parent().hide();
 			$("#spentThisMonth").parent().parent().hide();
 			$("#spentThisYear").parent().parent().hide();
 
-		}else if (json.statistics.spentThisWeek == json.statistics.totalSpent){
+		}else if (json.statistics.cost.thisWeek == json.statistics.cost.total){
 			//console.log("toggle all but total - spent this week equals total");
 			//toggle year month week 
 			$("#spentThisWeek").parent().parent().hide();
 			$("#spentThisMonth").parent().parent().hide();
 			$("#spentThisYear").parent().parent().hide();
 
-		}else if (json.statistics.spentThisMonth == json.statistics.spentThisWeek){
+		}else if (json.statistics.cost.thisMonth == json.statistics.cost.thisWeek){
 			//console.log("toggle all but week - spent this month equals week");
 			//toggle year and month
 			$("#spentThisMonth").parent().parent().hide();
 			$("#spentThisYear").parent().parent().hide();
 
-		}else if (json.statistics.spentThisYear == json.statistics.spentThisMonth){
+		}else if (json.statistics.cost.thisYear == json.statistics.cost.thisMonth){
 			//console.log("toggle year - spent this year equals month");
 			$("#spentThisYear").parent().parent().hide();
 		
@@ -1005,41 +1010,43 @@ function hideInactiveStatistics(relevantPane){
 
 	}else if(relevantPane == "use-content"){
 
-		if (json.statistics.useCounter === 0){
+		if (json.statistics.use.clickCounter === 0){
 			$("#use-total").hide();
 			$("#use-content .timer-recepticle").hide();
 
 		}
 
-		if(json.statistics.secondsBetweenUse === 0){
+		if(json.statistics.use.averageBetweenClicks === 0){
 			$("#averageTimeBetweenUses").parent().hide();
 
 		}
 
-		if (json.statistics.craveCounter === 0){
+		if (json.statistics.use.craveCounter === 0){
 			$("#crave-total").hide();
 
 		}
-		if(json.statistics.craveCounter === 0 || json.statistics.useCounter === 0){
+		if(json.statistics.use.craveCounter === 0 || json.statistics.use.clickCounter === 0){
 			$("#avgDidntPerDid").parent().hide();
 
 		}
-		if(json.statistics.cravingsInARow === 0 || json.statistics.cravingsInARow === 1){
+		if(json.statistics.use.cravingsInARow === 0 || json.statistics.use.cravingsInARow === 1){
 			$("#cravingsResistedInARow").parent().hide();
 
 		}
 
 	}else if(relevantPane == "goal-content"){
 
-		if(json.statistics.goalCounter === 0){
+		if(json.statistics.goal.clickCounter === 0){
 			$("#goal-content .timer-recepticle").hide();
 		}
 
-		if(json.statistics.longestGoalTotalSeconds === 0){
+		if(json.statistics.goal.bestTimeSeconds === 0){
 			$("#longestGoalCompleted").parent().hide();
 		}
-		if(json.statistics.numberOfGoalsCompleted === 0){
+		if(json.statistics.goal.completedGoals === 0){
 			$("#numberOfGoalsCompleted").parent().hide();
+			$("#goal-log-heading").hide();
+			
 		}
 
 		//figure a way to mark goals complete
@@ -1064,57 +1071,58 @@ function showActiveStatistics(relevantPane){
 	//console.log("show active");
 	//bought page 
 	if(relevantPane == "cost-content"){	
-		if (json.statistics.boughtCounter !== 0){
+		if (json.statistics.cost.clickCounter !== 0){
 			$("#bought-total").show();
 			$("#cost-content .timer-recepticle").show();
 
 		}
-		if(json.statistics.secondsBetweenBought !== 0){
+		if(json.statistics.cost.averageBetweenClicks !== 0){
 			$("#averageTimeBetweenBoughts").parent().show();
-			calculateAverageTimeBetween("boughts");	
+			calculateAverageTimeBetween("cost");
+
 		}
-		if (json.statistics.totalSpent !== 0){
-			$("#cost-content .statistics-recepticle").show();
+		if (json.statistics.cost.total !== 0){
+			$("#cost-content .statistic-recepticle").show();
 			$("#totalAmountSpent").parent().parent().show();
 
 		}
-		if (json.statistics.spentThisWeek !== json.statistics.totalSpent){
+		if (json.statistics.cost.thisWeek !== json.statistics.cost.total){
 			$("#spentThisWeek").parent().parent().show();
 
 		}
-		if (json.statistics.spentThisMonth !== json.statistics.spentThisWeek){
+		if (json.statistics.cost.thisMonth !== json.statistics.cost.thisWeek){
 			$("#spentThisMonth").parent().parent().show();
 
 		}
-		if (json.statistics.spentThisYear !== json.statistics.spentThisMonth){
+		if (json.statistics.cost.thisYear !== json.statistics.cost.thisMonth){
 			$("#spentThisYear").parent().parent().show();
 		
 		}
 
 	}else if(relevantPane == "use-content"){
 
-		if (json.statistics.useCounter !== 0){
+		if (json.statistics.use.clickCounter !== 0){
 			$("#use-total").show();
 			$("#use-content .timer-recepticle").show();
 
 		}
 		
-		if(json.statistics.secondsBetweenUse !== 0){
+		if(json.statistics.use.averageBetweenClicks !== 0){
 			$("#averageTimeBetweenUses").parent().show();
 			//Average time between uses
-			calculateAverageTimeBetween("uses");	
+			calculateAverageTimeBetween("use");	
 			
 		}
 
-		if (json.statistics.craveCounter !== 0){
+		if (json.statistics.use.craveCounter !== 0){
 			$("#crave-total").show();
 
 		}
-		if(json.statistics.craveCounter !== 0 && json.statistics.useCounter !== 0){
+		if(json.statistics.use.craveCounter !== 0 && json.statistics.use.clickCounter !== 0){
 			$("#avgDidntPerDid").parent().show();
 
 		}
-		if(json.statistics.cravingsInARow !== 0){
+		if(json.statistics.use.cravingsInARow !== 0){
 			$("#cravingsResistedInARow").parent().show();
 
 		}
@@ -1122,12 +1130,17 @@ function showActiveStatistics(relevantPane){
 
 	}else if(relevantPane == "goal-content"){
 		//console.log("show stats goal tab");
-		if(json.statistics.goalCounter !== 0){
+		if(json.statistics.goal.clickCounter !== 0){
 			$("#goal-content .timer-recepticle").show();
 		}
 
-		if(json.statistics.longestGoalTotalSeconds !== 0){
+		if(json.statistics.goal.bestTimeSeconds !== 0){
 			$("#longestGoalCompleted").parent().show();
+			//console.log("showing lng compl");
+		}
+		if(json.statistics.goal.completedGoals !== 0){
+			$("#numberOfGoalsCompleted").parent().show();
+			$("#goal-log-heading").show();
 		}
 
 		//track in clickType:goal records in action table
@@ -1143,185 +1156,97 @@ function showActiveStatistics(relevantPane){
 
 	}
 }	
-			
-
-			/*OPTIONS MENU FUNCTIONS*/
-
-				//undo last click
-				function undoLastAction(){
-					
-					console.log("undo last action - clicked");
-
-					var currJsonString =  localStorage.esCrave;
-					var jsonObject = JSON.parse(currJsonString);
-						//console.log(jsonObject);
-						//remove most recent (last) one
-						jsonObject["action"].pop();
-						//console.log(jsonObject);
-					var jsonString = JSON.stringify(jsonObject);
-						localStorage.esCrave = jsonString;
-
-					//reload the page refresh
-						window.location.reload();
-
-				}
-
-				//reset all stats
-				function clearActions(){
-					window.localStorage.clear();
-					window.location.reload();
-				}
-
-				//share stats
-				function shareActions(){
-					console.log("share stats - clicked");
-					//localStorage.clear();
-
-					//might want to actually set up a db to handle this though!~! 
-				}
-
-				/*OPTIONS MENU CLICK EVENTS */
-				$("#undoActionButton").click(function(event){
-					event.preventDefault();
-					undoLastAction();
-
-				});
-
-				$("#clearTablesButton").click(function(event){
-					event.preventDefault();
-					clearActions();
-
-				});
-
-				$("#shareStatsButton").click(function(event){
-					event.preventDefault();
-					shareActions();
-
-				});
-
-
-			
-			//timestamp, clicktype, spent, goalStamp, goalType
-			function updateActionTable(ts, ct, spt, gs, gt){
-				var currJsonString =  localStorage.esCrave;
-				var jsonObject = JSON.parse(currJsonString);
-
-					ts = ts.toString();
-				
-				var newRecord;
-				
-				if(ct == "used" || ct == "craved"){
-					newRecord = { timestamp: ts, clickType: ct };
-					
-				}else if(ct == "bought"){
-					spt = spt.toString();
-					newRecord = { timestamp: ts, clickType: ct, spent: spt};
-
-				}else if (ct == "goal"){
-					gs = gs.toString();
-					var st = 1;
-					var goalStopped = -1;
-					newRecord = { timestamp: ts, clickType: ct, goalStamp: gs, goalType: gt, status: st, goalStopped: goalStopped};
-				}	
-
-					jsonObject["action"].push(newRecord);
-					
-				var jsonString = JSON.stringify(jsonObject);
-					localStorage.esCrave = jsonString;
-			}
-			
 	
-	function restartTimerAtValues(timerId, sinceLastAction){
-				var timeNow = new Date()/1000;
-				
-				
-				//update json with previous timer values
-				var newTimerTotalSeconds = Math.floor(timeNow - sinceLastAction);
-				
-				var newTimerSeconds = -1,
-					newTimerMinutes = -1,
-					newTimerHours   = -1,
-					newTimerDays    = -1;
-					
-					//calc mins and secs
-						if(newTimerTotalSeconds > 60){
-							newTimerSeconds = newTimerTotalSeconds % 60;
-							newTimerMinutes = Math.floor(newTimerTotalSeconds / 60);
-							if(newTimerMinutes<10){
-								newTimerMinutes = "0" + newTimerMinutes;
-							}
+
+	/*OPTIONS MENU FUNCTIONS*/
+
+		//undo last click
+		function undoLastAction(){
+			
+			//console.log("undo last action - clicked");
+
+			var currJsonString =  localStorage.esCrave;
+			var jsonObject = JSON.parse(currJsonString);
+				//console.log(jsonObject);
+				//remove most recent (last) one
+				jsonObject["action"].pop();
+				//console.log(jsonObject);
+			var jsonString = JSON.stringify(jsonObject);
+				localStorage.esCrave = jsonString;
+
+			//reload the page refresh
+				window.location.reload();
+
+		}
+
+		//reset all stats
+		function clearActions(){
+			window.localStorage.clear();
+			window.location.reload();
+		}
+
+		//share stats
+		function shareActions(){
+			
+			//window.location("dataexport.html");
+			window.open("dataexport.html", "_blank");
+		}
+
+		/*OPTIONS MENU CLICK EVENTS */
+		$("#undoActionButton").click(function(event){
+			event.preventDefault();
+			undoLastAction();
+			//close dropdown
+			$(".hamburger .navbar-toggler").click();
+
+		});
+
+		$("#clearTablesButton").click(function(event){
+			event.preventDefault();
+			clearActions();
+			//close dropdown
+			$(".hamburger .navbar-toggler").click();
+
+		});
+
+		$("#shareStatsButton").click(function(event){
+			event.preventDefault();
+			shareActions();
+			//close dropdown
+			$(".hamburger .navbar-toggler").click();
+
+		});
 
 
-						}else{
-							newTimerSeconds = newTimerTotalSeconds;
-							newTimerMinutes = 0;
-						}
-					
-					//calc hours
-						if(newTimerTotalSeconds > (60*60)){
-							newTimerMinutes = newTimerMinutes % 60;
-							newTimerHours = Math.floor(newTimerTotalSeconds / (60*60));
-							if(newTimerMinutes<10){
-								newTimerMinutes = "0" + newTimerMinutes;
-							}
-							if(newTimerHours<10){
-								newTimerHours = "0" + newTimerHours;
-							}
+	/* CREATE NEW RECORD OF ACTION */
+	//timestamp, clicktype, spent, goalStamp, goalType
+	function updateActionTable(ts, ct, spt, gs, gt){
+		var currJsonString =  localStorage.esCrave;
+		var jsonObject = JSON.parse(currJsonString);
 
-						}else{
-							newTimerHours = 0;
-						}
-						
-					//calc days
-						if(newTimerTotalSeconds > (60*60*24)){
-							newTimerHours = newTimerHours % 24;
-							newTimerDays = Math.floor(newTimerTotalSeconds / (60*60*24));
-							if(newTimerHours<10){
-								newTimerHours = "0" + newTimerHours;
-							}
+			ts = ts.toString();
+		
+		var newRecord;
+		
+		if(ct == "used" || ct == "craved"){
+			newRecord = { timestamp: ts, clickType: ct };
+			
+		}else if(ct == "bought"){
+			spt = spt.toString();
+			newRecord = { timestamp: ts, clickType: ct, spent: spt};
 
-						}else{
-							newTimerDays = 0;
-						}
-					
-					//update appropriate JSON values
-						if(timerId == "use"){
-							json.sinceLastUse.totalSeconds = newTimerTotalSeconds;
-							json.sinceLastUse.seconds = newTimerSeconds;
-							json.sinceLastUse.minutes = newTimerMinutes;					
-							json.sinceLastUse.hours = newTimerHours;	
-							json.sinceLastUse.days = newTimerDays;
-							
-							
-						}else if(timerId == "bought"){
-							json.sinceLastBought.totalSeconds = newTimerTotalSeconds;
-							json.sinceLastBought.seconds = newTimerSeconds;
-							json.sinceLastBought.minutes = newTimerMinutes;					
-							json.sinceLastBought.hours = newTimerHours;	
-							json.sinceLastBought.days = newTimerDays;
-							
-						}else if(timerId == "goal"){
-							json.untilGoalEnd.totalSeconds = newTimerTotalSeconds;
-							json.untilGoalEnd.seconds = newTimerSeconds;
-							json.untilGoalEnd.minutes = newTimerMinutes;					
-							json.untilGoalEnd.hours = newTimerHours;	
-							json.untilGoalEnd.days = newTimerDays;
-							
-						}
-						/*
-						console.log(  
- 						"USE SECTION - json seconds = " + json.sinceLastUse.seconds + 
- 						"\njson minutes are = " + json.sinceLastUse.minutes +
- 						"\njson Hours are = " + json.sinceLastUse.hours +
- 						"\njson Days are = " + json.sinceLastUse.days +
- 					 
- 						"BOUGHT SECTION - json seconds = " + json.sinceLastBought.seconds + 
- 						"\njson minutes are = " + json.sinceLastBought.minutes +
- 						"\njson Hours are = " + json.sinceLastBought.hours +
- 						"\njson Days are = " + json.sinceLastBought.days
- 					);	
-					*/
-			}
+		}else if (ct == "goal"){
+			gs = gs.toString();
+			var st = 1;
+			var goalStopped = -1;
+			newRecord = { timestamp: ts, clickType: ct, goalStamp: gs, goalType: gt, status: st, goalStopped: goalStopped};
+		}	
+
+			jsonObject["action"].push(newRecord);
+			
+		var jsonString = JSON.stringify(jsonObject);
+			localStorage.esCrave = jsonString;
+	}
 	
 
 	//readjust timer box to correct size
@@ -1443,8 +1368,8 @@ function showActiveStatistics(relevantPane){
 
 
 	 //hide timers on initiation
-	 (function hideTimersOnLoad(){
-            if(json.sinceLastUse.totalSeconds == 0){
+	 function hideTimersOnLoad(){
+            if(json.statistics.use.sinceTimerStart.totalSeconds == 0){
               $("#use-content .fibonacci-timer:first-child").toggle();
 
             }else{
@@ -1452,7 +1377,7 @@ function showActiveStatistics(relevantPane){
 				initiateSmokeTimer();
             }
 
-            if(json.sinceLastBought.totalSeconds == 0){
+            if(json.statistics.cost.sinceTimerStart.totalSeconds == 0){
               $("#cost-content .fibonacci-timer:first-child").toggle();
 
             }else{
@@ -1460,14 +1385,14 @@ function showActiveStatistics(relevantPane){
 				initiateBoughtTimer();	
             }
 
-            if(json.untilGoalEnd.totalSeconds == 0){
+            if(json.statistics.goal.untilTimerEnd.totalSeconds == 0){
               $("#goal-content .fibonacci-timer").toggle();
 
             }else{
                 //start timer from json values
                 initiateGoalTimer();	
 			}
-		})();
+		}
 			
 	//toggle options nav dropdown
 	function closeOptionsNav(){
@@ -1478,50 +1403,78 @@ function showActiveStatistics(relevantPane){
 	}	
 	/*Actions on switch tab */
 	$(document).delegate("#cost-tab-toggler", 'click', function(e){
-		adjustFibonacciTimerToBoxes("bought-timer");
+		
 		hideInactiveStatistics("cost-content");
 		closeOptionsNav();
 		saveActiveTab();
+		
+		//push adjusting fibo timer to end of stack, so it reads the number of needed boxes corectly
+			setTimeout(function(){
+				adjustFibonacciTimerToBoxes("bought-timer");
+			},0);
+
+		//console.log('cost tab clicked');
 
 	});
 	$(document).delegate("#use-tab-toggler", 'click', function(e){
-		adjustFibonacciTimerToBoxes("smoke-timer");
+		
 		hideInactiveStatistics("use-content");
 		closeOptionsNav();
 		saveActiveTab();
 
+		//push adjusting fibo timer to end of stack, so it reads the number of needed boxes corectly
+			setTimeout(function(){
+				adjustFibonacciTimerToBoxes("smoke-timer");
+			},0);
+		
+		//console.log('use tab clicked');
+
 	});
 	$(document).delegate("#goal-tab-toggler", 'click', function(e){
-		adjustFibonacciTimerToBoxes("goal-timer");
+		
 		hideInactiveStatistics("goal-content");
 		closeOptionsNav();
 		saveActiveTab();
+
+		//push adjusting fibo timer to end of stack, so it reads the number of needed boxes corectly
+			setTimeout(function(){
+				adjustFibonacciTimerToBoxes("goal-timer");
+			},0);
+		
+		//console.log('goal tab clicked');
 	});
 	
-	//return to last active tab
-	(function returnToActiveTab(){
-		var tabName = (json.options.activeTab).split("-")[0];
-			$("#" + tabName + "-tab-toggler").click();
-
-		/*
-		//toggle active class on nav-tabs
-			$(".nav-tabs li").removeClass("active");
-			$("#" + tabName + "-tab-toggler").parent().addClass("active");
-		//toggle active class on actual tab content
-			$(".tab-pane").removeClass("active");
-			$("#" + tabName + "-content").addClass("active");
-		*/	
-
-	})();
-	//save current tab on switch
-	function saveActiveTab(){
-		//update instance json
-		json.options.activeTab = $(".tab-pane.active").attr('id');
-		//update in options table
-		localStorage.setItem("activeTab", $(".tab-pane.active").attr('id'));
-	}
 	
 	
+	//create initial state of app
+//If json action table doesn't exist, create it
+if(localStorage.esCrave){
+	retrieveActionTable();
+	retrieveOptionTable();
+//dump stats
+//console.log(json);
+
+//set stats	
+	//set total clicks for each button
+	$("#use-total").html(json.statistics.use.clickCounter);
+	$("#crave-total").html(json.statistics.use.craveCounter);
+	$("#bought-total").html(json.statistics.cost.clickCounter);
+	
+	//Average time between
+	displayAverageTimeBetween("use");	
+	displayAverageTimeBetween("cost");	
+	displayLongestGoal();
+	returnToActiveTab();	
+	hideTimersOnLoad();
+
+}else{
+	//replace this with empty action table
+	var newJsonString = '{ "action":[], "option": { "activeTab" : "use-content"} }';
+		localStorage.setItem("esCrave", newJsonString);
+
+		hideInactiveStatistics("use-content");
+		//console.log("hiding inactive use");
+}
 	
 		
 	//SMOKE BUTTON		
@@ -1539,21 +1492,21 @@ function showActiveStatistics(relevantPane){
 						//timerSection = "#use-content";
 						
 						//don't allow clicks more recent than 10 seconds
-						if(timestampSeconds - json.statistics.lastClickStampCrave > 10){
+						if(timestampSeconds - json.statistics.use.lastClickStampCrave > 10){
 
 							//update relevant statistics
-								json.statistics.craveCounter++;
-								$("#crave-total").html(json.statistics.craveCounter);
+								json.statistics.use.craveCounter++;
+								$("#crave-total").html(json.statistics.use.craveCounter);
 								updateActionTable(timestampSeconds, "craved");
 								
-								var currCravingsPerSmokes = Math.round(json.statistics.craveCounter / json.statistics.useCounter *10)/10;
+								var currCravingsPerSmokes = Math.round(json.statistics.use.craveCounter / json.statistics.use.clickCounter *10)/10;
 								$("#avgDidntPerDid").html(currCravingsPerSmokes);
 								
-								json.statistics.cravingsInARow++;
-								$("#cravingsResistedInARow").html(json.statistics.cravingsInARow);
+								json.statistics.use.cravingsInARow++;
+								$("#cravingsResistedInARow").html(json.statistics.use.cravingsInARow);
 								
 								//keep lastClickStamp up to date while using app
-									json.statistics.lastClickStampCrave = timestampSeconds;
+									json.statistics.use.lastClickStampCrave = timestampSeconds;
 
 
 								showActiveStatistics("use-content");
@@ -1567,23 +1520,24 @@ function showActiveStatistics(relevantPane){
 						//update relevant statistics
 							updateActionTable(timestampSeconds, "used");
 						
-						//fake firstStampUses in json obj
-							if(json.statistics.useCounter == 0){
-								json.statistics.firstUseClickStamp = json.statistics.firstUseClickStamp + timestampSeconds;
-
-							}else if (json.statistics.useCounter == 1){
-								json.statistics.secondsBetweenUse = timestampSeconds - json.statistics.firstUseClickStamp;
-
+						
+							//fake firstStampUses in json obj
+							if(json.statistics.use.clickCounter == 0){
+								json.statistics.use.firstClickStamp = json.statistics.use.firstClickStamp + timestampSeconds;
+								
+							}else if (json.statistics.use.clickCounter == 1){
+								json.statistics.use.averageBetweenClicks = timestampSeconds - json.statistics.use.firstClickStamp;
+								
 							}
 
-							json.statistics.useCounter++;
-							$("#use-total").html(json.statistics.useCounter);
+							json.statistics.use.clickCounter++;
+							$("#use-total").html(json.statistics.use.clickCounter);
 						
-							var currCravingsPerSmokes = Math.round(json.statistics.craveCounter / json.statistics.useCounter *10)/10;
+							var currCravingsPerSmokes = Math.round(json.statistics.use.craveCounter / json.statistics.use.clickCounter *10)/10;
 							$("#avgDidntPerDid").html(currCravingsPerSmokes);
 					
-							json.statistics.cravingsInARow = 0;
-							$("#cravingsResistedInARow").html(json.statistics.cravingsInARow);
+							json.statistics.use.cravingsInARow = 0;
+							$("#cravingsResistedInARow").html(json.statistics.use.cravingsInARow);
 						
 							
 
@@ -1595,20 +1549,20 @@ function showActiveStatistics(relevantPane){
 							hideInactiveStatistics("use-content");
 
 							//there is an active bought related goal
-							if(json.statistics.activeGoalUse !== 0 || json.statistics.activeGoalBoth !==0){
-								if(json.statistics.activeGoalUse !== 0){
+							if(json.statistics.goal.activeGoalUse !== 0 || json.statistics.goal.activeGoalBoth !==0){
+								if(json.statistics.goal.activeGoalUse !== 0){
 									var goalType = "use";
-									var message = 'Your goal just ended! ' +
-												'But, you still get a percentage of points!';
+									var message = 'Your goal just ended early! ' +
+												'But don\'t worry, you still get a percentage of points!';
 									
-									json.statistics.activeGoalUse = 0;
+									json.statistics.goal.activeGoalUse = 0;
 								
-								}else if(json.statistics.activeGoalBoth !==0){
+								}else if(json.statistics.goal.activeGoalBoth !==0){
 									var goalType = "both";
-									var message = 'Your goal just ended! ' +
-												'But, you still get a percentage of points!';
+									var message = 'Your goal just ended early! ' +
+												'But don\'t worry, you still get a percentage of points!';
 
-									json.statistics.activeGoalBoth = 0;
+									json.statistics.goal.activeGoalBoth = 0;
 								
 								}
 
@@ -1620,26 +1574,35 @@ function showActiveStatistics(relevantPane){
 								hideInactiveStatistics("goal-content");
 
 								//place a goal into the goal log
-								var startStamp = json.statistics.lastClickStampGoal;
+								var startStamp = json.statistics.goal.lastClickStamp;
 								var actualEnd = timestampSeconds;
-								placeGoalIntoLog(startStamp, actualEnd, goalType);
+								placeGoalIntoLog(startStamp, actualEnd, goalType, false);
+
+								//if longest goal just happened
+								if((actualEnd - startStamp) > json.statistics.goal.bestTimeSeconds){
+									//update json
+									json.statistics.goal.bestTimeSeconds = (actualEnd - startStamp);
+									//insert onto page
+									var newLongestGoal = convertSecondsToDateFormat(json.statistics.goal.bestTimeSeconds);
+									$("#longestGoalCompleted").html(newLongestGoal);
+
+								}
+								//update number of goals
+								json.statistics.goal.completedGoals++;
+								$("#numberOfGoalsCompleted").html(json.statistics.goal.completedGoals);
+
+								showActiveStatistics("goal-content");
 
 							}
 							//keep lastClickStamp up to date while using app
-							json.statistics.lastClickStampUse = timestampSeconds;
+							json.statistics.use.lastClickStamp = timestampSeconds;
 
 							
 							
 					}else if(this.id == "bought-button"){
-						//timerSection = "#cost-content";
-						sinceLastAction = "sinceLastBought";
-						currTimer = boughtTimer;
-							
 						openClickDialog();    
 						
 					}else if(this.id == "goal-button"){
-						timerSection = "#goal-content";
-						sinceLastAction = "untilGoalEnd";
 						
 						openClickDialog();   
 
@@ -1678,11 +1641,11 @@ function showActiveStatistics(relevantPane){
 					secondsSinceUse = 0,
 					totalSecondsSinceUse = 0;
 				//reset json vars
-				json.sinceLastUse.days = 0,
-				json.sinceLastUse.hours = 0,
-				json.sinceLastUse.minutes = 0,
-				json.sinceLastUse.seconds = 0,
-				json.sinceLastUse.totalSeconds = 0;	
+				json.statistics.use.sinceTimerStart.days = 0,
+				json.statistics.use.sinceTimerStart.hours = 0,
+				json.statistics.use.sinceTimerStart.minutes = 0,
+				json.statistics.use.sinceTimerStart.seconds = 0,
+				json.statistics.use.sinceTimerStart.totalSeconds = 0;	
 
 					//Insert timer values into timer
 						$("#use-content .secondsSinceLastClickSpan:first-child").html("0" + secondsSinceUse);
@@ -1703,11 +1666,11 @@ function showActiveStatistics(relevantPane){
 			}else{
 
 				//reset timer from values
-				var daysSinceUse = json.sinceLastUse.days,
-					hoursSinceUse = json.sinceLastUse.hours,
-					minutesSinceUse = json.sinceLastUse.minutes,
-					secondsSinceUse = json.sinceLastUse.seconds,
-					totalSecondsSinceUse = json.sinceLastUse.totalSeconds;
+				var daysSinceUse = json.statistics.use.sinceTimerStart.days,
+					hoursSinceUse = json.statistics.use.sinceTimerStart.hours,
+					minutesSinceUse = json.statistics.use.sinceTimerStart.minutes,
+					secondsSinceUse = json.statistics.use.sinceTimerStart.seconds,
+					totalSecondsSinceUse = json.statistics.use.sinceTimerStart.totalSeconds;
 
 					//Insert timer values into timer
 						 if(secondsSinceUse>=10){
@@ -1751,8 +1714,8 @@ function showActiveStatistics(relevantPane){
             totalSecondsSinceUse++;
             secondsSinceUse++;
             //update json
-            json.sinceLastUse.totalSeconds++;
-            json.sinceLastUse.seconds++;
+            json.statistics.use.sinceTimerStart.totalSeconds++;
+            json.statistics.use.sinceTimerStart.seconds++;
         	/*	
 			if($("#smoke-timer").width() > 200){
 				console.log("big box, eh?");
@@ -1774,8 +1737,8 @@ function showActiveStatistics(relevantPane){
                 secondsSinceUse=0;
                 minutesSinceUse++;
                 //update json
-                json.sinceLastUse.seconds = 0;
-                json.sinceLastUse.minutes++;
+                json.statistics.use.sinceTimerStart.seconds = 0;
+                json.statistics.use.sinceTimerStart.minutes++;
 
                 if ($("#use-content .boxes div:visible").length == 1 ) {
                     var numberOfBoxesHidden = $("#use-content .boxes div:hidden").length;
@@ -1800,8 +1763,8 @@ function showActiveStatistics(relevantPane){
                 minutesSinceUse=0;
                 hoursSinceUse++;
                 //update json
-                json.sinceLastUse.minutes = 0;
-                json.sinceLastUse.hours++;
+                json.statistics.use.sinceTimerStart.minutes = 0;
+                json.statistics.use.sinceTimerStart.hours++;
 
 
                 if ($("#use-content .boxes div:visible").length == 2 ) {
@@ -1828,8 +1791,8 @@ function showActiveStatistics(relevantPane){
                 hoursSinceUse=0;
                 daysSinceUse++;
                 //update json
-                json.sinceLastUse.hours = 0;
-                json.sinceLastUse.days++;
+                json.statistics.use.sinceTimerStart.hours = 0;
+                json.statistics.use.sinceTimerStart.days++;
 
 
                 if ($("#use-content .boxes div:visible").length == 3 ) {
@@ -1872,11 +1835,11 @@ function showActiveStatistics(relevantPane){
 					secondsSinceBought = 0,
 					totalSecondsSinceBought = 0;
 				//reset json vars
-				json.sinceLastBought.days = 0,
-				json.sinceLastBought.hours = 0,
-				json.sinceLastBought.minutes = 0,
-				json.sinceLastBought.seconds = 0,
-				json.sinceLastBought.totalSeconds = 0;	
+				json.statistics.cost.sinceTimerStart.days = 0,
+				json.statistics.cost.sinceTimerStart.hours = 0,
+				json.statistics.cost.sinceTimerStart.minutes = 0,
+				json.statistics.cost.sinceTimerStart.seconds = 0,
+				json.statistics.cost.sinceTimerStart.totalSeconds = 0;	
 
 					//Insert timer values into timer
 						$("#cost-content .secondsSinceLastClickSpan:first-child").html("0" + secondsSinceBought);
@@ -1897,11 +1860,11 @@ function showActiveStatistics(relevantPane){
 			}else{
 
 				//reset timer from values
-				var daysSinceBought = json.sinceLastBought.days,
-					hoursSinceBought = json.sinceLastBought.hours,
-					minutesSinceBought = json.sinceLastBought.minutes,
-					secondsSinceBought = json.sinceLastBought.seconds,
-					totalSecondsSinceBought = json.sinceLastBought.totalSeconds;
+				var daysSinceBought = json.statistics.cost.sinceTimerStart.days,
+					hoursSinceBought = json.statistics.cost.sinceTimerStart.hours,
+					minutesSinceBought = json.statistics.cost.sinceTimerStart.minutes,
+					secondsSinceBought = json.statistics.cost.sinceTimerStart.seconds,
+					totalSecondsSinceBought = json.statistics.cost.sinceTimerStart.totalSeconds;
 
 					//Insert timer values into timer
 						 if(secondsSinceBought>=10){
@@ -2007,33 +1970,41 @@ function showActiveStatistics(relevantPane){
 	function initiateGoalTimer(){
 		var timerSection = "#goal-content";
 
-			json.statistics.goalCounter++;
+			json.statistics.goal.clickCounter++;
 
 
 			clearInterval(goalTimer);
 			
-            var jsonDaysString = json.untilGoalEnd.days,
-                jsonHoursString = json.untilGoalEnd.hours,
-                jsonMinutesString = json.untilGoalEnd.minutes,
-                jsonSecondsString = json.untilGoalEnd.seconds,
-                jsonTotalSecondsString = json.untilGoalEnd.totalSeconds;
+            var jsonDaysString = json.statistics.goal.untilTimerEnd.days,
+                jsonHoursString = json.statistics.goal.untilTimerEnd.hours,
+                jsonMinutesString = json.statistics.goal.untilTimerEnd.minutes,
+                jsonSecondsString = json.statistics.goal.untilTimerEnd.seconds,
+                jsonTotalSecondsString = json.statistics.goal.untilTimerEnd.totalSeconds;
                 
                     $(timerSection + " .secondsSinceLastClickSpan:first-child").html(jsonSecondsString);
                     $(timerSection + " .minutesSinceLastClickSpan:first-child").html(jsonMinutesString);
                     $(timerSection + " .hoursSinceLastClickSpan:first-child").html(jsonHoursString);
                     $(timerSection + " .daysSinceLastClickSpan:first-child").html(jsonDaysString);
 
+				//return to default all visible value
+				$("#goal-content .boxes div").show();
 
-				//make any boxes with value of zero hidden	
-				for(i = 0; i< $("#goal-content .boxes div").length; i ++){
-					var currTimerSpanValue = ($("#goal-content .boxes div .timerSpan")[i].innerHTML);
-					if(currTimerSpanValue == "0"){
-						$($("#goal-content .boxes div")[i]).hide();
-					}else{
-						console.log("got to " + i + ". now bouta break;");
-						break;
+				//make boxes with value of zero hidden	until find a non zero value
+				function hideZeroValueTimerBoxes(timerSection){
+					//make boxes with value of zero hidden	until find a non zero value
+					for(i = 0; i< $("#"+ timerSection + " .boxes div").length; i ++){
+						var currTimerSpanValue = $("#"+ timerSection + " .boxes div .timerSpan")[i];
+						if(currTimerSpanValue.innerHTML == "0"){
+							$(currTimerSpanValue).parent().hide();
+							//console.log("dive to hide: " + $(currTimerSpanValue).parent());
+						}else{
+							//console.log("got to " + i + ". now bouta break;");
+							break;
+						}
 					}
+			
 				}
+				hideZeroValueTimerBoxes("goal-content");
 				
 
                 goalTimer =  setInterval(function() {
@@ -2048,12 +2019,18 @@ function showActiveStatistics(relevantPane){
                     }
 					
                     if(jsonSecondsString < 0){
+
+						
+
+
 						if(jsonMinutesString > 0 || jsonHoursString > 0 || jsonDaysString > 0 ){
 							jsonSecondsString=59;
 							jsonMinutesString--;
 								if(jsonMinutesString == 0 && jsonHoursString ==0  && jsonDaysString == 0 ){
 									if ($(timerSection + ' .boxes div:visible').length > 1 ) {
 										$($(timerSection + ' .boxes div:visible')[0]).toggle();
+
+										adjustFibonacciTimerToBoxes("goal-timer");
 									  }
 								}
 
@@ -2061,23 +2038,22 @@ function showActiveStatistics(relevantPane){
 							/* ENTIRE GOAL IS DONE */
 							jsonSecondsString=0;
 							clearInterval(goalTimer);
-							$(timerSection + " .fibonacci-timer").parent().toggle();
 							hideInactiveStatistics("goal-content");
 							
 
 							//find most recent goal type
 								var goalType = "";
-								if(json.statistics.activeGoalBoth == 1){
+								if(json.statistics.goal.activeGoalBoth == 1){
 									goalType = "both";
-									json.statistics.activeGoalBoth = 0;
+									json.statistics.goal.activeGoalBoth = 0;
 
-								}else if(json.statistics.activeGoalBought == 1){
+								}else if(json.statistics.goal.activeGoalBought == 1){
 									goalType = "bought";
-									json.statistics.activeGoalBought = 0;
+									json.statistics.goal.activeGoalBought = 0;
 
-								}else if(json.statistics.activeGoalUse == 1){
+								}else if(json.statistics.goal.activeGoalUse == 1){
 									goalType = "use";
-									json.statistics.activeGoalUse = 0;
+									json.statistics.goal.activeGoalUse = 0;
 								}
 								
 								var actualEnd = Math.round(new Date()/1000);
@@ -2085,20 +2061,34 @@ function showActiveStatistics(relevantPane){
 							changeGoalStatus(3, goalType, actualEnd);
 
 							//(startStamp, endStamp, goalType) =>
-							var startStamp = json.statistics.lastClickStampGoal;
-							placeGoalIntoLog(startStamp, actualEnd, goalType);
+							var startStamp = json.statistics.goal.lastClickStamp;
+							placeGoalIntoLog(startStamp, actualEnd, goalType, false);
+
+							//if longest goal just happened
+							if((actualEnd - startStamp) > json.statistics.goal.bestTimeSeconds){
+								//update json
+								json.statistics.goal.bestTimeSeconds = (actualEnd - startStamp);
+								//insert onto page
+								var newLongestGoal = convertSecondsToDateFormat(json.statistics.goal.bestTimeSeconds);
+								$("#longestGoalCompleted").html(newLongestGoal);
+								
+							}
+							//update number of goals
+							json.statistics.goal.completedGoals++;
+							$("#numberOfGoalsCompleted").html(json.statistics.goal.completedGoals);
+
+							showActiveStatistics("goal-content");
 
 							//notify user that goal ended
 							var message = "your goal just ended, congrats! Check your goal log for details.";
 							createNotification(message);
 
+							//disappear zero seconds left timer
+							$(timerSection + " .fibonacci-timer").parent().hide();
+							
 						}
-						/*
-						if ($(timerSection + " .boxes div:visible").length == 1 ) {
-                            var numberOfBoxesHidden = $(timerSection + " .boxes div:hidden").length;
-                            $($(timerSection + " .boxes div:hidden")[numberOfBoxesHidden - 1]).toggle();
-                        }
-						*/
+
+						
                         $(timerSection + " .minutesSinceLastClickSpan:first-child").html(jsonMinutesString);
                         $(timerSection + " .secondsSinceLastClickSpan:first-child").html(jsonSecondsString);
                     }
@@ -2130,11 +2120,14 @@ function showActiveStatistics(relevantPane){
                         if(jsonDaysString > 0){
 							jsonHoursString=23;
 							jsonDaysString--;
-							console.log(jsonDaysString);
 								if(jsonDaysString == 0){
-									if ($(timerSection + ' .boxes div:visible').length > 1 ) {
-										$($(timerSection + ' .boxes div:visible')[0]).toggle();
-									  }
+								//console.log("days turns to zero");
+									setTimeout(function(){
+										$($("#goal-content .boxes div")[0]).hide();
+										adjustFibonacciTimerToBoxes("goal-timer");
+
+									},0);
+								
 								}
 						}else{
 							
@@ -2157,6 +2150,7 @@ function showActiveStatistics(relevantPane){
                 $("#goal-button").addClass("counting");		
 	}
 	
+
 			
 			
 			
@@ -2173,29 +2167,29 @@ function showActiveStatistics(relevantPane){
 					updateActionTable(timestampSeconds, "bought", amountSpent);
 					
 					//fake firstStampBought in json obj
-					if(json.statistics.boughtCounter == 0){
-						json.statistics.firstBoughtClickStamp = json.statistics.firstBoughtClickStamp + timestampSeconds;
+					if(json.statistics.cost.clickCounter == 0){
+						json.statistics.cost.firstClickStamp = json.statistics.cost.firstClickStamp + timestampSeconds;
 						
-					}else if (json.statistics.boughtCounter == 1){
-						json.statistics.secondsBetweenBought = timestampSeconds - json.statistics.firstBoughtClickStamp;
+					}else if (json.statistics.cost.clickCounter == 1){
+						json.statistics.cost.averageBetweenClicks = timestampSeconds - json.statistics.cost.firstClickStamp;
 						
 					}
 
 					//update display
-					json.statistics.boughtCounter++;
-					$("#bought-total").html(json.statistics.boughtCounter);
+					json.statistics.cost.clickCounter++;
+					$("#bought-total").html(json.statistics.cost.clickCounter);
 
 					//update spent in json
-					json.statistics.totalSpent = parseInt(json.statistics.totalSpent) + parseInt(amountSpent);
-					json.statistics.spentThisWeek = parseInt(json.statistics.spentThisWeek) + parseInt(amountSpent);
-					json.statistics.spentThisMonth = parseInt(json.statistics.spentThisMonth) + parseInt(amountSpent);
-					json.statistics.spentThisYear = parseInt(json.statistics.spentThisYear) + parseInt(amountSpent);
+					json.statistics.cost.total = parseInt(json.statistics.cost.total) + parseInt(amountSpent);
+					json.statistics.cost.thisWeek = parseInt(json.statistics.cost.thisWeek) + parseInt(amountSpent);
+					json.statistics.cost.thisMonth = parseInt(json.statistics.cost.thisMonth) + parseInt(amountSpent);
+					json.statistics.cost.thisYear = parseInt(json.statistics.cost.thisYear) + parseInt(amountSpent);
 
 					//update display
-					$("#totalAmountSpent").html(json.statistics.totalSpent + "$");
-					$("#spentThisWeek").html(json.statistics.spentThisWeek + "$");
-					$("#spentThisMonth").html(json.statistics.spentThisMonth + "$");
-					$("#spentThisYear").html(json.statistics.spentThisYear + "$");
+					$("#totalAmountSpent").html(json.statistics.cost.total + "$");
+					$("#spentThisWeek").html(json.statistics.cost.thisWeek + "$");
+					$("#spentThisMonth").html(json.statistics.cost.thisMonth + "$");
+					$("#spentThisYear").html(json.statistics.cost.thisYear + "$");
 
 					closeClickDialog();
 					
@@ -2205,21 +2199,23 @@ function showActiveStatistics(relevantPane){
 
 					showActiveStatistics("cost-content");
 
+					hideInactiveStatistics("cost-content");
+
 					//there is an active bought related goal
-					if(json.statistics.activeGoalBought !== 0 || json.statistics.activeGoalBoth !==0){
-						if(json.statistics.activeGoalBought !== 0){
+					if(json.statistics.goal.activeGoalBought !== 0 || json.statistics.goal.activeGoalBoth !==0){
+						if(json.statistics.goal.activeGoalBought !== 0){
 							var goalType = "bought";
-							var message = 'Your goal just ended! ' +
-										'But, you still get a percentage of points!';
+							var message = 'Your goal just ended early! ' +
+										'But don\'t worry, you still get a percentage of points!';
 							
-							json.statistics.activeGoalBought = 0;
+							json.statistics.goal.activeGoalBought = 0;
 						
-						}else if(json.statistics.activeGoalBoth !==0){
+						}else if(json.statistics.goal.activeGoalBoth !==0){
 							var goalType = "both";
-							var message = 'Your goal just ended! ' +
-										'But, you still get a percentage of points!';
+							var message = 'Your goal just ended early! ' +
+										'But don\'t worry, you still get a percentage of points!';
 							
-							json.statistics.activeGoalBoth = 0;
+							json.statistics.goal.activeGoalBoth = 0;
 						
 						}
 
@@ -2231,13 +2227,28 @@ function showActiveStatistics(relevantPane){
 						hideInactiveStatistics("goal-content");
 
 						//place a goal into the goal log
-						var startStamp = json.statistics.lastClickStampGoal;
+						var startStamp = json.statistics.goal.lastClickStamp;
 						var actualEnd = timestampSeconds;
-						placeGoalIntoLog(startStamp, actualEnd, goalType);
+						placeGoalIntoLog(startStamp, actualEnd, goalType, false);
+
+						//if longest goal just happened
+						if((actualEnd - startStamp) > json.statistics.goal.bestTimeSeconds){
+							//update json
+							json.statistics.goal.bestTimeSeconds = (actualEnd - startStamp);
+							//insert onto page
+							var newLongestGoal = convertSecondsToDateFormat(json.statistics.goal.bestTimeSeconds);
+							$("#longestGoalCompleted").html(newLongestGoal);
+							
+						}
+						//update number of goals
+						json.statistics.goal.completedGoals++;
+						$("#numberOfGoalsCompleted").html(json.statistics.goal.completedGoals);
+
+						showActiveStatistics("goal-content");
 					}
 					
 					//keep lastClickStamp up to date while using app
-					json.statistics.lastClickStampBought = timestampSeconds;
+					json.statistics.cost.lastClickStamp = timestampSeconds;
 
 
 				}
@@ -2247,46 +2258,46 @@ function showActiveStatistics(relevantPane){
 		//calculate goal timer values
 		function loadGoalTimerValues(totalSecondsUntilGoalEnd){
 
-			json.untilGoalEnd.days = 0;
-			json.untilGoalEnd.hours = 0;
-			json.untilGoalEnd.minutes = 0;
-			json.untilGoalEnd.seconds = 0;
-			json.untilGoalEnd.totalSeconds = totalSecondsUntilGoalEnd;
+			json.statistics.goal.untilTimerEnd.days = 0;
+			json.statistics.goal.untilTimerEnd.hours = 0;
+			json.statistics.goal.untilTimerEnd.minutes = 0;
+			json.statistics.goal.untilTimerEnd.seconds = 0;
+			json.statistics.goal.untilTimerEnd.totalSeconds = totalSecondsUntilGoalEnd;
 			
 			
 			//calc mins and secs
 				if(totalSecondsUntilGoalEnd > 60){
-					json.untilGoalEnd.seconds = totalSecondsUntilGoalEnd % 60;
-					json.untilGoalEnd.minutes = Math.floor(totalSecondsUntilGoalEnd / 60);
+					json.statistics.goal.untilTimerEnd.seconds = totalSecondsUntilGoalEnd % 60;
+					json.statistics.goal.untilTimerEnd.minutes = Math.floor(totalSecondsUntilGoalEnd / 60);
 				}else{
-					json.untilGoalEnd.seconds = totalSecondsUntilGoalEnd;
-					json.untilGoalEnd.minutes = 0;
+					json.statistics.goal.untilTimerEnd.seconds = totalSecondsUntilGoalEnd;
+					json.statistics.goal.untilTimerEnd.minutes = 0;
 				}
 			
 			//calc hours
 				if(totalSecondsUntilGoalEnd > (60*60)){
-					json.untilGoalEnd.minutes = json.untilGoalEnd.minutes % 60;
-					json.untilGoalEnd.hours = Math.floor(totalSecondsUntilGoalEnd / (60*60));
+					json.statistics.goal.untilTimerEnd.minutes = json.statistics.goal.untilTimerEnd.minutes % 60;
+					json.statistics.goal.untilTimerEnd.hours = Math.floor(totalSecondsUntilGoalEnd / (60*60));
 					
 				}else{
-					json.untilGoalEnd.hours = 0;
+					json.statistics.goal.untilTimerEnd.hours = 0;
 				}
 				
 			//calc days
 				if(totalSecondsUntilGoalEnd > (60*60*24)){
-					json.untilGoalEnd.hours = json.untilGoalEnd.hours % 24;
-					json.untilGoalEnd.days = Math.floor(totalSecondsUntilGoalEnd / (60*60*24));
+					json.statistics.goal.untilTimerEnd.hours = json.statistics.goal.untilTimerEnd.hours % 24;
+					json.statistics.goal.untilTimerEnd.days = Math.floor(totalSecondsUntilGoalEnd / (60*60*24));
 				}else{
-					json.untilGoalEnd.days = 0;
+					json.statistics.goal.untilTimerEnd.days = 0;
 				}
 			
 			/*
 			console.log(
-						  "days till complete: " + json.untilGoalEnd.days
-						+ "\nhours until: "      + json.untilGoalEnd.hours 
-						+ "\nminutes until: "    + json.untilGoalEnd.minutes
-						+ "\nseconds until: "    + json.untilGoalEnd.seconds 
-						+ "\ntotal seconds are: "+ json.untilGoalEnd.totalSeconds
+						  "days till complete: " + json.statistics.goal.untilTimerEnd.days
+						+ "\nhours until: "      + json.statistics.goal.untilTimerEnd.hours 
+						+ "\nminutes until: "    + json.statistics.goal.untilTimerEnd.minutes
+						+ "\nseconds until: "    + json.statistics.goal.untilTimerEnd.seconds 
+						+ "\ntotal seconds are: "+ json.statistics.goal.untilTimerEnd.totalSeconds
 						);
 			*/
 
@@ -2359,27 +2370,27 @@ function showActiveStatistics(relevantPane){
 				}
 
 			//there is an active goal
-			if(json.statistics.activeGoalUse !== 0 || json.statistics.activeGoalBought !== 0 || json.statistics.activeGoalBoth !==0){
-				if(json.statistics.activeGoalUse !== 0){
+			if(json.statistics.goal.activeGoalUse !== 0 || json.statistics.goal.activeGoalBought !== 0 || json.statistics.goal.activeGoalBoth !==0){
+				if(json.statistics.goal.activeGoalUse !== 0){
 					var goalType = "use";
-					var message = 'Your goal just ended! ' +
-								'But, you still get a percentage of points!';
+					var message = 'Your goal just ended early! ' +
+								'But don\'t worry, you still get a percentage of points!';
 								
-								json.statistics.activeGoalUse = 0;
+								json.statistics.goal.activeGoalUse = 0;
 				
-				}else if(json.statistics.activeGoalBought !== 0){
+				}else if(json.statistics.goal.activeGoalBought !== 0){
 					var goalType = "bought";
-					var message = 'Your goal just ended! ' +
-								'But, you still get a percentage of points!';
+					var message = 'Your goal just ended early! ' +
+								'But don\'t worry, you still get a percentage of points!';
 
-								json.statistics.activeGoalBought = 0;
+								json.statistics.goal.activeGoalBought = 0;
 				
-				}else if(json.statistics.activeGoalBoth !==0){
+				}else if(json.statistics.goal.activeGoalBoth !==0){
 					var goalType = "both";
-					var message = 'Your goal just ended! ' +
-								'But, you still get a percentage of points!';
+					var message = 'Your goal just ended early! ' +
+								'But don\'t worry, you still get a percentage of points!';
 
-								json.statistics.activeGoalBoth = 0;
+								json.statistics.goal.activeGoalBoth = 0;
 				
 				}
 
@@ -2387,18 +2398,33 @@ function showActiveStatistics(relevantPane){
 				createNotification(message);
 
 				//place a goal into the goal log
-				var startStamp = json.statistics.lastClickStampGoal;
+				var startStamp = json.statistics.goal.lastClickStamp;
 				var actualEnd = timestampSeconds;
-				placeGoalIntoLog(startStamp, actualEnd, goalType);
+				placeGoalIntoLog(startStamp, actualEnd, goalType, false);
+
+				//if longest goal just happened
+				if((actualEnd - startStamp) > json.statistics.goal.bestTimeSeconds){
+					//update json
+					json.statistics.goal.bestTimeSeconds = (actualEnd - startStamp);
+					//insert onto page
+					var newLongestGoal = convertSecondsToDateFormat(json.statistics.goal.bestTimeSeconds);
+					$("#longestGoalCompleted").html(newLongestGoal);
+					
+				}
+				//update number of goals
+				json.statistics.goal.completedGoals++;
+				$("#numberOfGoalsCompleted").html(json.statistics.goal.completedGoals);
+				showActiveStatistics("goal-content");
+				
 			}
 			//keep lastClickStamp up to date while using app
-			json.statistics.lastClickStampGoal = timestampSeconds;
+			json.statistics.goal.lastClickStamp = timestampSeconds;
 
 
 
 				//set local json goal type which is active
 				var jsonHandle = "activeGoal" + goalType.charAt(0).toUpperCase() + goalType.slice(1);
-				json.statistics[jsonHandle] = 1;
+				json.statistics.goal[jsonHandle] = 1;
 				
 
 				updateActionTable(timestampSeconds, "goal", "", goalStampSeconds, goalType);

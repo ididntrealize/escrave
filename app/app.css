@@ -32,6 +32,24 @@ h4{
 	max-width: 480px;
 }
 
+/* fake bootstrap if ya can 
+.col-6 {
+    -ms-flex: 0 0 50%;
+    flex: 0 0 50%;
+	max-width: 50%;
+	position: relative;
+    width: 100%;
+    min-height: 1px;
+}
+.row {
+    display: -ms-flexbox;
+    display: flex;
+    -ms-flex-wrap: wrap;
+    flex-wrap: wrap;
+    margin-right: -15px;
+    margin-left: -15px;
+}
+*/
 
 
 .app-background{
@@ -48,12 +66,27 @@ h4{
 	max-height:70px;
 }
 
+
 .logo-and-tagline{
 	display: inline-block;
 	width: calc(100% - 90px);
+	max-height:60px;
 }
+.logo-and-tagline img{
+	display:inline-block;
+	max-height:70px;
+	padding-bottom:10px;
+	padding-top:5px;
+}
+.tagline{
+	color:white;
+	font-weight: 800;
+  font-size: 2.2rem;
+}
+
+
 .hamburger{
-	float: left;
+	float: right;
 	width: 90px;
 }
 .logo-and-tagline p{
@@ -70,16 +103,14 @@ h4{
 	margin-top:5px;
 }
 #options-navbar{
-	position: absolute;
-	top: 65px;
-	padding-top: 0px;
+    width: 100%;
 	z-index: 1000;
+	padding: .5rem 1rem; 
+	padding-top: 5px;
 
 }
 #options-navbar .container{
 	background: white;
-	max-width: 245px;
-	
 
 }
 #options-collapse-menu{
@@ -109,7 +140,7 @@ h4{
 }
 
 .nav-tabs{
-	margin: 17px 0px 0px 0px;
+	margin: 7px 0px 0px 0px;
 }
 
 .tab-pane{
@@ -123,20 +154,20 @@ h4{
 	margin-bottom:20px;
 }
 
-.statistics-recepticle,
+.statistic-recepticle,
 .timer-recepticle{
 	text-align:center;
 	margin-bottom:20px;
 	
 }
 
-.statistics-recepticle span{
+.statistic-recepticle span{
 
 	font-weight:700;
 	font-size:1.8rem;
 }
 
-.statistics-recepticle p,
+.statistic-recepticle p,
 .timer-recepticle p{
 	text-align: center;
 	display:block;
@@ -172,6 +203,7 @@ h4{
 	color:white;
 	border-radius:15px;
 	position:absolute;
+	
 	padding: 0px 6px;
 }
 
@@ -236,14 +268,6 @@ h4{
 		font-size:2.4rem;
 	}
 
-
-
-#avgDidntPerDid,
-#cravingsResistedInARow,
-#averageTimeBetweenUses{
-	font-weight:700;
-	
-}
 
 
 
@@ -345,7 +369,7 @@ h4{
 
 .notification {
 	position: relative;
-	background:url(../images/mayan-notification-background.png); 
+	background:url(../images/mayan-notification-background.jpg); 
 	background-size: cover;
 	border: 1px solid #d6d6d6; 
 	border-radius: 4px; 
@@ -372,7 +396,6 @@ h4{
 .notification p{
 	margin-bottom:0px;
 	font-style:italic;
-    font-weight: 550;
 	color:#111111;
 }
 .notification-text{
