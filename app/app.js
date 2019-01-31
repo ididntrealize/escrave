@@ -25,7 +25,7 @@ var welcomeToMyJavascriptDoc;
  * a button to completely wipe storage (START OVER), 
  * and one to dump their storage for debugging purposes.
  * 
- * Dig in, and please get back to me about any inconsistencies, or improvements. 
+ * Dig in, and please get back to me about any inconsistencies, or improvements!
 
 *********************************************************************************/
 
@@ -164,6 +164,43 @@ var userIsActive = true;
 									var useTabActions = jsonObject.action.filter(function(e){
 										return e.clickType == "used" || e.clickType == "craved";
 									});
+
+								if(useTabActions.length > 0){
+
+									/* ADD ACTIONS INTO LOG */
+									/* only display a certain number of actions per page */
+									var useActionsToAddMax = useTabActions.length - 1,
+										useActionsToAddMin = useTabActions.length - 10;
+
+									function addMoreIntoUseLog(logTarget){
+										if(useActionsToAddMax > 0){
+											for(var i = useActionsToAddMax; i >= useActionsToAddMin && i >= 0; i--){
+
+											var currClickStamp = useTabActions[i].timestamp,
+												currClickType = useTabActions[i].clickType;
+											
+											//append 10 new goals
+											placeActionIntoLog(currClickStamp, currClickType, null, true);
+
+												if(i == useActionsToAddMin || i == 0){
+														useActionsToAddMin -= 10;
+														useActionsToAddMax -= 10;
+														
+													//if button is not displayed
+														if($("#use-log-show-more").hasClass("d-none")){
+															$("#use-log-show-more").removeClass("d-none");
+															$("#use-log-show-more").click(function(){
+																addMoreIntoUseLog();
+															});
+														}
+													break;
+												}
+
+											}
+										}
+									}
+									addMoreIntoUseLog();		
+								}
 																
 								//total uses
 									var useCount = jsonObject.action.filter(function(e){
@@ -255,7 +292,41 @@ var userIsActive = true;
 									//timestamp of most recent click - to limit clicks in a row
 										json.statistics.cost.lastClickStamp = boughtCount[boughtCount.length-1].timestamp;
 										
-									
+									/* ADD ACTIONS INTO LOG */
+									/* only display a certain number of actions per page */
+									var costActionsToAddMax = boughtCount.length - 1,
+										costActionsToAddMin = boughtCount.length - 10;
+
+										function addMoreIntoCostLog(){
+											if(costActionsToAddMax > 0){
+												for(var i = costActionsToAddMax; i >= costActionsToAddMin && i >= 0; i--){
+													//console.log("i in add to log = " + i);
+												var currClickStamp = boughtCount[i].timestamp,
+													currClickType = boughtCount[i].clickType,
+													currClickCost =  boughtCount[i].spent;
+												
+												//append 10 new goals
+												placeActionIntoLog(currClickStamp, currClickType, currClickCost, true);
+	
+													if(i == costActionsToAddMin || i == 0){
+															costActionsToAddMin -= 10;
+															costActionsToAddMax -= 10;
+
+														//if button is not displayed
+															if($("#cost-log-show-more").hasClass("d-none")){
+																$("#cost-log-show-more").removeClass("d-none");
+																$("#cost-log-show-more").click(function(){
+																	addMoreIntoCostLog();
+																});
+															}
+														break;
+													}
+	
+												}
+											}
+										}
+										addMoreIntoCostLog();
+
 								}
 								//calculate timestamps for past week
 								
@@ -404,7 +475,7 @@ var userIsActive = true;
 										function addMoreIntoGoalLog(){
 											if(goalsToAddMin > 0){
 												for(var i = goalsToAddMax; i >= goalsToAddMin; i--){
-													console.log("i in add to log = " + i);
+													//console.log("i in add to log = " + i);
 												var currStartStamp = inactiveGoals[i].timestamp,
 													currEndStamp = inactiveGoals[i].goalStopped,
 													currGoalType = inactiveGoals[i].goalType;
@@ -449,8 +520,6 @@ var userIsActive = true;
 			}
 
 		
-
-			
 		//Restrict possible dates chosen in goal tab datepicker
 
 		//restrictGoalRange();
@@ -797,6 +866,70 @@ var userIsActive = true;
 			
 	}
 
+/* COST && USE LOG FUNCTION */
+function placeActionIntoLog(clickStamp, clickType, amountSpent, placeBelow){
+		
+	//data seems to be in order
+	//console.log(clickStamp, clickType, amountSpent, target, placeBelow);
+	
+	var endDateObj = new Date(parseInt(clickStamp + "000"));
+	var	dayOfTheWeek = endDateObj.toString().split(' ')[0];
+	var	shortHandDate = (endDateObj.getMonth() + 1) + "/" + 
+						endDateObj.getDate() + "/" + 
+						(endDateObj.getFullYear());
+	var shortHandTimeHours = (endDateObj.getHours()),
+		shortHandTimeMinutes = (endDateObj.getMinutes()),
+		shortHandTimeAMPM = "am";
+
+		if(shortHandTimeHours >= 12){
+			shortHandTimeHours = shortHandTimeHours % 12;
+			shortHandTimeAMPM = "pm";
+		}
+		if(shortHandTimeMinutes < 10){
+			shortHandTimeMinutes = "0" + shortHandTimeMinutes;
+		}
+
+	var	shortHandTime = shortHandTimeHours + "<b>:</b>" + shortHandTimeMinutes + shortHandTimeAMPM;
+
+
+	var	titleHTML = "";
+	var target = "";
+	
+	if(clickType == "bought"){
+		titleHTML = "You spent <b>" + amountSpent + "$</b> on it.";
+		target = "#cost-log";
+
+	}else if (clickType == "used"){
+		titleHTML = "You <em>did</em> it at <b>" + shortHandTime + "</b>.";
+		target = "#use-log";
+
+	}else if(clickType == "craved"){
+		titleHTML = "You <em>didn\'t do</em> it at <b>" + shortHandTime + "</b>.";
+		target = "#use-log";
+
+	}
+
+	var template =  '<div class="item">' +
+						'<hr/><p class="title">' + titleHTML + '</p>' +
+						'<p class="click-date" style="text-align:center;color:D8D8D8">' +
+							'<span class="dayOfTheWeek">' + dayOfTheWeek + '</span>,&nbsp;' +
+							'<span class="shortHandDate">' + shortHandDate + '</span>' +
+						'</p>' + 
+					'</div><!--end goal-log item div-->';
+
+					//console.log(template);
+
+
+	if(placeBelow){
+		$(target).append(template);
+	}else{
+		$(target).prepend(template);
+	}	
+
+	
+	//and make sure the heading exists too
+	$(target + "-heading").show();
+}
 
 
 
@@ -974,6 +1107,7 @@ function hideInactiveStatistics(relevantPane){
 		if (json.statistics.cost.clickCounter === 0){
 			$("#bought-total").hide();
 			$("#cost-content .timer-recepticle").hide();
+			$("#cost-log-heading").hide();
 
 		}
 		if(json.statistics.cost.averageBetweenClicks === 0){
@@ -1013,6 +1147,7 @@ function hideInactiveStatistics(relevantPane){
 		if (json.statistics.use.clickCounter === 0){
 			$("#use-total").hide();
 			$("#use-content .timer-recepticle").hide();
+			$("#use-log-heading").hide();
 
 		}
 
@@ -1074,6 +1209,7 @@ function showActiveStatistics(relevantPane){
 		if (json.statistics.cost.clickCounter !== 0){
 			$("#bought-total").show();
 			$("#cost-content .timer-recepticle").show();
+			$("#cost-log-heading").show();
 
 		}
 		if(json.statistics.cost.averageBetweenClicks !== 0){
@@ -1104,6 +1240,7 @@ function showActiveStatistics(relevantPane){
 		if (json.statistics.use.clickCounter !== 0){
 			$("#use-total").show();
 			$("#use-content .timer-recepticle").show();
+			$("#use-log-heading").show();
 
 		}
 		
@@ -1363,8 +1500,6 @@ function showActiveStatistics(relevantPane){
             var smokeTimer;
             var boughtTimer;
 			var goalTimer;
-            var sinceLastAction;
-            var secondsBetweenSmokes = [];
 
 
 	 //hide timers on initiation
@@ -1498,6 +1633,9 @@ if(localStorage.esCrave){
 								json.statistics.use.craveCounter++;
 								$("#crave-total").html(json.statistics.use.craveCounter);
 								updateActionTable(timestampSeconds, "craved");
+
+								//add record into log
+								placeActionIntoLog(timestampSeconds, "craved", null, false);
 								
 								var currCravingsPerSmokes = Math.round(json.statistics.use.craveCounter / json.statistics.use.clickCounter *10)/10;
 								$("#avgDidntPerDid").html(currCravingsPerSmokes);
@@ -1520,6 +1658,8 @@ if(localStorage.esCrave){
 						//update relevant statistics
 							updateActionTable(timestampSeconds, "used");
 						
+							//add record into log
+							placeActionIntoLog(timestampSeconds, "used", null, false);
 						
 							//fake firstStampUses in json obj
 							if(json.statistics.use.clickCounter == 0){
@@ -1619,7 +1759,19 @@ if(localStorage.esCrave){
 								currHours=currHours % 12;
 							}
 							$("#goal-content .time-picker-hour").val(currHours);
-							$("#goal-content .time-picker-minute").val(currMintues);
+
+							//set minutes to 0, 15, 30, or 45
+							var currMintuesRounded = 0;
+							if(currMintues > 8){
+								currMintuesRounded = 15;
+							}
+							if(currMintues > 23){
+								currMintuesRounded = 30;
+							}
+							if(currMintues > 38){
+								currMintuesRounded = 45;
+							}
+							$("#goal-content .time-picker-minute").val(currMintuesRounded);
 						
 					}
             }); //end bought-button click handler
@@ -2165,6 +2317,9 @@ if(localStorage.esCrave){
 				}else{
 					var timestampSeconds = Math.round(new Date()/1000);
 					updateActionTable(timestampSeconds, "bought", amountSpent);
+
+					//add record into log
+					placeActionIntoLog(timestampSeconds, "bought", amountSpent, false);
 					
 					//fake firstStampBought in json obj
 					if(json.statistics.cost.clickCounter == 0){
@@ -2196,9 +2351,7 @@ if(localStorage.esCrave){
 					initiateBoughtTimer();	
 					
 					adjustFibonacciTimerToBoxes("bought-timer");
-
 					showActiveStatistics("cost-content");
-
 					hideInactiveStatistics("cost-content");
 
 					//there is an active bought related goal

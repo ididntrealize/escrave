@@ -422,22 +422,38 @@ h4{
 
 /* GOAL LOG */
 
+#cost-log .item .title,
+#use-log .item .title,
 #goal-log .item .title{
 	margin-top: 13px;
     font-size: 1.2rem;
 }
+#cost-log .item .click-date,
+#use-log .item .click-date
 #goal-log .item .goal-date{
 	color:#d6d6d6;
 }
-#goal-log .item p {
+#cost-log .item p,
+#use-log .item p,
+#goal-log .item p{
 	margin-bottom:0px;
 }
+#cost-log .item hr,
+#use-log .item hr,
 #goal-log .item hr{
 	margin-top:5px;
 }
 
-/* show more goals button */
+/* show more buttons */
 
+#cost-log-show-more button.btn,
+#cost-log-show-more p{
+	margin-bottom: 0px;
+}
+#use-log-show-more button.btn,
+#use-log-show-more p{
+	margin-bottom: 0px;
+}
 #goal-log-show-more button.btn,
 #goal-log-show-more p{
 	margin-bottom: 0px;
