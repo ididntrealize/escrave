@@ -26,6 +26,30 @@ var welcomeToMyJavascriptDoc;
  * and one to dump their storage for debugging purposes.
  * 
  * Dig in, and please get back to me about any inconsistencies, or improvements!
+ * 
+ * ONE LAST THING - the software license
+ * 
+ * MIT License
+
+Copyright (c) 2019 Corey Boiko
+
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the "Software"), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in all
+copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+SOFTWARE.
 
 *********************************************************************************/
 
@@ -172,9 +196,12 @@ var userIsActive = true;
 									var useActionsToAddMax = useTabActions.length - 1,
 										useActionsToAddMin = useTabActions.length - 10;
 
-									function addMoreIntoUseLog(logTarget){
-										if(useActionsToAddMax > 0){
+									function addMoreIntoUseLog(){
+										if(useActionsToAddMax >= 0){
+                                            console.log(useActionsToAddMax + " = useActionsToAddMax, above zero");
 											for(var i = useActionsToAddMax; i >= useActionsToAddMin && i >= 0; i--){
+
+                                                console.log("inside for loop");
 
 											var currClickStamp = useTabActions[i].timestamp,
 												currClickType = useTabActions[i].clickType;
@@ -187,7 +214,7 @@ var userIsActive = true;
 														useActionsToAddMax -= 10;
 														
 													//if button is not displayed
-														if($("#use-log-show-more").hasClass("d-none")){
+														if($("#use-log-show-more").hasClass("d-none") && useTabActions.length > 10){
 															$("#use-log-show-more").removeClass("d-none");
 															$("#use-log-show-more").click(function(){
 																addMoreIntoUseLog();
@@ -298,7 +325,7 @@ var userIsActive = true;
 										costActionsToAddMin = boughtCount.length - 10;
 
 										function addMoreIntoCostLog(){
-											if(costActionsToAddMax > 0){
+											if(costActionsToAddMax >= 0){
 												for(var i = costActionsToAddMax; i >= costActionsToAddMin && i >= 0; i--){
 													//console.log("i in add to log = " + i);
 												var currClickStamp = boughtCount[i].timestamp,
@@ -313,7 +340,7 @@ var userIsActive = true;
 															costActionsToAddMax -= 10;
 
 														//if button is not displayed
-															if($("#cost-log-show-more").hasClass("d-none")){
+															if($("#cost-log-show-more").hasClass("d-none") && boughtCount.length > 10){
 																$("#cost-log-show-more").removeClass("d-none");
 																$("#cost-log-show-more").click(function(){
 																	addMoreIntoCostLog();
@@ -473,8 +500,9 @@ var userIsActive = true;
 											goalsToAddMin = inactiveGoals.length - 10;
 
 										function addMoreIntoGoalLog(){
-											if(goalsToAddMin > 0){
-												for(var i = goalsToAddMax; i >= goalsToAddMin; i--){
+											if(goalsToAddMax >= 0){
+                                                //console.log("goalsToAddMin>0");
+												for(var i = goalsToAddMax; i >= goalsToAddMin && i >= 0; i--){
 													//console.log("i in add to log = " + i);
 												var currStartStamp = inactiveGoals[i].timestamp,
 													currEndStamp = inactiveGoals[i].goalStopped,
@@ -482,11 +510,11 @@ var userIsActive = true;
 													//append 10 new goals
 													placeGoalIntoLog(currStartStamp, currEndStamp, currGoalType, true);
 
-													if(i == goalsToAddMin){
+													if(i == goalsToAddMin || i == 0){
 														goalsToAddMin -= 10;
 														goalsToAddMax -= 10;
 														//if button is not displayed
-															if($("#goal-log-show-more").hasClass("d-none")){
+															if($("#goal-log-show-more").hasClass("d-none") && inactiveGoals.length > 10){
 																$("#goal-log-show-more").removeClass("d-none");
 																$("#goal-log-show-more").click(addMoreIntoGoalLog);
 															}
@@ -896,7 +924,7 @@ function placeActionIntoLog(clickStamp, clickType, amountSpent, placeBelow){
 	var target = "";
 	
 	if(clickType == "bought"){
-		titleHTML = "You spent <b>" + amountSpent + "$</b> on it.";
+		titleHTML = "You spent <b>" + parseInt(amountSpent) + "$</b> on it.";
 		target = "#cost-log";
 
 	}else if (clickType == "used"){
@@ -930,7 +958,6 @@ function placeActionIntoLog(clickStamp, clickType, amountSpent, placeBelow){
 	//and make sure the heading exists too
 	$(target + "-heading").show();
 }
-
 
 
 /* CONVERT JSON TO LIVE STATS */

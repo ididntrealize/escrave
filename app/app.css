@@ -57,7 +57,7 @@ h4{
 	padding-left:7px;
 	padding-right:7px;
 	padding-top:0px;
-	min-height:100vh;
+	min-height:calc(100vh - 50px);
 }
 
 .header-logo{

@@ -54,6 +54,7 @@ i {
 .navbar-expand-lg .btn {
   font-size: 1.2rem;
   font-weight: 750;
+  margin-bottom:10px;
 }
 
 .navbar-brand img {
@@ -204,6 +205,10 @@ section {
   .navbar-brand img {
     max-height: 71px;
   }
+  .navbar-expand-lg .btn {
+     margin-bottom:5px;
+     margin-top:5px;
+    }   
   .main-offer .caption {
     top: 100px;
     right: 20%;
