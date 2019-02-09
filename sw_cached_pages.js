@@ -1,4 +1,4 @@
-var version = 'v1.02::pages';
+var version = 'v1.03::pages';
 
 //call install event 
 self.addEventListener('install', function(event){
