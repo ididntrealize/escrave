@@ -194,7 +194,7 @@ var userIsActive = true;
 									/* ADD ACTIONS INTO LOG */
 									/* only display a certain number of actions per page */
 									var useActionsToAddMax = useTabActions.length - 1,
-										useActionsToA= useTabActions.length - 10;
+										useActionsToAddMin= useTabActions.length - 10;
 
 									function addMoreIntoUseLog(){
 										if(useActionsToAddMax >= 0){
