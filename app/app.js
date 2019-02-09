@@ -194,14 +194,14 @@ var userIsActive = true;
 									/* ADD ACTIONS INTO LOG */
 									/* only display a certain number of actions per page */
 									var useActionsToAddMax = useTabActions.length - 1,
-										useActionsToAddMin = useTabActions.length - 10;
+										useActionsToA= useTabActions.length - 10;
 
 									function addMoreIntoUseLog(){
 										if(useActionsToAddMax >= 0){
-                                            console.log(useActionsToAddMax + " = useActionsToAddMax, above zero");
+                                            //console.log(useActionsToAddMax + " = useActionsToAddMax, above zero");
 											for(var i = useActionsToAddMax; i >= useActionsToAddMin && i >= 0; i--){
 
-                                                console.log("inside for loop");
+                                                //console.log("inside for loop");
 
 											var currClickStamp = useTabActions[i].timestamp,
 												currClickType = useTabActions[i].clickType;
@@ -692,13 +692,19 @@ var userIsActive = true;
 							var	minFormatted = Math.floor((now - min) / 86400),
 								maxFormatted = Math.floor((now - max) / 86400);
 								
-								console.log("min = " + min + "\nMax = " + max);
 								if(minFormatted == 0){
 									minFormatted = "-" + (minFormatted);
-								}
+								}else{
+                                   minFormatted = (minFormatted * -1);
+                                }
+
 								if(maxFormatted == 0){
 									maxFormatted = "-" + (maxFormatted);
-								}
+								}else{
+                                    maxFormatted = (maxFormatted * -1);
+                                }
+                                console.log("minFormatted = " + minFormatted + "\nmaxFormatted = " + maxFormatted);
+								
 								
 							var message = "You can still get a percentage of points for how long you waited. " + 
 									"Around when do you think you broke your goal?";
@@ -726,8 +732,7 @@ var userIsActive = true;
 									'</div>' +
 								'<div id="datepicker-notification" style="display:inline-block;"></div>' +
 								'<script type="text/javascript">' + 
-									'$( "#datepicker-notification" ).datepicker({ minDate:' + minFormatted + ', maxDate:' + maxFormatted + '});' +
-									'$( "#datepicker-notification" ).datepicker();' +
+									'$( "#datepicker-notification" ).datepicker({ minDate:' + minFormatted+ ', maxDate:' + maxFormatted + '});' +
 									'var currHours = new Date().getHours();' +
 									'$("#goalEndTimePicker .time-picker-hour").val(currHours%12);' +
 									'if(currHours>=12){ $("#goalEndTimePicker .time-picker-am-pm").val("PM"); }' +
@@ -747,6 +752,7 @@ var userIsActive = true;
 
 
 							var tempEndStamp = convertDateTimeToTimestamp('#datepicker-notification', '#goalEndTimePicker' ); 
+                            console.log(tempEndStamp);
 								if(tempEndStamp - startStamp  > 0 || endStamp  - tempEndStamp < 0){
 									changeGoalStatus(2, goalType, tempEndStamp);
 									placeGoalIntoLog(startStamp, tempEndStamp, goalType, false); 
@@ -878,8 +884,13 @@ var userIsActive = true;
 				}	
 
 					//s //m //h //d
-				if (rangeInSeconds > (60*60*60)){
-					finalStringStatistic = Math.floor(rangeInSeconds /(60*60*24)) + "<span>&nbsp;days&nbsp;&nbsp;</span>" + finalStringStatistic;
+				if (rangeInSeconds > (60*60*24)){
+                    var dayCount = Math.floor(rangeInSeconds /(60*60*24));
+                    var plural = "";
+                    if(dayCount > 1){
+                        plural = "s";
+                    }
+					finalStringStatistic = dayCount + "<span>day" + plural + "&nbsp;</span>" + finalStringStatistic;
 					//drop minutes
 					finalStringStatistic = finalStringStatistic.split("h")[0] + "h</span>";
 				}
