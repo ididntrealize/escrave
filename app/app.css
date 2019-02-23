@@ -17,9 +17,12 @@ a:hover, a:focus{
 	text-decoration: none;
 
 }
-
+h2{
+		text-align:center;
+	}
 h3{
-	margin-bottom: 13px;
+	margin-top:26px;
+	margin-bottom:13px;
 
 }
 h4{
@@ -122,38 +125,129 @@ h4{
 }
 
 
+/* app main area */
 
-
-/* app main tab menu - Cost, Use, Goals */
-.nav-tabs a {
-	background: black;
-	width:33.3%;
-	text-align: center;
-	padding: 10px;
-	border-top-right-radius: 13px;
-	border-top-left-radius: 13px;
-	color:#efefef;
-}
-.nav-tabs a.active {
-	background: white;
-	color:black;
+.main-content{
+    display:flex;
+    align-items:flex-start;
 }
 
-.nav-tabs{
-	margin: 7px 0px 0px 0px;
+.tab-content{
+    width:calc(100% - 75px);
+    
+
 }
 
 .tab-pane{
 	background: white;
 	padding: 14px 7px;
 
-}
+     -moz-border-radius: 5px;
+    -webkit-border-radius: 5px;
+    -khtml-border-radius: 5px;
+    border-radius:5px;
 
+}
 
 .tab-pane .btn{
 	margin-bottom:20px;
 }
 
+/* app main tab menu - Cost, Use, Goals */
+.button-bar{
+    background: white;
+    width:70px;
+    margin-left:5px;
+
+     -moz-border-radius: 5px;
+    -webkit-border-radius: 5px;
+    -khtml-border-radius: 5px;
+    border-radius:5px;
+}
+.nav-tabs a {
+	width:70px;
+	text-align: center;
+	padding: 7px 5px;
+}
+.nav-tabs a.active {
+	background: black;
+	color:white;
+}
+
+.nav-tabs{
+	margin: 7px 0px 0px 0px;
+}
+
+
+
+
+
+/* BASELINE QUESTIONNAIRE */
+    
+    .baseline-questionnaire .follow-up-questions{
+		display:none;
+	}
+	
+	.baseline-questionnaire div.question{
+		margin: 30px 0px;
+	}
+	.baseline-questionnaire div.question > label{
+		font-weight:550;
+	}
+	
+	
+
+
+/* REPORTS */
+
+    .weekly-report-template .week-range{
+		display:flex;
+		align-items:center;
+		justify-content:space-between;
+		margin-top:25px;
+		margin-bottom:25px;
+	}
+	
+	.weekly-report-template .week-range button,
+	.weekly-report-template .week-range .current-week{
+		display:flex;
+	}
+	.weekly-report-template .week-range .current-week > div{
+		display:inline-block
+	}
+	
+	
+	.report-statistics .statistic{
+		margin-top:15px;
+		margin-bottom:15px;
+	}
+	
+	.report-statistics .statistic label,
+	.report-statistics .statistic .percent-changed{
+		display:inline-block;
+		float:right;
+	}
+	
+	.report-statistics .statistic label{
+		color: #D6D6D6;
+		padding-right:15px;
+	
+	}
+	.report-statistics .statistic .percent-changed{
+		
+		clear:right;
+	}
+	.weekly-report-template .statistic .percent-changed.down{
+		color: #28a745;
+	}
+	.weekly-report-template .statistic .percent-changed.up{
+		color: #dc3545;
+	}
+	
+
+
+
+/* STATISTICS */
 .statistic-recepticle,
 .timer-recepticle{
 	text-align:center;
@@ -220,6 +314,8 @@ h4{
     width: 437px;
 	width: 100%;
 }
+
+
 	#cost-content .log-more-info-div div{
 		margin: 0px auto;
 		display: block;
@@ -235,12 +331,24 @@ h4{
 		text-align: center;
 		-moz-appearance:textfield;
 	}
-		/*No more spinny shit on the number inputs */
-	input::-webkit-outer-spin-button,
-	input::-webkit-inner-spin-button {
-		-webkit-appearance: none;
-		margin: 0;
-	}
+
+	/*No more spinny shit on the number inputs */
+        input::-webkit-outer-spin-button,
+        input::-webkit-inner-spin-button {
+            -webkit-appearance: none;
+            margin: 0;
+        }
+
+    /*DOUBLE NO MORE SPINNY SHIT hide spinners on number inputs*/
+        input[type="number"]::-webkit-outer-spin-button, input[type="number"]::-webkit-inner-spin-button {
+            -webkit-appearance: none;
+            margin: 0;
+        }
+        
+        input[type="number"] {
+            -moz-appearance: textfield;
+        }
+
 
 	#cost-content .log-more-info-div label{
 		margin: 15px auto;
