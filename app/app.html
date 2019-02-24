@@ -42,6 +42,18 @@
     
     <link rel="stylesheet" href="../css/jquery-ui.css"/>
 
+  <!-- Font awesome
+    <link
+      rel="stylesheet"
+      href="https://use.fontawesome.com/releases/v5.7.0/css/all.css"
+      integrity="sha384-lZN37f5QGtY3VHgisS14W3ExzMWZxybE1SJSEsQp9S+oqd12jhcu+A56Ebc1zFSJ"
+      crossorigin="anonymous"
+    />
+  -->
+    <link href="../fontawesome/css/all.css" rel="stylesheet" />
+
+
+
 
     <!-- Custom styles for this template -->
     <link href="app.css" rel="stylesheet" />
@@ -52,21 +64,12 @@
     <div id="greyed-out-div"></div>
 
     <div class="container app-background">
+    <div id="header">
       <div class="hamburger">
         <div class="navbar-header">
-          <nav class="navbar navbar-toggleable-md navbar-light bg-faded">
-            <button
-              class="navbar-toggler navbar-toggler-right"
-              type="button"
-              data-toggle="collapse"
-              data-target="#options-collapse-menu"
-              aria-controls="options-collapse-menu"
-              aria-expanded="false"
-              aria-label="Toggle navigation"
-            >
-              <span class="navbar-toggler-icon"></span>
+            <button id="settings-tab-toggler" class="navbar-toggler navbar-toggler-right" href="#settings-content" data-toggle="tab" aria-expanded="false">
+              <i class="fas fa-cog fa-2x"></i>
             </button>
-          </nav>
         </div>
       </div>
       <div class="logo-and-tagline">
@@ -74,51 +77,7 @@
           <span class="tagline">esCrave</span>
         <!--p style="">Anonymous Habit Tracker</p -->
       </div>
-      <nav id="options-navbar" class="navbar collapse navbar-collapse" role="navigation" >
-        <div class="container">
-          <!-- Collect the nav links, forms, and other content for toggling -->
-          <div class="collapse navbar-collapse" id="options-collapse-menu">
-            <!-- 
-					Options
-						-Share stats
-							?esCrave does not track anything, to ensure that your habits remain confidential. 
-							However, we want to improve our app based on how you use it, so please share your current stats with us by clicking this button!
-
-						-Undo last click 	
-						
-						-Start over
-							?We understand that you may have to try multiple times before being done with esCrave for good, 
-							so give it another shot by clicking this button!
-
-					-->
-
-            <ul class="nav navbar-nav" class="text-center">
-              <!-- for now, gonna leave this functionality out
-              <li><a id="shareStatsButton" href="#">Share stats</a></li>
-
-               <div class="dropdown-divider"></div>
-               -->
-               
-              <li><a id="clearTablesButton" href="#">Start over</a></li>
-
-              <div class="dropdown-divider"></div>
-
-              <li><a id="undoActionButton" href="#">Undo last click</a></li>
-
-              <div class="dropdown-divider"></div>
-
-
-              <li><a href="../index.html">About esCrave</a></li>
-              <!--li><a href="../index.html#value-proposition">Benefits</a></li>
-              <li><a href="../index.html#functionality">Functionality</a></li>
-              <li><a href="../index.html#privacy">Privacy</a></li>
-              <li><a href="../index.html#habits">Habits</a></li>
-              <li><a href="../index.html#methods">Methods</a></li-->
-              
-            </ul>
-          </div>
-        </div>
-      </nav>
+    </div>
       <div id="notifications-container">
           
         <!--div class="notification" >
@@ -136,9 +95,9 @@
 
         <div class="tab-content">
              <!-- goal - LOG MORE INFO DIV -->
-                <div class="log-more-info-div goal-more-info">
+                <div class="goal log-more-info-div">
                     
-                    <h3 class="text-center">I want to wait until at least</h3>
+                    <h3 class="text-center">I want to wait until</h3>
                                 <!-- custom Time picker-->
                                 <div class="time-picker-container">
                                     
@@ -205,7 +164,7 @@
                 </div>
 
             <!-- spent - LOG MORE INFO DIV -->
-                <div class="log-more-info-div">
+                <div class="cost log-more-info-div">
                     <div>
                     <h3 class="text-center">I spent:</h3>
                     <label><input id="spentInput" type="number" /> $ </label>
@@ -363,16 +322,151 @@
             </div>
 
             <div class="tab-pane" id="statistics-content">
-                <!-- Start cost area -->
+
+                <h2>Live Statistics</h2>
+
+                <div class="initial-instructions">
+                    <p>
+                        This area will become populated with statistics as you interact more with the app's action buttons, such as:
+                    </p>
+                    <ul>
+                        <li>
+                            Set goal
+                        </li>
+                        <li>
+                            Did it
+                        </li>
+                        <li>
+                            Didn't
+                        </li>
+                        <li>
+                            spent
+                        </li>
+                    </ul>
+
+                </div>
+                
+               
+               <!-- Start Goal area -->
+                <div id="goal-content">
+                <!--h3 class="text-center">I wanted to...</h3-->
+                
+                <div class="clickCounter"><span id="numberOfGoalsCompleted"></span> </div>
+
+                   
+
+               
+                <div class="row">
+                    <div class="col-7 col-sm-6">
+                    <div class="timer-recepticle">
+                        <div id="goal-timer" class="fibonacci-timer">
+                        <div class="boxes">
+                            <div>
+                            <span class="timerSpan daysSinceLastClickSpan">0</span>
+                            <span>Days</span>
+                            </div>
+
+                            <div>
+                            <span class="timerSpan hoursSinceLastClickSpan">0</span>
+                            <span>Hours</span>
+                            </div>
+
+                            <div>
+                            <span class="timerSpan minutesSinceLastClickSpan">0</span>
+                            <span>Mins</span>
+                            </div>
+
+                            <div>
+                            <span class="timerSpan secondsSinceLastClickSpan"
+                                >00</span
+                            >
+                            <span>Secs</span>
+                            </div>
+                        </div>
+                        </div>
+                        <p class="">Until Next time</p>
+                    </div>
+                    </div>
+                    <div class="col-5 col-sm-6">
+                        
+                        <div class="statistic-recepticle">
+                        <span id="longestGoalCompleted" class="statistic">
+                            test
+                        </span>
+                        <p>Longest goal</p>
+                        </div>
+                    </div>
+                   
+                </div>
+                </div>
+                <!--end goal tab pane-->
+
+                <!-- Start Use are -->
+                <div id="use-content">
+                <!--h3 class="text-center">I wanted to...</h3-->
+               
+                <div class="row no-gutters">
+                    <div class="col-7 col-sm-6" style="padding-right:3px;">
+                    
+
+                    <div class="timer-recepticle">
+                        <div id="smoke-timer" class="fibonacci-timer">
+                        <div class="boxes">
+                            <div>
+                            <span class="timerSpan daysSinceLastClickSpan">0</span>
+                            <span>Days</span>
+                            </div>
+
+                            <div>
+                            <span class="timerSpan hoursSinceLastClickSpan">0</span>
+                            <span>Hours</span>
+                            </div>
+
+                            <div>
+                            <span class="timerSpan minutesSinceLastClickSpan">0</span>
+                            <span>Mins</span>
+                            </div>
+
+                            <div>
+                            <span class="timerSpan secondsSinceLastClickSpan"
+                                >00</span
+                            >
+                            <span>Secs</span>
+                            </div>
+                        </div>
+                        </div>
+                        <p>Since last time</p>
+                    </div>
+                    <div class="statistic-recepticle">
+                        <span id="averageTimeBetweenUses" class="statistic">
+                            test
+                        </span>
+                        <p>Avg time between</p>
+                    </div>
+                    </div>
+
+                    <div class="col-5 col-sm-6">
+                    
+                        <div class="statistic-recepticle">
+                        <span id="avgDidntPerDid" class="statistic"> test </span>
+                        <p>Didnts per dids</p>
+                        </div>
+                        <div class="statistic-recepticle">
+                        <span id="cravingsResistedInARow" class="statistic">
+                            test
+                        </span>
+                        <p>Didnts in a row</p>
+                        </div>
+
+                    </div>
+                   
+                </div>
+                </div>
+
+                 <!-- Start cost area -->
                 <div id="cost-content">
                 <!--h3 class="text-center">I wanted to...</h3-->
 
-                <div id="bought-total" class="clickCounter">0</div>
-                <button id="bought-button" class="btn btn-lg btn-dark btn-block">
-                    I bought some
-                </button>
-
-                
 
                 <div class="row">
                     <div class="col-7 col-sm-6">
@@ -458,187 +552,46 @@
                         <p>Amount spent</p>
                     </div>
                     </div>
-                    <div class="col-12">
-                        <h2 id="cost-log-heading" style="margin-top:25px;text-align: center;">Cost Log</h2>
-                        
-                        <div id="cost-log">
-        
-                            <!--div class="item">
-                                <p class="title">
-                                
-
-                                </p>
-                                
-                                <p class="cost-date" style="text-align:center;color:D8D8D8">
-                                <span class="dayOfTheWeek">Monday,</span>&nbsp;<span class="">1/17/2019</span>
-                                </p>
-                            <hr/>
-                            </div-->
-                        
-        
-                        </div>
-                        <div id="cost-log-show-more" class="text-center d-none">
-                        <button href="#" class="btn btn-md btn-info" style="margin-top:15px;">Show More</button>
-                        </div>
-                    </div>
+                    
                 </div>
                 </div>
 
-                <!-- Start Use are -->
-                <div id="use-content">
-                <!--h3 class="text-center">I wanted to...</h3-->
-                <div class="row">
-                    <!-- USE TOTAL STATISTIC -->
-                    <div class="col-6" style="padding: 0px 6px 0px 12px;">
-                        <div id="use-total" class="clickCounter"></div>
-
-                        <button id="smoke-button" class="btn btn-lg btn-dark btn-block">
-                        I did it
-                        </button>
-                    </div>
-                    <div class="col-6" style="padding: 0px 12px 0px 6px;">
-                        <div id="crave-total" class="clickCounter">0</div>
-
-                        <button id="crave-button" class="btn btn-lg btn-dark btn-block">
-                            I didn't
-                        </button>
-                    </div>
-
-                </div>
-                <div class="row no-gutters">
-                    <div class="col-7 col-sm-6" style="padding-right:3px;">
+                <!-- HABIT LOG-->
+                <div class="col-12">
+                    <h2 id="habit-log-heading" style="margin-top:25px;text-align: center;">Habit Log</h2>
+                    
+                    <div class="initial-instructions">
+                        <p>
+                           As you click action logging buttons, a record will be made in this area of each click. Change what shows here in the app 
+                          <a class="settings-tab-toggler" href="#settings-content" data-toggle="tab">Settings</a>.  
+                        </p>
                     
 
-                    <div class="timer-recepticle">
-                        <div id="smoke-timer" class="fibonacci-timer">
-                        <div class="boxes">
-                            <div>
-                            <span class="timerSpan daysSinceLastClickSpan">0</span>
-                            <span>Days</span>
-                            </div>
-
-                            <div>
-                            <span class="timerSpan hoursSinceLastClickSpan">0</span>
-                            <span>Hours</span>
-                            </div>
-
-                            <div>
-                            <span class="timerSpan minutesSinceLastClickSpan">0</span>
-                            <span>Mins</span>
-                            </div>
-
-                            <div>
-                            <span class="timerSpan secondsSinceLastClickSpan"
-                                >00</span
-                            >
-                            <span>Secs</span>
-                            </div>
-                        </div>
-                        </div>
-                        <p>Since last time</p>
-                    </div>
-                    <div class="statistic-recepticle">
-                        <span id="averageTimeBetweenUses" class="statistic">
-                            test
-                        </span>
-                        <p>Avg time between</p>
-                    </div>
                     </div>
 
-                    <div class="col-5 col-sm-6">
-                    
-                        <div class="statistic-recepticle">
-                        <span id="avgDidntPerDid" class="statistic"> test </span>
-                        <p>Didnts per dids</p>
-                        </div>
-                        <div class="statistic-recepticle">
-                        <span id="cravingsResistedInARow" class="statistic">
-                            test
-                        </span>
-                        <p>Didnts in a row</p>
-                        </div>
+                    <div id="habit-log">
+    
+                        <!--div class="item">
+                            <p class="title">
+                            
 
-                    </div>
-                    <div class="col-12">
-                        <h2 id="use-log-heading" style="margin-top:25px;text-align: center;">Use Log</h2>
-                        
-                        <div id="use-log">
-        
-                            <!--div class="item">
-                                <p class="title">
-                                
-                                </p>
-                                
-                                <p class="goal-date" style="text-align:center;color:D8D8D8">
-                                <span class="dayOfTheWeek">Monday,</span>&nbsp;<span class="">1/17/2019</span>
-                                </p>
-                            <hr/>
-                            </div-->
-                        
-        
-                        </div>
-                        <div id="use-log-show-more" class="text-center d-none">
-                        <button href="#" class="btn btn-md btn-info" style="margin-top:15px;">Show More</button>
-                        </div>
-                    </div>
-                </div>
-                </div>
-
-                <!-- Start Goal area -->
-                <div id="goal-content">
-                <!--h3 class="text-center">I wanted to...</h3-->
-                
-                <div class="clickCounter"><span id="numberOfGoalsCompleted"></span> </div>
-
-                    <button id="goal-button" class="btn btn-lg btn-success btn-block">
-                    Set a goal
-                    </button>
-
-               
-                <div class="row">
-                    <div class="col-7 col-sm-6">
-                    <div class="timer-recepticle">
-                        <div id="goal-timer" class="fibonacci-timer">
-                        <div class="boxes">
-                            <div>
-                            <span class="timerSpan daysSinceLastClickSpan">0</span>
-                            <span>Days</span>
-                            </div>
-
-                            <div>
-                            <span class="timerSpan hoursSinceLastClickSpan">0</span>
-                            <span>Hours</span>
-                            </div>
-
-                            <div>
-                            <span class="timerSpan minutesSinceLastClickSpan">0</span>
-                            <span>Mins</span>
-                            </div>
-
-                            <div>
-                            <span class="timerSpan secondsSinceLastClickSpan"
-                                >00</span
-                            >
-                            <span>Secs</span>
-                            </div>
-                        </div>
-                        </div>
-                        <p class="">Until Next time</p>
-                    </div>
-                    </div>
-                    <div class="col-5 col-sm-6">
-                        
-                        <div class="statistic-recepticle">
-                        <span id="longestGoalCompleted" class="statistic">
-                            test
-                        </span>
-                        <p>Longest goal</p>
-                        </div>
-                    </div>
-                    <div class="col-12">
-                    <h2 id="goal-log-heading" style="margin-top:25px;text-align: center;">Goal Log</h2>
-                    
-                    <div id="goal-log">
+                            </p>
+                            
+                            <p class="cost-date" style="text-align:center;color:D8D8D8">
+                            <span class="dayOfTheWeek">Monday,</span>&nbsp;<span class="">1/17/2019</span>
+                            </p>
+                        <hr/>
+                        </div-->
+                        <!--div class="item">
+                            <p class="title">
+                            
+                            </p>
+                            
+                            <p class="goal-date" style="text-align:center;color:D8D8D8">
+                            <span class="dayOfTheWeek">Monday,</span>&nbsp;<span class="">1/17/2019</span>
+                            </p>
+                        <hr/>
+                        </div-->
 
                         <!--div class="item">
                             <p class="title">
@@ -651,16 +604,13 @@
                             </p>
                             <hr/>
                         </div-->
-                        
+                    </div>
+                    <div id="habit-log-show-more" class="text-center d-none">
+                         <button href="#" class="btn btn-md btn-info" style="margin-top:15px;">Show More</button>
+                    </div>
+                </div>
+                
 
-                    </div>
-                    <div id="goal-log-show-more" class="text-center d-none">
-                        <button href="#" class="btn btn-md btn-info" style="margin-top:15px;">Show More</button>
-                    </div>
-                    </div>
-                </div>
-                </div>
-                <!--end goal tab pane-->
             </div>
 
 
@@ -674,8 +624,24 @@
 
                 <h3>App controls</h3>
 
-                <button class="btn btn-outline-warning"><i class="fas fa-undo-alt"></i>&nbsp;Undo last action</button>
-                <button class="btn btn-outline-danger"><i class="fas fa-trash-alt"></i>&nbsp;Reset all app data</button>
+                 <!-- 
+					Options
+						-Share stats
+							?esCrave does not track anything, to ensure that your habits remain confidential. 
+							However, we want to improve our app based on how you use it, so please share your current stats with us by clicking this button!
+
+						-Undo last click 	
+						
+						-Start over
+							?We understand that you may have to try multiple times before being done with esCrave for good, 
+							so give it another shot by clicking this button!
+
+					-->
+
+
+
+                <button id="undoActionButton" class="btn btn-outline-warning" href="#"><i class="fas fa-undo-alt"></i>&nbsp;Undo last action</button>
+                <button id="clearTablesButton"class="btn btn-outline-danger" href="#" ><i class="fas fa-trash-alt"></i>&nbsp;Reset all app data</button>
 
 
                 <h3>Displayed Live Statistics</h3>
@@ -866,26 +832,110 @@
 
         <!--button bar start-->
         <div class="button-bar">
-            <div class="button-group">
-                <div class="icon">
-                    1
+            
+            <div class="nav nav-tabs">
+                <div class="button-group">
+                   
+                     <a id="reports-tab-toggler" href="#reports-content" data-toggle="tab">
+                    <div class="icon">
+                       <i class="fas fa-file-alt fa-3x"></i>
+                    </div>
+                    <p class="button-text">
+                        Reports
+                    </p>
+                    
+                    
+                     </a>
                 </div>
-                <div class="button-text">
-                     button #1
+                <div class="button-group" style="margin-bottom:35px;">
+                   
+                    <a id="statistics-tab-toggler" href="#statistics-content" data-toggle="tab">
+                  
+                    <div class="icon">
+                       <i class="fas fa-chart-bar fa-3x"></i>
+                    </div>
+                    <p class="button-text">
+                        Stats
+                    </p>
+                    
+                    
+                     </a>
                 </div>
-            </div>
-            <ul class="nav nav-tabs">
-                <a id="reports-tab-toggler" href="#reports-content" data-toggle="tab">Reports</a>
-                <a id="statistics-tab-toggler" href="#statistics-content" data-toggle="tab">Statistics</a>
-                <a id="settings-tab-toggler" href="#settings-content" data-toggle="tab">Settings</a>
+               
 
+
+
+                 <div class="button-group">
+                    
+                  <a id="goal-button" href="#">
+                 
+                        <div class="icon">
+                       <i class="far fa-calendar-plus fa-3x"></i>
+                        </div>
+                        <p class="button-text">
+                           Set Goal
+                        </p>
+                        
+                    
+                     </a>
+                </div>
+
+
+                <div class="button-group">
+                    <div id="use-total" class="clickCounter">0</div>
+                 
+                    <a id="smoke-button" href="#">
+                 
+                        <div class="icon">
+                       <i class="fas fa-cookie-bite fa-3x"></i>
+                        </div>
+                        <p class="button-text">
+                            Did it
+                        </p>
+                        
+                    
+                     </a>
+                </div>
+                <div class="button-group">
+                    <div id="crave-total" class="clickCounter">0</div>
+                 
+                    <a id="crave-button" href="#">
+                 
+                        <div class="icon">
+                       <i class="fas fa-ban fa-3x"></i>
+                        </div>
+                        <p class="button-text">
+                            Didn't
+                        </p>
+                        
+                    
+                     </a>
+                </div>
+                <div class="button-group">
+                    
+                 <div id="bought-total" class="clickCounter">0</div>
+                 
+                    <a id="bought-button" href="#">
+                 
+                        <div class="icon">
+                       <i class="fas fa-dollar-sign fa-3x"></i>
+                        </div>
+                        <p class="button-text">
+                            Spent
+                        </p>
+                        
+                    
+                     </a>
+                </div>
+               
+                
                 <!--
                 <a id="cost-tab-toggler" href="#cost-content" data-toggle="tab">Cost</a>
                 <a id="use-tab-toggler" class="active" href="#use-content" data-toggle="tab">Use</a>
                 <a id="goal-tab-toggler" href="#goal-content" data-toggle="tab">Goals</a>
                 -->
             
-            </ul>
+            </div>
         </div>
     </div>
     <!-- /container -->

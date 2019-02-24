@@ -63,6 +63,7 @@ h4{
 	min-height:calc(100vh - 50px);
 }
 
+
 .header-logo{
 	display:inline-block;
 	padding:13px 5px;
@@ -72,8 +73,8 @@ h4{
 
 .logo-and-tagline{
 	display: inline-block;
-	width: calc(100% - 90px);
-	max-height:60px;
+	width: calc(100% - 70px);
+	max-height:70px;
 }
 .logo-and-tagline img{
 	display:inline-block;
@@ -90,7 +91,7 @@ h4{
 
 .hamburger{
 	float: right;
-	width: 90px;
+	width: 70px;
 }
 .logo-and-tagline p{
 	color:white;
@@ -103,26 +104,15 @@ h4{
 .hamburger .navbar-toggler{
 	background: white;
 	cursor: pointer;
-	margin-top:5px;
+	margin-top:10px;
 }
-#options-navbar{
-    width: 100%;
-	z-index: 1000;
-	padding: .5rem 1rem; 
-	padding-top: 5px;
+.hamburger button {
+    color: grey;
+}
+.hamburger button.active {
+	color:black;
+}
 
-}
-#options-navbar .container{
-	background: white;
-
-}
-#options-collapse-menu{
-	padding:7px;
-	padding-top:.5rem;
-}
-#options-collapse-menu {
-	margin-top:0px;
-}
 
 
 /* app main area */
@@ -164,14 +154,22 @@ h4{
     -khtml-border-radius: 5px;
     border-radius:5px;
 }
-.nav-tabs a {
-	width:70px;
-	text-align: center;
-	padding: 7px 5px;
+.button-bar .button-group{
+    width:100%;
+    margin-bottom:13px;
 }
-.nav-tabs a.active {
-	background: black;
-	color:white;
+.button-group a {
+    color: grey;
+	width:70px;
+    margin-bottom: 0px;
+}
+.button-group a .icon,
+.button-group a .button-text{
+    text-align: center;
+    margin-bottom:0px;
+}
+.button-group a.active {
+	color:black;
 }
 
 .nav-tabs{
@@ -316,16 +314,16 @@ h4{
 }
 
 
-	#cost-content .log-more-info-div div{
+	.cost.log-more-info-div div{
 		margin: 0px auto;
 		display: block;
 		max-width: 220px;
 	}
-	#cost-content .log-more-info-div h3{
+	.cost.log-more-info-div h3{
 		display: inline-block;
 		padding-right:20px;
 	}
-	#cost-content .log-more-info-div input{
+	.cost.log-more-info-div input{
 		color:grey;
 		max-width: 75px;
 		text-align: center;
@@ -350,7 +348,7 @@ h4{
         }
 
 
-	#cost-content .log-more-info-div label{
+	.cost.log-more-info-div label{
 		margin: 15px auto;
 		display: inline-block;
 		font-weight: 700;
@@ -360,12 +358,12 @@ h4{
 	}
 	
 	
-	#goal-content #goalEndPicker{
+	.goal.log-more-info-div #goalEndPicker{
 		display:table;
 		margin:20px auto;
 	}
 
-	#goal-content .time-picker-container{
+	.goal.log-more-info-div .time-picker-container{
 		text-align: center;
 	}
 
@@ -530,39 +528,23 @@ h4{
 
 /* GOAL LOG */
 
-#cost-log .item .title,
-#use-log .item .title,
-#goal-log .item .title{
+#habit-log .item .title{
 	margin-top: 13px;
     font-size: 1.2rem;
 }
-#cost-log .item .click-date,
-#use-log .item .click-date
-#goal-log .item .goal-date{
+#habit-log .item .date{
 	color:#d6d6d6;
 }
-#cost-log .item p,
-#use-log .item p,
-#goal-log .item p{
+#habit-log .item p{
 	margin-bottom:0px;
 }
-#cost-log .item hr,
-#use-log .item hr,
-#goal-log .item hr{
+#habit-log .item hr{
 	margin-top:5px;
 }
 
 /* show more buttons */
 
-#cost-log-show-more button.btn,
-#cost-log-show-more p{
-	margin-bottom: 0px;
-}
-#use-log-show-more button.btn,
-#use-log-show-more p{
-	margin-bottom: 0px;
-}
-#goal-log-show-more button.btn,
-#goal-log-show-more p{
+#habit-log-show-more button.btn,
+#habit-log-show-more p{
 	margin-bottom: 0px;
 }
