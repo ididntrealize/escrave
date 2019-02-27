@@ -1,18 +1,17 @@
 <!DOCTYPE html>
 <html lang="en">
-  <head>
+
+<head>
     <meta charset="utf-8" />
-    <meta
-      name="viewport"
-      content="width=device-width, initial-scale=1, shrink-to-fit=no"
-    />
-    <meta name="description" content="esCrave is an anonymous habit tracking web app which creates statistics from your inputs to put your habit into your own hands. The app helps users get and keep control of their guilty pleasure." />
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no" />
+    <meta name="description"
+        content="esCrave is an anonymous habit tracking web app which creates statistics from your inputs to put your habit into your own hands. The app helps users get and keep control of their guilty pleasure." />
     <meta name="author" content="Corey Boiko" />
-	<meta property="og:url" content="https://www.escrave.com/app/app.html" />
-	<meta property="og:image" content="https://www.escrave.com/images/graph-logo-large.png" />
-	<meta property="og:title" content="esCrave - habit tracking web app" />
-	<meta property="og:description" content="esCrave is an anonymous habit tracking web app which creates statistics from your inputs to put your habit into your own hands. The app helps users get and keep control of their guilty pleasure."
-	/>
+    <meta property="og:url" content="https://www.escrave.com/app/app.html" />
+    <meta property="og:image" content="https://www.escrave.com/images/graph-logo-large.png" />
+    <meta property="og:title" content="esCrave - habit tracking web app" />
+    <meta property="og:description"
+        content="esCrave is an anonymous habit tracking web app which creates statistics from your inputs to put your habit into your own hands. The app helps users get and keep control of their guilty pleasure." />
 
 
 
@@ -30,7 +29,7 @@
       crossorigin="anonymous"
     />
   -->
-    <link rel="stylesheet" href="../css/bootstrap.min.css"/>
+    <link rel="stylesheet" href="../css/bootstrap.min.css" />
 
     <!-- jQuery UI css 
     <link
@@ -39,10 +38,10 @@
       href="https://code.jquery.com/ui/1.12.1/themes/base/jquery-ui.css"
     />
     -->
-    
-    <link rel="stylesheet" href="../css/jquery-ui.css"/>
 
-  <!-- Font awesome
+    <link rel="stylesheet" href="../css/jquery-ui.css" />
+
+    <!-- Font awesome
     <link
       rel="stylesheet"
       href="https://use.fontawesome.com/releases/v5.7.0/css/all.css"
@@ -57,30 +56,31 @@
 
     <!-- Custom styles for this template -->
     <link href="app.css" rel="stylesheet" />
-  </head>
+</head>
 
-  <body>
+<body>
     <!-- div which greys out background -->
     <div id="greyed-out-div"></div>
 
     <div class="container app-background">
-    <div id="header">
-      <div class="hamburger">
-        <div class="navbar-header">
-            <button id="settings-tab-toggler" class="navbar-toggler navbar-toggler-right" href="#settings-content" data-toggle="tab" aria-expanded="false">
-              <i class="fas fa-cog fa-2x"></i>
-            </button>
+        <div id="header">
+            <div class="hamburger">
+                <div class="navbar-header">
+                    <button id="settings-tab-toggler" class="navbar-toggler navbar-toggler-right"
+                        href="#settings-content" data-toggle="tab" aria-expanded="false">
+                        <i class="fas fa-cog fa-2x"></i>
+                    </button>
+                </div>
+            </div>
+            <div class="logo-and-tagline">
+                <img class="img-fluid" src="../images/graph-logo-large.png" />
+                <span class="tagline">esCrave</span>
+                <!--p style="">Anonymous Habit Tracker</p -->
+            </div>
         </div>
-      </div>
-      <div class="logo-and-tagline">
-          <img class="img-fluid" src="../images/graph-logo-large.png"  />
-          <span class="tagline">esCrave</span>
-        <!--p style="">Anonymous Habit Tracker</p -->
-      </div>
-    </div>
-      <div id="notifications-container">
-          
-        <!--div class="notification" >
+        <div id="notifications-container">
+
+            <!--div class="notification" >
           <div class="notification-message">
             <p class="notification-text">Welcome to esCrave! Start by setting a goal, then come back to check on your status!</p>
             <a class="notification-close" href="#" onclick="clearNotification.call(this, event);">X</a>
@@ -89,489 +89,521 @@
 
           </div>
         </div-->
-      </div>
+        </div>
 
-    <div class="main-content">
+        <div class="main-content">
 
-        <div class="tab-content">
-             <!-- goal - LOG MORE INFO DIV -->
+            <div class="tab-content">
+                <!-- goal - LOG MORE INFO DIV -->
                 <div class="goal log-more-info-div">
-                    
+
                     <h3 class="text-center">I want to wait until</h3>
-                                <!-- custom Time picker-->
-                                <div class="time-picker-container">
-                                    
-                    <select class="time-picker-hour" data-min="0" data-max="23" data-step="1">
-                    <option value="0">12</option>
-                    <option value="1">1</option>
-                    <option value="2">2</option>
-                    <option value="3">3</option>
-                    <option value="4">4</option>
-                    <option value="5">5</option>
-                    <option value="6">6</option>
-                    <option value="7">7</option>
-                    <option value="8">8</option>
-                    <option value="9">9</option>
-                    <option value="10">10</option>
-                    <option value="11">11</option>
-                
-                    </select>
-                                <span class="label">
-                                        : 
-                                        </span>
-                                <select class="time-picker-minute" data-min="0" data-max="59" data-step="1">
-                                    <option value="0">00</option>
-                                
-                                    <option value="15">15</option>
-                            
-                                    <option value="30">30</option>
-                                
-                                    <option value="45">45</option>
-                            
-                                </select>
+                    <!-- custom Time picker-->
+                    <div class="time-picker-container">
 
-                                <select class="time-picker-am-pm">
-                                        <option value="AM">AM</option>
-                                        <option value="PM">PM</option>
-                                </select>
-                                
+                        <select class="time-picker-hour" data-min="0" data-max="23" data-step="1">
+                            <option value="0">12</option>
+                            <option value="1">1</option>
+                            <option value="2">2</option>
+                            <option value="3">3</option>
+                            <option value="4">4</option>
+                            <option value="5">5</option>
+                            <option value="6">6</option>
+                            <option value="7">7</option>
+                            <option value="8">8</option>
+                            <option value="9">9</option>
+                            <option value="10">10</option>
+                            <option value="11">11</option>
 
+                        </select>
+                        <span class="label">
+                            :
+                        </span>
+                        <select class="time-picker-minute" data-min="0" data-max="59" data-step="1">
+                            <option value="0">00</option>
 
-                            </div><!--end timepicker div-->
+                            <option value="15">15</option>
 
-                            <!-- DATE PICKER -->
-                            <div id="goalEndPicker"></div>
-                                
+                            <option value="30">30</option>
 
-                                <div style="display:block;text-align:center;">
-                                     <label for="boughtInput">
-                                                    <input id="boughtInput" type="checkbox" checked />&nbsp;To Buy it</label>
-                                     <br />
-                                          <label for="usedInput">
-                                                    <input id="usedInput" type="checkbox" checked />&nbsp;To Do it</label>
-                                </div>
+                            <option value="45">45</option>
+
+                        </select>
+
+                        <select class="time-picker-am-pm">
+                            <option value="AM">AM</option>
+                            <option value="PM">PM</option>
+                        </select>
 
 
 
+                    </div>
+                    <!--end timepicker div-->
+
+                    <!-- DATE PICKER -->
+                    <div id="goalEndPicker"></div>
+
+
+                    <div style="display:block;text-align:center;">
+                        <label for="boughtInput">
+                            <input id="boughtInput" type="checkbox" checked />&nbsp;To Buy it</label>
+                        <br />
+                        <label for="usedInput">
+                            <input id="usedInput" type="checkbox" checked />&nbsp;To Do it</label>
+                    </div>
 
 
 
 
-                                
-                                <button href="#" class="btn btn-dark btn-md btn-block">
-                    Submit
+
+
+
+
+                    <button href="#" class="btn btn-dark btn-md btn-block">
+                        Submit
                     </button>
                 </div>
 
-            <!-- spent - LOG MORE INFO DIV -->
+                <!-- spent - LOG MORE INFO DIV -->
                 <div class="cost log-more-info-div">
                     <div>
-                    <h3 class="text-center">I spent:</h3>
-                    <label><input id="spentInput" type="number" /> $ </label>
+                        <h3 class="text-center">I spent:</h3>
+                        <label><input id="spentInput" type="number" /> $ </label>
                     </div>
                     <button href="#" class="btn btn-dark btn-md btn-block">
-                    Submit
+                        Submit
                     </button>
                 </div>
 
-            <!--start reports tab area-->
-            <div class="tab-pane" id="reports-content">
-                <div class="baseline-questionnaire">
+                <!--start reports tab area-->
+                <div class="tab-pane" id="reports-content">
+                    <div class="baseline-questionnaire">
+                        <div class="row">
+                            <div class="col-12">
 
-                    <h2>Baseline Questionnaire</h2>
-		
-                        <hr/>
-                        
-                            <div class="question">
-                                <label>Have you picked something specific to track?</label>
-                                <div class="form-check">
-                                <label class="form-check-label">
-                                    <input type="radio" class="form-check-input" name="optradio" id="serious-user">Yes
-                                </label>
-                                </div>
-                                <div class="form-check">
-                                <label class="form-check-label">
-                                    <input type="radio" class="form-check-input" name="optradio" id="passerby-user">No
-                                </label>
-                                </div>
-                            </div>
-                                
-                        <div class="follow-up-questions">
-                            <div class="question">
-                                <label>How many times do you currently do it per week?</label>
-                                <div class="input-group">
-                                <input type="number" min="0" max="500" class="form-control" placeholder="Approximate amount">
-                                
-                                </div>
-                            </div>
-                            
-                            <div class="question">
-                                <label>How often would you prefer to do it per week?</label>
-                                <div class="input-group">
-                                <input type="number" min="0" max="500" class="form-control" placeholder="Goal amount">
-                                
-                                </div>
-                            </div>
-                                
-                            
-                            <div class="question">
-                                <label>How much do you currently spend on that thing per week?</label>
-                                <div class="input-group">
-                                <span class="input-group-addon">$</span>
-                                <input type="number" min="0" max="500" class="form-control" placeholder="Approximate amount">
-                                
-                                </div>
-                            </div>
-                                
-                            <div class="question">
-                                <label>How much would you prefer to spend on that thing per week?</label>
-                                
-                                <div class="input-group">
-                                <span class="input-group-addon">$</span>
-                                <input type="number" min="0" max="500" class="form-control" placeholder="Goal amount">
-                                
-                                </div>
-                            </div>
-                            
-                            <div class="text-xs-right">
-                                <button class="btn btn-outline-success">Submit</button>
-                            </div>
-                            
-                        </div>
-                            
+                                <h2>Baseline Questionnaire</h2>
 
+                                <hr />
 
-
-
-                </div>
-                <div class="weekly-report-template">
-
-
-                    <h2>Weekly Reports</h2>
-		
-                    <hr/>
-                    
-                    <div class="week-range">
-                        <!-- Icon left (previous) selector-->
-                            <button class="btn btn-outline-info">
-                                <i class="fas fa-caret-left"></i>
-                            </button>
-                        
-                        <!-- Current week selected -->
-                            <div class="current-week">
-                                <div class="start">2/14/2019</div>
-                                <div class="seperator">&nbsp;-&nbsp;</div>
-                                <div class="end">2/21/2019</div>
-                            </div>
-                        
-                        <!-- Icon right (next) selector-->
-                            <button class="btn btn-outline-info">
-                                <i class="fas fa-caret-right"></i>
-                            </button>
-                        
-                        <!-- Uses and resists PER day - one week-->
-                            <div class="ct-chart"></div>
-                    </div>
-                    <div class="report-statistics">
-                        <div class="statistic">
-                            
-                            
-                            <div class="percent-changed down">
-                                <i class="fas fa-caret-down"></i> 15%
-                            </div>
-                            <label>Uses VS. last week:</label>
-                            
-                        </div>
-                        <div class="statistic">
-                            
-                            
-                            <div class="percent-changed down">
-                                <i class="fas fa-caret-down"></i> 50%
-                            </div>
-                            <label>Uses VS. baseline:</label>
-                            
-                        </div>
-                        <div class="statistic">
-                            
-                            <div class="percent-changed up">
-                                <i class="fas fa-caret-up"></i>&nbsp;&nbsp; 5%
-                            </div>
-                            
-                            <label>Amount spent VS. last week:</label>
-                            
-                        </div>
-                        <div class="statistic">
-                            
-                            <div class="percent-changed down">
-                                <i class="fas fa-caret-down"></i>&nbsp;&nbsp; 7%
-                            </div>
-                            
-                            <label>Amount spent VS. baseline:</label>
-                            
-                        </div>
-                    
-                    </div>
-
-
-
-
-
-
-                </div>
-
-            </div>
-
-            <div class="tab-pane" id="statistics-content">
-
-                <h2>Live Statistics</h2>
-
-                <div class="initial-instructions">
-                    <p>
-                        This area will become populated with statistics as you interact more with the app's action buttons, such as:
-                    </p>
-                    <ul>
-                        <li>
-                            Set goal
-                        </li>
-                        <li>
-                            Did it
-                        </li>
-                        <li>
-                            Didn't
-                        </li>
-                        <li>
-                            spent
-                        </li>
-                    </ul>
-
-                </div>
-                
-               
-               <!-- Start Goal area -->
-                <div id="goal-content">
-                <!--h3 class="text-center">I wanted to...</h3-->
-                
-                <div class="clickCounter"><span id="numberOfGoalsCompleted"></span> </div>
-
-                   
-
-               
-                <div class="row">
-                    <div class="col-7 col-sm-6">
-                    <div class="timer-recepticle">
-                        <div id="goal-timer" class="fibonacci-timer">
-                        <div class="boxes">
-                            <div>
-                            <span class="timerSpan daysSinceLastClickSpan">0</span>
-                            <span>Days</span>
-                            </div>
-
-                            <div>
-                            <span class="timerSpan hoursSinceLastClickSpan">0</span>
-                            <span>Hours</span>
-                            </div>
-
-                            <div>
-                            <span class="timerSpan minutesSinceLastClickSpan">0</span>
-                            <span>Mins</span>
-                            </div>
-
-                            <div>
-                            <span class="timerSpan secondsSinceLastClickSpan"
-                                >00</span
-                            >
-                            <span>Secs</span>
-                            </div>
-                        </div>
-                        </div>
-                        <p class="">Until Next time</p>
-                    </div>
-                    </div>
-                    <div class="col-5 col-sm-6">
-                        
-                        <div class="statistic-recepticle">
-                        <span id="longestGoalCompleted" class="statistic">
-                            test
-                        </span>
-                        <p>Longest goal</p>
-                        </div>
-                    </div>
-                   
-                </div>
-                </div>
-                <!--end goal tab pane-->
-
-                <!-- Start Use are -->
-                <div id="use-content">
-                <!--h3 class="text-center">I wanted to...</h3-->
-               
-                <div class="row no-gutters">
-                    <div class="col-7 col-sm-6" style="padding-right:3px;">
-                    
-
-                    <div class="timer-recepticle">
-                        <div id="smoke-timer" class="fibonacci-timer">
-                        <div class="boxes">
-                            <div>
-                            <span class="timerSpan daysSinceLastClickSpan">0</span>
-                            <span>Days</span>
-                            </div>
-
-                            <div>
-                            <span class="timerSpan hoursSinceLastClickSpan">0</span>
-                            <span>Hours</span>
-                            </div>
-
-                            <div>
-                            <span class="timerSpan minutesSinceLastClickSpan">0</span>
-                            <span>Mins</span>
-                            </div>
-
-                            <div>
-                            <span class="timerSpan secondsSinceLastClickSpan"
-                                >00</span
-                            >
-                            <span>Secs</span>
-                            </div>
-                        </div>
-                        </div>
-                        <p>Since last time</p>
-                    </div>
-                    <div class="statistic-recepticle">
-                        <span id="averageTimeBetweenUses" class="statistic">
-                            test
-                        </span>
-                        <p>Avg time between</p>
-                    </div>
-                    </div>
-
-                    <div class="col-5 col-sm-6">
-                    
-                        <div class="statistic-recepticle">
-                        <span id="avgDidntPerDid" class="statistic"> test </span>
-                        <p>Didnts per dids</p>
-                        </div>
-                        <div class="statistic-recepticle">
-                        <span id="cravingsResistedInARow" class="statistic">
-                            test
-                        </span>
-                        <p>Didnts in a row</p>
-                        </div>
-
-                    </div>
-                   
-                </div>
-                </div>
-
-                 <!-- Start cost area -->
-                <div id="cost-content">
-                <!--h3 class="text-center">I wanted to...</h3-->
-
-
-                <div class="row">
-                    <div class="col-7 col-sm-6">
-                    <div class="timer-recepticle">
-                        <div id="bought-timer" class="fibonacci-timer">
-                        <div class="boxes">
-                            <div>
-                            <span class="timerSpan daysSinceLastClickSpan">0</span>
-                            <span>Days</span>
-                            </div>
-
-                            <div>
-                            <span class="timerSpan hoursSinceLastClickSpan">0</span>
-                            <span>Hours</span>
-                            </div>
-
-                            <div>
-                            <span class="timerSpan minutesSinceLastClickSpan">0</span>
-                            <span>Mins</span>
-                            </div>
-
-                            <div>
-                            <span class="timerSpan secondsSinceLastClickSpan"
-                                >00</span
-                            >
-                            <span>Secs</span>
-                            </div>
-                        </div>
-                        </div>
-                        <p>Since last time</p>
+                                <div class="question">
+                                    <label>Have you picked something specific to track?</label>
+                                    <div class="form-check">
+                                        <label class="form-check-label">
+                                            <input type="radio" class="form-check-input" name="optradio" id="serious-user">Yes
+                                        </label>
                                     </div>
-                                    <div class="statistic-recepticle">
-                                                <span id="averageTimeBetweenBoughts" class="statistic">
-                                                    test
-                                                </span>
-                                                <p>Avg time between</p>
+                                    <div class="form-check">
+                                        <label class="form-check-label">
+                                            <input type="radio" class="form-check-input" name="optradio" id="passerby-user">No
+                                        </label>
+                                    </div>
+                                </div>
+
+                                <div class="follow-up-questions">
+                                    <div class="question">
+                                        <label>How many times do you currently do it per week?</label>
+                                        <div class="input-group">
+                                            <input type="number" min="0" max="500" class="form-control"
+                                                placeholder="Approximate amount">
+
                                         </div>
+                                    </div>
+
+                                    <div class="question">
+                                        <label>How often would you prefer to do it per week?</label>
+                                        <div class="input-group">
+                                            <input type="number" min="0" max="500" class="form-control"
+                                                placeholder="Goal amount">
+
+                                        </div>
+                                    </div>
+
+
+                                    <div class="question">
+                                        <label>How much do you currently spend on that thing per week?</label>
+                                        <div class="input-group">
+                                            <span class="input-group-addon">$</span>
+                                            <input type="number" min="0" max="500" class="form-control"
+                                                placeholder="Approximate amount">
+
+                                        </div>
+                                    </div>
+
+                                    <div class="question">
+                                        <label>How much would you prefer to spend on that thing per week?</label>
+
+                                        <div class="input-group">
+                                            <span class="input-group-addon">$</span>
+                                            <input type="number" min="0" max="500" class="form-control"
+                                                placeholder="Goal amount">
+
+                                        </div>
+                                    </div>
+
+                                    <div class="text-xs-right">
+                                        <button class="btn btn-outline-success">Submit</button>
+                                    </div>
+
+                                </div>
+                            </div>
+                        </div>    
+
+
+
+
+                    </div>
+                    <div class="weekly-report-template">
+                        <div class="row">
+                            <div class="col-12">
+
+                                <h2>Weekly Reports</h2>
+
+                                <hr />
+
+                                <div class="week-range">
+                                    <!-- Icon left (previous) selector-->
+                                    <button class="btn btn-outline-info">
+                                        <i class="fas fa-caret-left"></i>
+                                    </button>
+
+                                    <!-- Current week selected -->
+                                    <div class="current-week">
+                                        <div class="start">2/14/2019</div>
+                                        <div class="seperator">&nbsp;-&nbsp;</div>
+                                        <div class="end">2/21/2019</div>
+                                    </div>
+
+                                    <!-- Icon right (next) selector-->
+                                    <button class="btn btn-outline-info">
+                                        <i class="fas fa-caret-right"></i>
+                                    </button>
+
+                                    <!-- Uses and resists PER day - one week-->
+                                    <div class="ct-chart"></div>
+                                </div>
+                                <div class="report-statistics">
+                                    <div class="statistic">
+
+
+                                        <div class="percent-changed down">
+                                            <i class="fas fa-caret-down"></i> 15%
+                                        </div>
+                                        <label>Uses VS. last week:</label>
+
+                                    </div>
+                                    <div class="statistic">
+
+
+                                        <div class="percent-changed down">
+                                            <i class="fas fa-caret-down"></i> 50%
+                                        </div>
+                                        <label>Uses VS. baseline:</label>
+
+                                    </div>
+                                     
+                                    <div class="statistic">
+
+                                        <div class="percent-changed up">
+                                            <i class="fas fa-caret-up"></i>&nbsp;&nbsp; 5%
+                                        </div>
+
+                                        <label>Amount spent VS. last week:</label>
+
+                                    </div>
+                                    <div class="statistic">
+
+                                        <div class="percent-changed down">
+                                            <i class="fas fa-caret-down"></i>&nbsp;&nbsp; 7%
+                                        </div>
+
+                                        <label>Amount spent VS. baseline:</label>
+
+                                    </div>
+
+                                    
+
+                                </div>
+                                <div class="goal-report">
+                                  
+                                    <div class="row">
+                                        <div class="col-6">
+                                          <div class="statistic">
+                                              <label>Uses this week:</label>
+                                          
+                                               <div class="percent-changed up">
+                                                    14
+                                              </div>
+                                            </div>
+                                        </div>
+                                        <div class="col-6">
+                                          <div class="statistic">
+                                              <label>Goal Usage / week:</label>
+                                          
+                                               <div class="percent-changed up">
+                                                    5
+                                              </div>
+                                            </div>
+                                        </div>
+
+                                     
+
+                                    </div>
+                                    <div class="row">
+                                        <div class="col-6">
+                                          <div class="statistic">
+                                              <label>Spent this week:</label>
+                                          
+                                               <div class="percent-changed up">
+                                                    10$
+                                              </div>
+                                            </div>
+                                        </div>
+                                        <div class="col-6">
+                                          <div class="statistic">
+                                              <label>Goal Usage / week:</label>
+                                          
+                                               <div class="percent-changed up">
+                                                    0$
+                                              </div>
+                                            </div>
+                                        </div>
+
+                                     
+
+                                    </div>
+
+
+
+                                </div>
+
+
+
+                            </div>
+                        </div>
+
                     </div>
 
-                    <div class="col-5 col-sm-6">
-                    <div class="statistic-recepticle">
-                        <table class="table">
-                        <tbody>
-                            <!--thead>
-                                                <th></th>
-                                                <td>Current</td>
-                                                <td>Average</td>
-                                            </thead-->
-                            <tr>
-                            <th>Total</th>
-                            <td>
-                                <span id="totalAmountSpent" class="statistic">
-                                test
-                                </span>
-                            </td>
-                            <!--td>20$</td-->
-                            </tr>
-                            <tr>
-                            <th>Week</th>
-                            <td>
-                                <span id="spentThisWeek" class="statistic"> test </span>
-                            </td>
-                            <!--td>20$</td-->
-                            </tr>
-                            <tr>
-                            <th>Month</th>
-                            <td>
-                                <span id="spentThisMonth" class="statistic">
-                                test
-                                </span>
-                            </td>
-                            <!--td>30$</td-->
-                            </tr>
-                            <tr>
-                            <th>Year</th>
-                            <td>
-                                <span id="spentThisYear" class="statistic"> test </span>
-                            </td>
-                            <!--td>90$</td-->
-                            </tr>
-                        </tbody>
-                        </table>
-                        <p>Amount spent</p>
-                    </div>
-                    </div>
-                    
-                </div>
                 </div>
 
-                <!-- HABIT LOG-->
-                <div class="col-12">
-                    <h2 id="habit-log-heading" style="margin-top:25px;text-align: center;">Habit Log</h2>
-                    
+                <div class="tab-pane" id="statistics-content">
+
+                    <h2>Live Statistics</h2>
+                    <hr/>
+
                     <div class="initial-instructions">
                         <p>
-                           As you click action logging buttons, a record will be made in this area of each click. Change what shows here in the app 
-                          <a class="settings-tab-toggler" href="#settings-content" data-toggle="tab">Settings</a>.  
+                            This area will become populated with statistics as you interact more with the app's action
+                            buttons, such as:
                         </p>
-                    
+                        <ul>
+                            <li>
+                                Set goal
+                            </li>
+                            <li>
+                                Did it
+                            </li>
+                            <li>
+                                Didn't
+                            </li>
+                            <li>
+                                spent
+                            </li>
+                        </ul>
 
                     </div>
 
-                    <div id="habit-log">
-    
-                        <!--div class="item">
+
+                    <!-- Start Goal area -->
+                    <div id="goal-content">
+                        <!--h3 class="text-center">I wanted to...</h3-->
+
+
+
+
+
+                        <div class="row">
+                            <div class="col-12">
+                                <div class="timer-recepticle">
+                                    <div id="goal-timer" class="fibonacci-timer">
+                                        <div class="boxes">
+                                            <div>
+                                                <span class="timerSpan daysSinceLastClickSpan">0</span>
+                                                <span>Days</span>
+                                            </div>
+
+                                            <div>
+                                                <span class="timerSpan hoursSinceLastClickSpan">0</span>
+                                                <span>Hours</span>
+                                            </div>
+
+                                            <div>
+                                                <span class="timerSpan minutesSinceLastClickSpan">0</span>
+                                                <span>Mins</span>
+                                            </div>
+
+                                            <div>
+                                                <span class="timerSpan secondsSinceLastClickSpan">00</span>
+                                                <span>Secs</span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <p class="">Until goal ends</p>
+                                </div>
+
+
+                                <div class="statistic-recepticle">
+                                    <span id="longestGoalCompleted" class="statistic">
+                                        test
+                                    </span>
+                                    <p>Longest goal completed</p>
+                                </div>
+
+                            </div>
+                        </div>
+                    </div>
+                    <!--end goal tab pane-->
+
+                    <!-- Start Use are -->
+                    <div id="use-content">
+                        <!--h3 class="text-center">I wanted to...</h3-->
+
+                        <div class="row no-gutters">
+
+                            <div class="col-12">
+                                <div class="timer-recepticle">
+                                    <div id="smoke-timer" class="fibonacci-timer">
+                                        <div class="boxes">
+                                            <div>
+                                                <span class="timerSpan daysSinceLastClickSpan">0</span>
+                                                <span>Days</span>
+                                            </div>
+
+                                            <div>
+                                                <span class="timerSpan hoursSinceLastClickSpan">0</span>
+                                                <span>Hours</span>
+                                            </div>
+
+                                            <div>
+                                                <span class="timerSpan minutesSinceLastClickSpan">0</span>
+                                                <span>Mins</span>
+                                            </div>
+
+                                            <div>
+                                                <span class="timerSpan secondsSinceLastClickSpan">00</span>
+                                                <span>Secs</span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <p>Since you've done it</p>
+                                </div>
+                                <div class="statistic-recepticle">
+                                    <span id="averageTimeBetweenUses" class="statistic">
+                                        test
+                                    </span>
+                                    <p>Avg time between doing it</p>
+                                </div>
+
+                                <div class="statistic-recepticle">
+                                    <span id="avgDidntPerDid" class="statistic"> test </span>
+                                    <p>Didnts per dids ratio</p>
+                                </div>
+                                <div class="statistic-recepticle">
+                                    <span id="cravingsResistedInARow" class="statistic">
+                                        test
+                                    </span>
+                                    <p>Didnts in a row</p>
+                                </div>
+
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Start cost area -->
+                    <div id="cost-content">
+                        <!--h3 class="text-center">I wanted to...</h3-->
+
+
+                        <div class="row">
+                            <div class="col-12">
+                                <div class="timer-recepticle">
+                                    <div id="bought-timer" class="fibonacci-timer">
+                                        <div class="boxes">
+                                            <div>
+                                                <span class="timerSpan daysSinceLastClickSpan">0</span>
+                                                <span>Days</span>
+                                            </div>
+
+                                            <div>
+                                                <span class="timerSpan hoursSinceLastClickSpan">0</span>
+                                                <span>Hours</span>
+                                            </div>
+
+                                            <div>
+                                                <span class="timerSpan minutesSinceLastClickSpan">0</span>
+                                                <span>Mins</span>
+                                            </div>
+
+                                            <div>
+                                                <span class="timerSpan secondsSinceLastClickSpan">00</span>
+                                                <span>Secs</span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <p>Since you've bought it</p>
+                                </div>
+                                <div class="statistic-recepticle">
+                                    <span id="averageTimeBetweenBoughts" class="statistic">
+                                        test
+                                    </span>
+                                    <p>Avg time between buying it</p>
+                                </div>
+
+                                <div class="statistic-recepticle">
+                                    <span id="totalAmountSpent" class="statistic">
+                                        test
+                                    </span>
+                                    <p>Total spent</p>
+                                </div>
+
+                                <div class="statistic-recepticle">
+                                    <span id="spentThisWeek" class="statistic"> test </span>
+                                    <p>Spent this week</p>
+                                </div>
+
+                                <div class="statistic-recepticle">        
+                                
+                                    <span id="spentThisMonth" class="statistic">
+                                        test
+                                    </span>
+                                     <p>Spent this month</p>
+                                </div>
+                                
+                                <div class="statistic-recepticle">  
+                                    <span id="spentThisYear" class="statistic"> test </span>
+                                    <p>Spent this Year</p>
+                                </div>            
+                                   
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- HABIT LOG-->
+                    <div class="col-12">
+                        <h2 id="habit-log-heading" style="margin-top:25px;text-align: center;">Habit Log</h2>
+
+                        <div class="initial-instructions">
+                            <p>
+                                As you click action logging buttons, a record will be made in this area of each click.
+                                Change what shows here in the app
+                                <a class="settings-tab-toggler" href="#settings-content" data-toggle="tab">Settings</a>.
+                            </p>
+
+
+                        </div>
+
+                        <div id="habit-log">
+
+                            <!--div class="item">
                             <p class="title">
                             
 
@@ -582,7 +614,7 @@
                             </p>
                         <hr/>
                         </div-->
-                        <!--div class="item">
+                            <!--div class="item">
                             <p class="title">
                             
                             </p>
@@ -593,7 +625,7 @@
                         <hr/>
                         </div-->
 
-                        <!--div class="item">
+                            <!--div class="item">
                             <p class="title">
                                 You waited <b><span class="timeElapsed">{[time elapsed]}</span></b> 
                                 <br/>to <span class="actionGerund">do or buy</span> it!
@@ -604,385 +636,392 @@
                             </p>
                             <hr/>
                         </div-->
+                        </div>
+                        <div id="habit-log-show-more" class="text-center d-none">
+                            <button href="#" class="btn btn-md btn-info" style="margin-top:15px;">Show More</button>
+                        </div>
                     </div>
-                    <div id="habit-log-show-more" class="text-center d-none">
-                         <button href="#" class="btn btn-md btn-info" style="margin-top:15px;">Show More</button>
+
+
+                </div>
+
+
+                <!--start settings tab area-->
+                <div class="tab-pane" id="settings-content">
+                    <div class="row">
+                        <div class="col-12">
+                            <h2>Settings</h2>
+
+                            <hr />
+
+
+                            <h3>App controls</h3>
+
+                            <!-- 
+                            Options
+                                -Share stats
+                                    ?esCrave does not track anything, to ensure that your habits remain confidential. 
+                                    However, we want to improve our app based on how you use it, so please share your current stats with us by clicking this button!
+
+                                -Undo last click 	
+                                
+                                -Start over
+                                    ?We understand that you may have to try multiple times before being done with esCrave for good, 
+                                    so give it another shot by clicking this button!
+
+                            -->
+
+
+
+                            <button id="undoActionButton" class="btn btn-outline-warning" href="#"><i
+                                    class="fas fa-undo-alt"></i>&nbsp;Undo last action</button>
+                            <button id="clearTablesButton" class="btn btn-outline-danger" href="#"><i
+                                    class="fas fa-trash-alt"></i>&nbsp;Reset all app data</button>
+
+
+                            <h3>Displayed Live Statistics</h3>
+
+
+                            <div class="form-check">
+                                <label class="form-check-label" for="defaultCheck1">
+                                    <input class="form-check-input" type="checkbox" value="" id="defaultCheck1" checked>
+
+                                    Time until goal end
+                                </label>
+                            </div>
+
+                            <div class="form-check">
+                                <label class="form-check-label" for="defaultCheck1">
+
+                                    <input class="form-check-input" type="checkbox" value="" id="defaultCheck1" checked>
+                                    Longest Goal completed
+                                </label>
+                            </div>
+
+                            <div class="form-check">
+                                <label class="form-check-label" for="defaultCheck1">
+
+                                    <input class="form-check-input" type="checkbox" value="" id="defaultCheck1" checked>
+                                    Time since you last did it
+                                </label>
+                            </div>
+
+                            <div class="form-check">
+
+                                <label class="form-check-label" for="defaultCheck1">
+                                    <input class="form-check-input" type="checkbox" value="" id="defaultCheck1" checked>
+                                    Average time between doing it
+                                </label>
+                            </div>
+
+                            <div class="form-check">
+                                <label class="form-check-label" for="defaultCheck1">
+                                    <input class="form-check-input" type="checkbox" value="" id="defaultCheck1" checked>
+                                    Ratio of times you've resisted doing it to times you've done it
+                                </label>
+                            </div>
+
+                            <div class="form-check">
+                                <label class="form-check-label" for="defaultCheck1">
+                                    <input class="form-check-input" type="checkbox" value="" id="defaultCheck1" checked>
+                                    Number of times you've resisted doing it in a row
+                                </label>
+                            </div>
+
+                            <div class="form-check">
+                                <label class="form-check-label" for="defaultCheck1">
+                                    <input class="form-check-input" type="checkbox" value="" id="defaultCheck1" checked>
+                                    Time since the last time you spent money on it
+                                </label>
+                            </div>
+
+                            <div class="form-check">
+                                <label class="form-check-label" for="defaultCheck1">
+                                    <input class="form-check-input" type="checkbox" value="" id="defaultCheck1" checked>
+                                    Average time between spending money on it
+                                </label>
+                            </div>
+
+
+                            <div class="form-check">
+                                <label class="form-check-label" for="defaultCheck1">
+                                    <input class="form-check-input" type="checkbox" value="" id="defaultCheck1" checked>
+                                    Total spent
+                                </label>
+                            </div>
+
+
+                            <div class="form-check">
+                                <label class="form-check-label" for="defaultCheck1">
+                                    <input class="form-check-input" type="checkbox" value="" id="defaultCheck1" checked>
+                                    spent this week
+                                </label>
+                            </div>
+
+
+                            <div class="form-check">
+                                <label class="form-check-label" for="defaultCheck1">
+                                    <input class="form-check-input" type="checkbox" value="" id="defaultCheck1" checked>
+                                    spent this month
+                                </label>
+                            </div>
+
+
+                            <div class="form-check">
+                                <label class="form-check-label" for="defaultCheck1">
+                                    <input class="form-check-input" type="checkbox" value="" id="defaultCheck1" checked>
+                                    spent this year
+                                </label>
+                            </div>
+
+
+
+                            <h3>Included Habit Log Entries</h3>
+
+                            <div class="form-check">
+                                <label class="form-check-label" for="defaultCheck1">
+                                    <input class="form-check-input" type="checkbox" value="" id="defaultCheck1" checked>
+                                    Ended goals
+                                </label>
+                            </div>
+
+                            <div class="form-check">
+                                <label class="form-check-label" for="defaultCheck1">
+                                    <input class="form-check-input" type="checkbox" value="" id="defaultCheck1" checked>
+                                    Doing it
+                                </label>
+                            </div>
+
+                            <div class="form-check">
+                                <label class="form-check-label" for="defaultCheck1">
+                                    <input class="form-check-input" type="checkbox" value="" id="defaultCheck1" checked>
+                                    Not doing it
+                                </label>
+                            </div>
+
+                            <div class="form-check">
+                                <label class="form-check-label" for="defaultCheck1">
+                                    <input class="form-check-input" type="checkbox" value="" id="defaultCheck1" checked>
+                                    Spending on it
+                                </label>
+                            </div>
+
+                            <h3>Shown on weekly reports</h3>
+
+                            <div class="form-check">
+                                <label class="form-check-label" for="defaultCheck1">
+                                    <input class="form-check-input" type="checkbox" value="" id="defaultCheck1" checked>
+                                    Percent change of uses this week vs baseline
+                                </label>
+                            </div>
+
+                            <div class="form-check">
+                                <label class="form-check-label" for="defaultCheck1">
+                                    <input class="form-check-input" type="checkbox" value="" id="defaultCheck1" checked>
+                                    Percent change of uses this week vs last week
+                                </label>
+                            </div>
+
+                            <div class="form-check">
+                                <label class="form-check-label" for="defaultCheck1">
+                                    <input class="form-check-input" type="checkbox" value="" id="defaultCheck1" checked>
+                                    Percent change of amount spent this week vs baseline
+                                </label>
+                            </div>
+
+                            <div class="form-check">
+                                <label class="form-check-label" for="defaultCheck1">
+                                    <input class="form-check-input" type="checkbox" value="" id="defaultCheck1" checked>
+                                    Percent change of amount spent this week vs last week
+                                </label>
+                            </div>
+
+                            <!-- div class="form-check">
+                                <label class="form-check-label" for="defaultCheck1">
+                                    <input class="form-check-input" type="checkbox" value="" id="defaultCheck1" checked>
+                                    Average time between uses this week
+                                </label>
+                            </div-->
+
+                            <!-- div class="form-check">
+                                <label class="form-check-label" for="defaultCheck1">
+                                    <input class="form-check-input" type="checkbox" value="" id="defaultCheck1" checked>
+                                    Cravings resisted this week
+                                </label>
+                            </div-->
+
+                            <h3>More</h3>
+
+                            <button class="btn btn-outline-info"><i class="fas fa-question"></i>&nbsp;About Escrave</button>
+
+                            <button class="btn btn-outline-success"><i class="far fa-comments"></i>&nbsp;Give Feedback</button>
+                       
+                       
+                        </div>
                     </div>
                 </div>
-                
+
+
 
             </div>
+            <!-- end tab-content -->
 
 
-            <!--start settings tab area-->
-            <div class="tab-pane" id="settings-content">
-                	
-                <h2>Settings</h2>
+            <!--button bar start-->
+            <div class="button-bar">
 
-                <hr/>
-                    
+                <div class="nav nav-tabs">
+                    <div class="button-group">
 
-                <h3>App controls</h3>
-
-                 <!-- 
-					Options
-						-Share stats
-							?esCrave does not track anything, to ensure that your habits remain confidential. 
-							However, we want to improve our app based on how you use it, so please share your current stats with us by clicking this button!
-
-						-Undo last click 	
-						
-						-Start over
-							?We understand that you may have to try multiple times before being done with esCrave for good, 
-							so give it another shot by clicking this button!
-
-					-->
+                        <a id="reports-tab-toggler" href="#reports-content" data-toggle="tab">
+                            <div class="icon">
+                                <i class="fas fa-file-alt fa-3x"></i>
+                            </div>
+                            <p class="button-text">
+                                Reports
+                            </p>
 
 
-
-                <button id="undoActionButton" class="btn btn-outline-warning" href="#"><i class="fas fa-undo-alt"></i>&nbsp;Undo last action</button>
-                <button id="clearTablesButton"class="btn btn-outline-danger" href="#" ><i class="fas fa-trash-alt"></i>&nbsp;Reset all app data</button>
-
-
-                <h3>Displayed Live Statistics</h3>
-
-
-                    <div class="form-check">
-                    <label class="form-check-label" for="defaultCheck1">
-                    <input class="form-check-input" type="checkbox" value="" id="defaultCheck1" checked>
-                    
-                        Time until goal end
-                    </label>
+                        </a>
                     </div>
+                    <div class="button-group" style="margin-bottom:35px;">
 
-                    <div class="form-check">
-                    <label class="form-check-label" for="defaultCheck1">
-                    
-                    <input class="form-check-input" type="checkbox" value="" id="defaultCheck1" checked>
-                        Longest Goal completed
-                    </label>
-                    </div>
+                        <a id="statistics-tab-toggler" href="#statistics-content" data-toggle="tab">
 
-                    <div class="form-check">
-                    <label class="form-check-label" for="defaultCheck1">
-                            
-                    <input class="form-check-input" type="checkbox" value="" id="defaultCheck1" checked>
-                        Time since you last did it
-                    </label>
-                    </div>
-
-                    <div class="form-check">
-                    
-                    <label class="form-check-label" for="defaultCheck1">
-                    <input class="form-check-input" type="checkbox" value="" id="defaultCheck1" checked>
-                        Average time between doing it
-                    </label>
-                    </div>
-
-                    <div class="form-check">
-                    <label class="form-check-label" for="defaultCheck1">
-                    <input class="form-check-input" type="checkbox" value="" id="defaultCheck1" checked>
-                        Ratio of times you've resisted doing it to times you've done it
-                    </label>
-                    </div>
-
-                    <div class="form-check">
-                    <label class="form-check-label" for="defaultCheck1">
-                    <input class="form-check-input" type="checkbox" value="" id="defaultCheck1" checked>
-                        Number of times you've resisted doing it in a row
-                    </label>
-                    </div>
-
-                    <div class="form-check">
-                    <label class="form-check-label" for="defaultCheck1">
-                    <input class="form-check-input" type="checkbox" value="" id="defaultCheck1" checked> 
-                    Time since the last time you spent money on it
-                    </label>
-                    </div>
-
-                    <div class="form-check">
-                    <label class="form-check-label" for="defaultCheck1">
-                    <input class="form-check-input" type="checkbox" value="" id="defaultCheck1" checked>
-                        Average time between spending money on it
-                    </label>
-                    </div>
+                            <div class="icon">
+                                <i class="fas fa-chart-bar fa-3x"></i>
+                            </div>
+                            <p class="button-text">
+                                Stats
+                            </p>
 
 
-                    <div class="form-check">
-                    <label class="form-check-label" for="defaultCheck1">
-                    <input class="form-check-input" type="checkbox" value="" id="defaultCheck1" checked>
-                        Total spent
-                    </label>
-                    </div>
-
-
-                    <div class="form-check">
-                    <label class="form-check-label" for="defaultCheck1">
-                    <input class="form-check-input" type="checkbox" value="" id="defaultCheck1" checked>
-                        spent this week
-                    </label>
-                    </div>
-
-
-                    <div class="form-check">
-                    <label class="form-check-label" for="defaultCheck1">
-                    <input class="form-check-input" type="checkbox" value="" id="defaultCheck1" checked>
-                        spent this month
-                    </label>
-                    </div>
-
-
-                    <div class="form-check">
-                    <label class="form-check-label" for="defaultCheck1">
-                    <input class="form-check-input" type="checkbox" value="" id="defaultCheck1" checked>
-                        spent this year
-                    </label>
+                        </a>
                     </div>
 
 
 
-                <h3>Included Habit Log Entries</h3>
 
-                    <div class="form-check">
-                    <label class="form-check-label" for="defaultCheck1">
-                    <input class="form-check-input" type="checkbox" value="" id="defaultCheck1" checked>
-                        Ended goals
-                    </label>
+                    <div class="button-group">
+                        <div class="clickCounter"><span id="numberOfGoalsCompleted"></span> </div>
+
+                        <a id="goal-button" href="#">
+
+                            <div class="icon">
+                                <i class="far fa-calendar-plus fa-3x"></i>
+                            </div>
+                            <p class="button-text">
+                                Set Goal
+                            </p>
+
+
+                        </a>
                     </div>
 
-                    <div class="form-check">
-                    <label class="form-check-label" for="defaultCheck1">
-                    <input class="form-check-input" type="checkbox" value="" id="defaultCheck1" checked>
-                        Doing it
-                    </label>
+
+                    <div class="button-group">
+                        <div id="use-total" class="clickCounter">0</div>
+
+                        <a id="smoke-button" href="#">
+
+                            <div class="icon">
+                                <i class="fas fa-cookie-bite fa-3x"></i>
+                            </div>
+                            <p class="button-text">
+                                Did it
+                            </p>
+
+
+                        </a>
+                    </div>
+                    <div class="button-group">
+                        <div id="crave-total" class="clickCounter">0</div>
+
+                        <a id="crave-button" href="#">
+
+                            <div class="icon">
+                                <i class="fas fa-ban fa-3x"></i>
+                            </div>
+                            <p class="button-text">
+                                Didn't
+                            </p>
+
+
+                        </a>
+                    </div>
+                    <div class="button-group">
+
+                        <div id="bought-total" class="clickCounter">0</div>
+
+                        <a id="bought-button" href="#">
+
+                            <div class="icon">
+                                <i class="fas fa-dollar-sign fa-3x"></i>
+                            </div>
+                            <p class="button-text">
+                                Spent
+                            </p>
+
+
+                        </a>
                     </div>
 
-                    <div class="form-check">
-                    <label class="form-check-label" for="defaultCheck1">
-                    <input class="form-check-input" type="checkbox" value="" id="defaultCheck1" checked>
-                        Not doing it
-                    </label>
-                    </div>
 
-                    <div class="form-check">
-                    <label class="form-check-label" for="defaultCheck1">
-                    <input class="form-check-input" type="checkbox" value="" id="defaultCheck1" checked>
-                        Spending on it
-                    </label>
-                    </div>
-                    
-                <h3>Shown on weekly reports</h3>	
-
-                <div class="form-check">
-                    <label class="form-check-label" for="defaultCheck1">
-                    <input class="form-check-input" type="checkbox" value="" id="defaultCheck1" checked>
-                        Percent change of uses this week vs baseline
-                    </label>
-                    </div>
-                    
-                    <div class="form-check">
-                    <label class="form-check-label" for="defaultCheck1">
-                    <input class="form-check-input" type="checkbox" value="" id="defaultCheck1" checked>
-                        Percent change of uses this week vs last week
-                    </label>
-                    </div>
-                    
-                    <div class="form-check">
-                    <label class="form-check-label" for="defaultCheck1">
-                    <input class="form-check-input" type="checkbox" value="" id="defaultCheck1" checked>
-                        Percent change of amount spent this week vs baseline
-                    </label>
-                    </div>
-                    
-                    <div class="form-check">
-                    <label class="form-check-label" for="defaultCheck1">
-                    <input class="form-check-input" type="checkbox" value="" id="defaultCheck1" checked>
-                        Percent change of amount spent this week vs last week
-                    </label>
-                    </div>
-                    
-                    <div class="form-check">
-                    <label class="form-check-label" for="defaultCheck1">
-                    <input class="form-check-input" type="checkbox" value="" id="defaultCheck1" checked>
-                        Average time between uses this week
-                    </label>
-                    </div>
-                    
-                    <div class="form-check">
-                    <label class="form-check-label" for="defaultCheck1">
-                    <input class="form-check-input" type="checkbox" value="" id="defaultCheck1" checked>
-                        Cravings resisted this week
-                    </label>
-                    </div>
-                    
-                <h3>More</h3>
-
-                <button class="btn btn-outline-info"><i class="fas fa-question"></i>&nbsp;About Escrave</button>
-
-                <button class="btn btn-outline-success"><i class="far fa-comments"></i>&nbsp;Give Feedback</button>
-
-
-            </div>
-            
-
-
-        </div>
-        <!-- end tab-content -->
-
-
-        <!--button bar start-->
-        <div class="button-bar">
-            
-            <div class="nav nav-tabs">
-                <div class="button-group">
-                   
-                     <a id="reports-tab-toggler" href="#reports-content" data-toggle="tab">
-                    <div class="icon">
-                       <i class="fas fa-file-alt fa-3x"></i>
-                    </div>
-                    <p class="button-text">
-                        Reports
-                    </p>
-                    
-                    
-                     </a>
-                </div>
-                <div class="button-group" style="margin-bottom:35px;">
-                   
-                    <a id="statistics-tab-toggler" href="#statistics-content" data-toggle="tab">
-                  
-                    <div class="icon">
-                       <i class="fas fa-chart-bar fa-3x"></i>
-                    </div>
-                    <p class="button-text">
-                        Stats
-                    </p>
-                    
-                    
-                     </a>
-                </div>
-               
-
-
-
-                 <div class="button-group">
-                    
-                  <a id="goal-button" href="#">
-                 
-                        <div class="icon">
-                       <i class="far fa-calendar-plus fa-3x"></i>
-                        </div>
-                        <p class="button-text">
-                           Set Goal
-                        </p>
-                        
-                    
-                     </a>
-                </div>
-
-
-                <div class="button-group">
-                    <div id="use-total" class="clickCounter">0</div>
-                 
-                    <a id="smoke-button" href="#">
-                 
-                        <div class="icon">
-                       <i class="fas fa-cookie-bite fa-3x"></i>
-                        </div>
-                        <p class="button-text">
-                            Did it
-                        </p>
-                        
-                    
-                     </a>
-                </div>
-                <div class="button-group">
-                    <div id="crave-total" class="clickCounter">0</div>
-                 
-                    <a id="crave-button" href="#">
-                 
-                        <div class="icon">
-                       <i class="fas fa-ban fa-3x"></i>
-                        </div>
-                        <p class="button-text">
-                            Didn't
-                        </p>
-                        
-                    
-                     </a>
-                </div>
-                <div class="button-group">
-                    
-                 <div id="bought-total" class="clickCounter">0</div>
-                 
-                    <a id="bought-button" href="#">
-                 
-                        <div class="icon">
-                       <i class="fas fa-dollar-sign fa-3x"></i>
-                        </div>
-                        <p class="button-text">
-                            Spent
-                        </p>
-                        
-                    
-                     </a>
-                </div>
-               
-                
-                <!--
+                    <!--
                 <a id="cost-tab-toggler" href="#cost-content" data-toggle="tab">Cost</a>
                 <a id="use-tab-toggler" class="active" href="#use-content" data-toggle="tab">Use</a>
                 <a id="goal-tab-toggler" href="#goal-content" data-toggle="tab">Goals</a>
                 -->
-            
+
+                </div>
             </div>
         </div>
-    </div>
-    <!-- /container -->
-     <footer class="footer">
-        <p class="text-center" style="color:white;">&copy;2019 Corey Boiko</p>
-      </footer>
+        <!-- /container -->
+        <footer class="footer">
+            <p class="text-center" style="color:white;">&copy;2019 Corey Boiko</p>
+        </footer>
 
-    <!-- jQuery 
+        <!-- jQuery 
     <script
       src="https://code.jquery.com/jquery-3.2.1.min.js"
       integrity="sha256-hwg4gsxgFZhOsEEamdOYGBf13FyQuiTwlAQgxVSNgt4="
       crossorigin="anonymous"
     ></script>
     -->
-    <script src="../js/jquery-3.2.1.min.js"></script>
+        <script src="../js/jquery-3.2.1.min.js"></script>
 
 
-    <!-- jQuery UI
+        <!-- jQuery UI
     <script src="https://code.jquery.com/ui/1.12.1/jquery-ui.js"></script>
     -->
 
-    <script src="../js/jquery-ui.js"></script>
+        <script src="../js/jquery-ui.js"></script>
 
 
-    <!-- Popper 
+        <!-- Popper 
     <script
       src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.11.0/umd/popper.min.js"
       integrity="sha384-b/U6ypiBEHpOf/4+1nzFpr53nxSS+GLCkfwBdFNTxtclqqenISfwAzpKaMNFNmj4"
       crossorigin="anonymous"
     ></script>
     -->
-    <script src="../js/popper.js"></script>
+        <script src="../js/popper.js"></script>
 
-    <!-- Bootstrap 
+        <!-- Bootstrap 
     <script
       src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0-beta/js/bootstrap.min.js"
       integrity="sha384-h0AbiXch4ZDo7tp9hKZ4TsHbi047NrKGLO3SEJAg45jXxnGIfYzk4Si90RDIqNm1"
       crossorigin="anonymous"
     ></script>
     -->
-    <script src="../js/bootstrap.min.js"></script>
-    
+        <script src="../js/bootstrap.min.js"></script>
 
-    <script type="application/javascript" src="app.js"></script>
-    
-    
-    <script type="application/javascript" src="../js/main.js"></script>
 
-  </body>
+        <script type="application/javascript" src="app.js"></script>
+
+
+        <script type="application/javascript" src="../js/main.js"></script>
+
+</body>
+
 </html>

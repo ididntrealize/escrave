@@ -98,9 +98,10 @@ var userIsActive = true;
 
 })();
 	
+    //CLIENT CAN USE STORAGE SYSTEM - html5
         if (typeof(Storage) !== "undefined") {
 
-
+            //local working data to use in app
 				var json = {
 					
 					"statistics":
@@ -166,12 +167,13 @@ var userIsActive = true;
 
 					"options":
 					{
-						"activeTab": "use-content"
+						"activeTab": "reports-content"
 					}
 
 				};
 				
-					 
+		//get data from storage and convert to working json object
+            //set initial values in app			 
 			function retrieveActionTable(){
 				
 				//convert localStorage to json
@@ -580,13 +582,15 @@ var userIsActive = true;
 							
 			}
 
-
+        //get configuration from storage
 			function retrieveOptionTable(){
 				var currJsonString =  localStorage.esCrave;
 				var jsonObject = JSON.parse(currJsonString);
 
 				//set local json from option in local storage
-				json.options.activeTab = localStorage.getItem("activeTab");
+				json.options.activeTab = jsonObject.option.activeTab;
+
+                console.log("json.options.activeTab was set to " + jsonObject.option.activeTab);
 			}
 
 		
@@ -838,7 +842,7 @@ var userIsActive = true;
 			}
 
 			var template =  '<div class="item">' +
-								'<hr/><p class="title">' +
+								'<hr/><p class="title"><i class="far fa-calendar-plus"></i>&nbsp;' +
 									'You waited <b><span class="timeElapsed">' + timeElapsed + '</span></b>&nbsp;' +
 									'to <span class="actionGerund">' + actionGerund + '</span> it!' +
 								'</p>' +
@@ -932,7 +936,7 @@ var userIsActive = true;
                     if(dayCount > 1){
                         plural = "s";
                     }
-					finalStringStatistic = dayCount + "<span>day" + plural + "&nbsp;</span>" + finalStringStatistic;
+					finalStringStatistic = dayCount + "<span>&nbsp;day" + plural + "&nbsp;</span>" + finalStringStatistic;
 					//drop minutes
 					finalStringStatistic = finalStringStatistic.split("h")[0] + "h</span>";
 				}
@@ -962,10 +966,14 @@ function placeActionIntoLog(clickStamp, clickType, amountSpent, placeBelow){
 		shortHandTimeMinutes = (endDateObj.getMinutes()),
 		shortHandTimeAMPM = "am";
 
-		if(shortHandTimeHours >= 12){
-			shortHandTimeHours = shortHandTimeHours % 12;
+		if(shortHandTimeHours == 12){
 			shortHandTimeAMPM = "pm";
-		}
+
+		}else if(shortHandTimeHours > 12){
+           
+			shortHandTimeHours = shortHandTimeHours % 12;
+             shortHandTimeAMPM = "pm";
+        }
 		if(shortHandTimeMinutes < 10){
 			shortHandTimeMinutes = "0" + shortHandTimeMinutes;
 		}
@@ -977,15 +985,15 @@ function placeActionIntoLog(clickStamp, clickType, amountSpent, placeBelow){
 	var target = "#habit-log";
 	
 	if(clickType == "bought"){
-		titleHTML = "You spent <b>" + parseInt(amountSpent) + "$</b> on it.";
+		titleHTML = '<i class="fas fa-dollar-sign"></i>&nbsp;&nbsp;' + "You spent <b>" + parseInt(amountSpent) + "$</b> on it.";
 		//target = "#cost-log";
 
 	}else if (clickType == "used"){
-		titleHTML = "You did it at <b>" + shortHandTime + "</b>.";
+		titleHTML = '<i class="fas fa-cookie-bite"></i>&nbsp;' + "You did it at <b>" + shortHandTime + "</b>.";
 		//target = "#use-log";
 
 	}else if(clickType == "craved"){
-		titleHTML = "You didn\'t do it at <b>" + shortHandTime + "</b>.";
+		titleHTML = '<i class="fas fa-ban"></i>&nbsp;' + "You didn\'t do it at <b>" + shortHandTime + "</b>.";
 		//target = "#use-log";
 
 	}
@@ -1107,10 +1115,19 @@ function returnToActiveTab(){
 function saveActiveTab(){
 	//update instance json
 	json.options.activeTab = $(".tab-pane.active").attr('id');
-	console.log("save active tab fired");
-	console.log($(".tab-pane.active").attr('id'));
+	//console.log("save active tab fired");
+	//console.log($(".tab-pane.active").attr('id'));
+
 	//update in options table
-	localStorage.setItem("activeTab", $(".tab-pane.active").attr('id'));
+        //convert localStorage to json
+			var currJsonString =  localStorage.esCrave;
+			var jsonObject = JSON.parse(currJsonString);
+				
+                jsonObject.option.activeTab =  $(".tab-pane.active").attr('id');
+
+            var jsonString = JSON.stringify(jsonObject);
+		    localStorage.esCrave = jsonString;
+
 }
 
 	
@@ -1554,7 +1571,7 @@ function showActiveStatistics(){
 			}
 
 
-			timerElement.style.display = "block";
+			//timerElement.style.display = "block";
 			timerElement.style.margin = "0 auto";
 			
 		}else{
@@ -1696,7 +1713,7 @@ console.log(json);
 
 }else{
 	//replace this with empty action table
-	var newJsonString = '{ "action":[], "option": { "activeTab" : "use-content"} }';
+	var newJsonString = '{ "action":[], "option": { "activeTab" : "reports-content"} }';
 		localStorage.setItem("esCrave", newJsonString);
 
 		hideInactiveStatistics();
@@ -1785,7 +1802,7 @@ console.log(json);
 								if(json.statistics.goal.activeGoalUse !== 0){
 									var goalType = "use";
 									var message = 'Your goal just ended early! ' +
-												'But don\'t worry, you still get a percentage of points!';
+												'But don\'t worry, Escrave will keep track of how long you waited anyways!';
 									
 									json.statistics.goal.activeGoalUse = 0;
 								
