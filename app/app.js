@@ -1,6 +1,6 @@
 var welcomeToMyJavascriptDoc;
 /****************************************************************************
- * This document is kinda long, like over 2000 lines,
+ * This document is kinda long, like over 3000 lines,
  * so let me give you a quick overview of how everything works
  * that is, assuming it IS working. It usually does, I swear...
  * 
@@ -56,8 +56,9 @@ SOFTWARE.
 
 $( document ).ready(function() {
 
-//MANAGE INACTIVITY!!!	
 
+//refreshes the page automatically, upon user action,
+//to refresh timers from local storage timestamp
 var userIsActive = true;
 (function manageInactivity(){
 	var idleTime = 0;
@@ -165,20 +166,76 @@ var userIsActive = true;
 						}
 					},
 
-					"options":
+                    "baseline":
+                    {
+                        "specificSubject": 0,
+                        "amountDonePerWeek": 0,
+                        "goalDonePerWeek": 0,
+                        "amountSpentPerWeek": 0,
+                        "goalSpentPerWeek": 0
+                    },
+
+					"option":
 					{
-						"activeTab": "reports-content"
+						"activeTab": "reports-content",
+                        "liveStatsToDisplay":{
+									"untilGoalEnd": true,
+									"longestGoal": true,
+									"sinceLastDone": true,
+									"avgBetweenDone": true,
+									"didntPerDid": true,
+									"resistedInARow": true,
+									"sinceLastSpent": true,
+									"avgBetweenSpent": true,
+									"totalSpent": true,
+									"currWeekSpent": true,
+									"currMonthSpent": true,
+									"currYearSpent": true
+                                 },
+
+                        "logItemsToDisplay":{
+									"goal": true,
+									"used": true,
+									"craved": true,
+									"bought": true
+                                },
+                        "reportItemsToDisplay":{
+									"useChangeVsBaseline": false,
+									"useChangeVsLastWeek": true,
+									"costChangeVsBaseline": false,
+									"costChangeVsLastWeek": true,
+                                    "useGoalVsThisWeek": false,
+									"costGoalVsThisWeek": false
+							     }
 					}
 
 				};
-				
-		//get data from storage and convert to working json object
-            //set initial values in app			 
-			function retrieveActionTable(){
-				
-				//convert localStorage to json
+		//open 
+        function retrieveStorageObject(key){
+            //convert localStorage to json
+            if(key){
+                var currJsonString =  localStorage[key];
+				var jsonObject = JSON.parse(currJsonString);
+
+            }else{
 				var currJsonString =  localStorage.esCrave;
 				var jsonObject = JSON.parse(currJsonString);
+            }
+
+            return jsonObject;
+        }
+
+        function setStorageObject(object){
+            var jsonString = JSON.stringify(object);
+		    localStorage.esCrave = jsonString;
+        }
+
+
+		//get data from storage and convert to working json object
+            //set initial values in app			 
+			function setStateFromRecords(){
+				
+				var jsonObject = retrieveStorageObject();
 				
 				//retrieve curr date for time relevant stats
 				var timeNow = Math.round(new Date()/1000);
@@ -348,10 +405,10 @@ var userIsActive = true;
 							
 								if(goalCount.length>0){
 									var activeGoals = goalCount.filter(function(e){ return e.status == 1});
-									//console.log("inside retrieveActionTable, activeGoals = " + activeGoals);
+									//console.log("inside setStateFromRecords, activeGoals = " + activeGoals);
 									
 									var inactiveGoals = goalCount.filter(function(e){ return e.status == 2 || e.status == 3 });
-									//console.log("inside retrieveActionTable, inactiveGoals = " + inactiveGoals);	
+									//console.log("inside setStateFromRecords, inactiveGoals = " + inactiveGoals);	
 									
 									//timestamp of most recent click - to limit clicks in a row
 									json.statistics.goal.lastClickStamp = goalCount[goalCount.length-1].timestamp;
@@ -445,8 +502,8 @@ var userIsActive = true;
                                                e.clickType == "bought" ||
                                               (e.clickType == "goal" && (e.status == 2 || e.status == 3));
 									});
-                            console.log("allActions = ");
-                            console.log(allActions);
+                            //console.log("allActions = ");
+                           // console.log(allActions);
                             /* only display a certain number of actions per page */
                             var actionsToAddMax = allActions.length - 1,
                                 actionsToAddMin = allActions.length - 10;
@@ -500,97 +557,45 @@ var userIsActive = true;
                             }
                             addMoreIntoHabitLog();		
 
-                     /*
-
-                 GOAL LOG OLD FUNCTION
-
-                            var goalsToAddMax = inactiveGoals.length - 1,
-                                goalsToAddMin = inactiveGoals.length - 10;
-
-                            function addMoreIntoGoalLog(){
-                                if(goalsToAddMax >= 0){
-                                    //console.log("goalsToAddMin>0");
-                                    for(var i = goalsToAddMax; i >= goalsToAddMin && i >= 0; i--){
-                                        //console.log("i in add to log = " + i);
-                                    var currStartStamp = inactiveGoals[i].timestamp,
-                                        currEndStamp = inactiveGoals[i].goalStopped,
-                                        currGoalType = inactiveGoals[i].goalType;
-                                        //append 10 new goals
-                                        placeGoalIntoLog(currStartStamp, currEndStamp, currGoalType, true);
-
-                                        if(i == goalsToAddMin || i == 0){
-                                            goalsToAddMin -= 10;
-                                            goalsToAddMax -= 10;
-                                            //if button is not displayed
-                                                if($("#goal-log-show-more").hasClass("d-none") && inactiveGoals.length > 10){
-                                                    $("#goal-log-show-more").removeClass("d-none");
-                                                    $("#goal-log-show-more").click(addMoreIntoGoalLog);
-                                                }
-                                            break;
-                                        }
-                                    }
-                                }else{
-                                    //console.log("no more entries");
-                                }
-                            }
-                            addMoreIntoGoalLog();
-
-
-
-
-
-
-                COST LOG OLD FUNCTION
-
-
-                            var costActionsToAddMax = boughtCount.length - 1,
-                                costActionsToAddMin = boughtCount.length - 10;
-
-                                function addMoreIntoCostLog(){
-                                    if(costActionsToAddMax >= 0){
-                                        for(var i = costActionsToAddMax; i >= costActionsToAddMin && i >= 0; i--){
-                                            //console.log("i in add to log = " + i);
-                                        var currClickStamp = boughtCount[i].timestamp,
-                                            currClickType = boughtCount[i].clickType,
-                                            currClickCost =  boughtCount[i].spent;
-                                        
-                                        //append 10 new goals
-                                        placeActionIntoLog(currClickStamp, currClickType, currClickCost, true);
-
-                                            if(i == costActionsToAddMin || i == 0){
-                                                    costActionsToAddMin -= 10;
-                                                    costActionsToAddMax -= 10;
-
-                                                //if button is not displayed
-                                                    if($("#cost-log-show-more").hasClass("d-none") && boughtCount.length > 10){
-                                                        $("#cost-log-show-more").removeClass("d-none");
-                                                        $("#cost-log-show-more").click(function(){
-                                                            addMoreIntoCostLog();
-                                                        });
-                                                    }
-                                                break;
-                                            }
-
-                                        }
-                                    }
-                                }
-                                addMoreIntoCostLog();
-
-                            */
+                   
                     
                     }
 							
 			}
 
         //get configuration from storage
-			function retrieveOptionTable(){
-				var currJsonString =  localStorage.esCrave;
-				var jsonObject = JSON.parse(currJsonString);
+			function setOptionsFromStorage(){
+				var jsonObject = retrieveStorageObject();
 
 				//set local json from option in local storage
-				json.options.activeTab = jsonObject.option.activeTab;
+				json.option.activeTab = jsonObject.option.activeTab;
+                     //console.log("json.option.activeTab was set to " + jsonObject.option.activeTab);
 
-                console.log("json.options.activeTab was set to " + jsonObject.option.activeTab);
+                //set remembered variables for settings page 
+                //display logic
+                json.option.liveStatsToDisplay = jsonObject.option.liveStatsToDisplay;
+                json.option.logItemsToDisplay = jsonObject.option.logItemsToDisplay;
+                json.option.reportItemsToDisplay = jsonObject.option.reportItemsToDisplay;
+
+
+        //SETTINGS PAGE INITIAL DISPLAY
+            //loop over 
+                //LIVE STATS
+                for( var key in json.option.liveStatsToDisplay){
+                    $("#" + key + "Displayed").prop('checked', json.option.liveStatsToDisplay[key]);
+                }
+
+                //HABIT LOG
+                 for( var key in json.option.logItemsToDisplay){
+                    $("#" + key + "Displayed").prop('checked', json.option.logItemsToDisplay[key]);
+                }
+
+                //WEEKLY REPORT
+                 for( var key in json.option.reportItemsToDisplay){
+                    $("#" + key + "Displayed").prop('checked', json.option.reportItemsToDisplay[key]);
+                }
+
+               
 			}
 
 		
@@ -853,18 +858,23 @@ var userIsActive = true;
 							'</div><!--end habit-log item div-->';
 
 
-			if(placeBelow){
-				
-				$('#habit-log').append(template);
-			}else{
-				
-				$('#habit-log').prepend(template);
+            //assure user has selected to display this log item type 
+            //controller is on settings pane
+            if(json.option.logItemsToDisplay.goal == true){
+                if(placeBelow){
+                    $('#habit-log').append(template);
 
-			}	
+                }else{
+                    $('#habit-log').prepend(template);
 
-			
-			//and make sure the heading exists too
-			$("#habit-log-heading").show();
+                }	
+
+                //and make sure the heading exists too
+                $("#habit-log-heading").show();
+
+            }else{
+               // console.log("create log entry of type: '" + "goal" + "' did not display.");
+            }
 	}
 
 	function changeGoalStatus(newGoalStatus, goalType, actualEnd){
@@ -876,8 +886,7 @@ var userIsActive = true;
 
 		//console.log("inside changeGoalStatus, newGoalStatus = " + newGoalStatus);
 		//convert localStorage to json
-			var currJsonString =  localStorage.esCrave;
-			var jsonObject = JSON.parse(currJsonString);
+			var jsonObject = retrieveStorageObject();
 
 		var goals = jsonObject.action.filter(function(e){
 			return e.clickType == 'goal' && e.goalType == goalType
@@ -894,8 +903,7 @@ var userIsActive = true;
 			mostRecentGoal.goalStopped = mostRecentGoal.goalStamp;
 		}
 
-		var jsonString = JSON.stringify(jsonObject);
-		localStorage.esCrave = jsonString;
+		setStorageObject(jsonObject);
 	}
 
 	function convertSecondsToDateFormat(rangeInSeconds){
@@ -1009,15 +1017,18 @@ function placeActionIntoLog(clickStamp, clickType, amountSpent, placeBelow){
 					//console.log(template);
 
 
-	if(placeBelow){
-		$(target).append(template);
-	}else{
-		$(target).prepend(template);
-	}	
+    if(json.option.logItemsToDisplay[clickType] == true){
+        if(placeBelow){
+            $(target).append(template);
+        }else{
+            $(target).prepend(template);
+        }	
 
-	
-	//and make sure the heading exists too
-	$(target + "-heading").show();
+        //and make sure the heading exists too
+        $(target + "-heading").show();
+    }else{
+        //console.log("create log entry of type: '" + clickType + "' did not display.");
+    }
 }
 
 
@@ -1091,13 +1102,13 @@ function placeActionIntoLog(clickStamp, clickType, amountSpent, placeBelow){
 
 //return to last active tab
 function returnToActiveTab(){
-	if(json.options.activeTab){
-		var tabName = json.options.activeTab.split("-")[0];
+	if(json.option.activeTab){
+		var tabName = json.option.activeTab.split("-")[0];
 		$("#" + tabName + "-tab-toggler").click();
-		//console.log("json.options.activeTab = " + json.options.activeTab);
+		//console.log("json.option.activeTab = " + json.option.activeTab);
 		//console.log($("#" + tabName + "-tab-toggler"));
 	}else{
-		//console.log("options is null");
+		//console.log("option returns false");
 		$("#" + "reports" + "-tab-toggler").click();
 	}
 
@@ -1114,23 +1125,22 @@ function returnToActiveTab(){
 //save current tab on switch
 function saveActiveTab(){
 	//update instance json
-	json.options.activeTab = $(".tab-pane.active").attr('id');
+	json.option.activeTab = $(".tab-pane.active").attr('id');
 	//console.log("save active tab fired");
 	//console.log($(".tab-pane.active").attr('id'));
 
-	//update in options table
+	//update in option table
         //convert localStorage to json
-			var currJsonString =  localStorage.esCrave;
-			var jsonObject = JSON.parse(currJsonString);
+			var jsonObject = retrieveStorageObject();
 				
                 jsonObject.option.activeTab =  $(".tab-pane.active").attr('id');
 
-            var jsonString = JSON.stringify(jsonObject);
-		    localStorage.esCrave = jsonString;
+              setStorageObject(jsonObject);
+		 
 
 }
 
-	
+//convert last timestamp to a running timer
 function restartTimerAtValues(timerArea, sinceLastAction){
 	var timeNow = new Date()/1000;
 	
@@ -1194,179 +1204,355 @@ function restartTimerAtValues(timerArea, sinceLastAction){
 			
 }
 
+//listen for baseline responses 
+(function updateBaselineResponses(){
+
+    //user declared they have chosen something to track
+        //display further baseline questions
+        $(".baseline-questionnaire .serious-user").on('change', function(){
+            $(".baseline-questionnaire .follow-up-questions").removeClass("d-none");
+        });
+	
+	//user doesn't know what to track, 
+        //send them to 'what to track' help docs
+        $(".baseline-questionnaire .passerby-user").on('change', function(){
+            $(".baseline-questionnaire .follow-up-questions").addClass("d-none");
+
+            var message = "Feel free to poke around, you can reset the entire app (in settings) if you decide to track something specific.";
+            var responseTools =  "<a class='btn btn-md btn-outline-info' href='https://escrave.com#habits'>Some Suggestions</a>";
+            createNotification(message, responseTools);
+        });
+
+        //.follow-up-questions
+        $(".baseline-questionnaire .submit").on("click", function(){
+            
+            //if there's no reports made yet,
+                //update json && localstorage obj with responses
+                    //baseline spent / week
+                    //goal spend / week
+                    //baseline done / week
+                    //goal done / week
+
+
+                //if baseline spent == 0 && baseline goal == 0
+                    //trigger clicks to spent statistics (likely they are not useful)
+
+        });
+
+})();
+
+
+
+//function to read settings changes for which
+//stats to display
+(function settingsDisplayChanges(){
+
+    //LIVE STATISTICS
+    //listen when changed checkbox inside display options area
+    $(".live-statistics-display-options .form-check-input").on('change', function(){
+        
+            //detect specific id
+            var itemHandle = this.id;
+            var displayCorrespondingStat = false;
+        
+            if($("#" + itemHandle).is(":checked")){
+                displayCorrespondingStat = true;
+            }
+
+            //change value in JSON
+                var jsonHandle = itemHandle.replace("Displayed", "");
+                json.option.liveStatsToDisplay[jsonHandle] = displayCorrespondingStat;
+                console.log(jsonHandle + " will be displayed = " + displayCorrespondingStat);
+
+            //update option table value
+            var jsonObject = retrieveStorageObject();
+                jsonObject.option.liveStatsToDisplay[jsonHandle] = displayCorrespondingStat;
+            
+            setStorageObject(jsonObject);
+
+
+    });
+
+    //HABIT LOG 
+    //listen when changed checkbox inside display options area
+        $(".habit-log-display-options .form-check-input").on('change', function(){
+            
+                //detect specific id
+                var itemHandle = this.id;
+                var displayCorrespondingStat = false;
+            
+                if($("#" + itemHandle).is(":checked")){
+                    displayCorrespondingStat = true;
+                }
+
+                //change value in JSON
+                    var jsonHandle = itemHandle.replace("Displayed", "");
+                    json.option.logItemsToDisplay[jsonHandle] = displayCorrespondingStat;
+                    console.log(jsonHandle + " will be displayed = " + displayCorrespondingStat);
+
+                //update option table value
+
+        });
+
+    //WEEKLY REPORT
+    //listen when changed checkbox inside display options area
+        $(".weekly-report-display-options .form-check-input").on('change', function(){
+            
+                //detect specific id
+                var itemHandle = this.id;
+                var displayCorrespondingStat = false;
+            
+                if($("#" + itemHandle).is(":checked")){
+                    displayCorrespondingStat = true;
+                }
+
+                //change value in JSON
+                    var jsonHandle = itemHandle.replace("Displayed", "");
+                    json.option.reportItemsToDisplay[jsonHandle] = displayCorrespondingStat;
+                    console.log(jsonHandle + " will be displayed = " + displayCorrespondingStat);
+
+                //update option table value
+
+        });
+})();
+
+  console.log(json.option);
+
+
+
+
 
 //TOGGLE ANY STATS WHICH ARE NOT ZERO 
 function hideInactiveStatistics(){
 
 
     var statisticPresent = false;
-	//console.log("hide inactive");
 	//bought page 
 	//if(relevantPane == "cost-content"){	
-		if (json.statistics.cost.clickCounter === 0){
-			$("#bought-total").hide();
-			$("#cost-content .timer-recepticle").hide();
-			$("#cost-log-heading").hide();
+    
+        /*HIDE UNAVAILABLE STATS */
+            if (json.statistics.cost.clickCounter === 0){
+                $("#bought-total").hide();
+                $("#cost-content .timer-recepticle").hide();
 
-		}else{
-            statisticPresent = true;
-        }
+            }else{
+                statisticPresent = true;
+            }
 
-		if(json.statistics.cost.averageBetweenClicks === 0){
-			$("#averageTimeBetweenBoughts").parent().hide();
+            if(json.statistics.cost.averageBetweenClicks === 0){
+                $("#averageTimeBetweenBoughts").parent().hide();
+                
+            }
 
-		}
+            if (json.statistics.cost.total === 0){
+                //console.log("total spent is 0: " + json.statistics.totalSpent);
+                //toggle all
+                $("#cost-content .statistic-recepticle").hide();
+                $("#totalAmountSpent").parent().parent().hide();
+                $("#spentThisWeek").parent().parent().hide();
+                $("#spentThisMonth").parent().parent().hide();
+                $("#spentThisYear").parent().parent().hide();
 
-		if (json.statistics.cost.total === 0){
-			//console.log("total spent is 0: " + json.statistics.totalSpent);
-			//toggle all
-			$("#cost-content .statistic-recepticle").hide();
-			$("#totalAmountSpent").parent().parent().hide();
-			$("#spentThisWeek").parent().parent().hide();
-			$("#spentThisMonth").parent().parent().hide();
-			$("#spentThisYear").parent().parent().hide();
+            }else if (json.statistics.cost.thisWeek == json.statistics.cost.total){
+                //console.log("toggle all but total - spent this week equals total");
+                //toggle year month week 
+                $("#spentThisWeek").parent().parent().hide();
+                $("#spentThisMonth").parent().parent().hide();
+                $("#spentThisYear").parent().parent().hide();
+                
 
-		}else if (json.statistics.cost.thisWeek == json.statistics.cost.total){
-			//console.log("toggle all but total - spent this week equals total");
-			//toggle year month week 
-			$("#spentThisWeek").parent().parent().hide();
-			$("#spentThisMonth").parent().parent().hide();
-			$("#spentThisYear").parent().parent().hide();
+            }else if (json.statistics.cost.thisMonth == json.statistics.cost.thisWeek){
+                //console.log("toggle all but week - spent this month equals week");
+                //toggle year and month
+                $("#spentThisMonth").parent().parent().hide();
+                $("#spentThisYear").parent().parent().hide();
+                
+
+            }else if (json.statistics.cost.thisYear == json.statistics.cost.thisMonth){
+                //console.log("toggle year - spent this year equals month");
+                $("#spentThisYear").parent().parent().hide();
+                
             
+            }
 
-		}else if (json.statistics.cost.thisMonth == json.statistics.cost.thisWeek){
-			//console.log("toggle all but week - spent this month equals week");
-			//toggle year and month
-			$("#spentThisMonth").parent().parent().hide();
-			$("#spentThisYear").parent().parent().hide();
+        //}else if(relevantPane == "use-content"){
+
+            if (json.statistics.use.clickCounter === 0){
+                $("#use-total").hide();
+                $("#use-content .timer-recepticle").hide();
+
+            }else{
+                statisticPresent = true;
+            }
+
+            if(json.statistics.use.averageBetweenClicks === 0){
+                $("#averageTimeBetweenUses").parent().hide();
+
+            }
+
+            if (json.statistics.use.craveCounter === 0){
+                $("#crave-total").hide();
+
+            }else{
+                statisticPresent = true;
+            }
+
+            if(json.statistics.use.craveCounter === 0 || json.statistics.use.clickCounter === 0){
+                $("#avgDidntPerDid").parent().hide();
+
+            }
+
+            if(json.statistics.use.cravingsInARow === 0 || json.statistics.use.cravingsInARow === 1){
+                $("#cravingsResistedInARow").parent().hide();
+
+            }
+
+        //}else if(relevantPane == "goal-content"){
+
+            if(json.statistics.goal.clickCounter === 0){
+                $("#goal-content .timer-recepticle").hide();
+            }else{
+                statisticPresent = true;
+            }
+
+            if(json.statistics.goal.bestTimeSeconds === 0){
+                $("#longestGoalCompleted").parent().hide();
+            }
+
+            if(json.statistics.goal.completedGoals === 0){
+                $("#numberOfGoalsCompleted").parent().hide();
+                
+            }
+
+            //figure a way to mark goals complete
+                //track in clickType:goal records in action table
+                //goalStatus: 1 (pending), 2 (unverified), 3 (partial - ended), 4 (achieved - ended)
+                /*
+                if(json.statistics.goalCounter:partial === 0){
+                    $("#numberOfGoalsCompleted").parent().hide();
+                    //remove from previous conditional
+                }
+                if(json.statistics.goalCounter:achieved === 0){
+                    $("#longestGoalCompleted").parent().hide();
+                    //remove from previous conditional
+                }
+                */
+
+        //}
+            if(statisticPresent){
+                //hide instructions
+            // console.log("a statistic is present, hide instructions");
+                $("#statistics-content .initial-instructions").hide();
+            }
+
+    /* HIDE UNWANTED STATISTICS */
+        //COST
+            if(json.option.liveStatsToDisplay.sinceLastSpent == false){
+                $("#cost-content .timer-recepticle").hide();
+            }
+
+            if(json.option.liveStatsToDisplay.avgBetweenSpent == false){
+                $("#averageTimeBetweenBoughts").parent().hide();
+            }
+
+            if(json.option.liveStatsToDisplay.totalSpent == false){
+                $("#totalAmountSpent").parent().parent().hide();
+            }
             
+            if(json.option.liveStatsToDisplay.currWeekSpent == false){
+                $("#spentThisWeek").parent().parent().hide();
+            }
 
-		}else if (json.statistics.cost.thisYear == json.statistics.cost.thisMonth){
-			//console.log("toggle year - spent this year equals month");
-			$("#spentThisYear").parent().parent().hide();
-            
-		
-		}
+            if(json.option.liveStatsToDisplay.currMonthSpent == false){
+                $("#spentThisMonth").parent().parent().hide();
+            }
 
-	//}else if(relevantPane == "use-content"){
+            if(json.option.liveStatsToDisplay.currYearSpent == false){
+                $("#spentThisYear").parent().parent().hide();
+            }
+        
+        //USE
+            if(json.option.liveStatsToDisplay.sinceLastDone == false){
+                $("#use-content .timer-recepticle").hide();
+            }
 
-		if (json.statistics.use.clickCounter === 0){
-			$("#use-total").hide();
-			$("#use-content .timer-recepticle").hide();
-			$("#use-log-heading").hide();
+            if(json.option.liveStatsToDisplay.avgBetweenDone == false){
+                $("#averageTimeBetweenUses").parent().hide();
+            }
 
-		}else{
-            statisticPresent = true;
-        }
+            if(json.option.liveStatsToDisplay.didntPerDid == false){
+                $("#avgDidntPerDid").parent().hide();
+            }
 
-		if(json.statistics.use.averageBetweenClicks === 0){
-			$("#averageTimeBetweenUses").parent().hide();
+            if(json.option.liveStatsToDisplay.resistedInARow == false){
+                $("#cravingsResistedInARow").parent().hide();
+            }
 
-		}
+        //GOAL    
 
-		if (json.statistics.use.craveCounter === 0){
-			$("#crave-total").hide();
+           if(json.option.liveStatsToDisplay.longestGoal === 0){
+                $("#longestGoalCompleted").parent().hide();
+            }
 
-		}else{
-            statisticPresent = true;
-        }
-
-		if(json.statistics.use.craveCounter === 0 || json.statistics.use.clickCounter === 0){
-			$("#avgDidntPerDid").parent().hide();
-
-		}
-
-		if(json.statistics.use.cravingsInARow === 0 || json.statistics.use.cravingsInARow === 1){
-			$("#cravingsResistedInARow").parent().hide();
-
-		}
-
-	//}else if(relevantPane == "goal-content"){
-
-		if(json.statistics.goal.clickCounter === 0){
-			$("#goal-content .timer-recepticle").hide();
-		}else{
-            statisticPresent = true;
-        }
-
-		if(json.statistics.goal.bestTimeSeconds === 0){
-			$("#longestGoalCompleted").parent().hide();
-		}
-
-		if(json.statistics.goal.completedGoals === 0){
-			$("#numberOfGoalsCompleted").parent().hide();
-			$("#goal-log-heading").hide();
-			
-		}
-
-		//figure a way to mark goals complete
-			//track in clickType:goal records in action table
-			//goalStatus: 1 (pending), 2 (unverified), 3 (partial - ended), 4 (achieved - ended)
-			/*
-			if(json.statistics.goalCounter:partial === 0){
-				$("#numberOfGoalsCompleted").parent().hide();
-				//remove from previous conditional
-			}
-			if(json.statistics.goalCounter:achieved === 0){
-				$("#longestGoalCompleted").parent().hide();
-				//remove from previous conditional
-			}
-			*/
-
-	//}
-    if(statisticPresent){
-        //hide instructions
-       // console.log("a statistic is present, hide instructions");
-        $("#statistics-content .initial-instructions").hide();
-    }
 }
 function showActiveStatistics(){
 
-	//console.log("show active");
 	//bought page 
 	//if(relevantPane == "cost-content"){	
 		if (json.statistics.cost.clickCounter !== 0){
 			$("#bought-total").show();
-			$("#cost-content .timer-recepticle").show();
-			$("#cost-log-heading").show();
+            if(json.option.liveStatsToDisplay.sinceLastSpent == true){
+			    $("#cost-content .timer-recepticle").show();
+            }
 
 		}
 		if(json.statistics.cost.averageBetweenClicks !== 0){
-			$("#averageTimeBetweenBoughts").parent().show();
-			calculateAverageTimeBetween("cost");
+            if(json.option.liveStatsToDisplay.avgBetweenSpent == true){
+			    $("#averageTimeBetweenBoughts").parent().show();
+		    	calculateAverageTimeBetween("cost");
+            }
 
 		}
 		if (json.statistics.cost.total !== 0){
-			$("#cost-content .statistic-recepticle").show();
-			$("#totalAmountSpent").parent().parent().show();
+                $("#cost-content .statistic-recepticle").show();
+
+                if(json.option.liveStatsToDisplay.totalSpent == true){
+                    $("#totalAmountSpent").parent().parent().show();
+                }    
 
 		}
 		if (json.statistics.cost.thisWeek !== json.statistics.cost.total){
-			$("#spentThisWeek").parent().parent().show();
-
+			if(json.option.liveStatsToDisplay.currWeekSpent == true){
+                $("#spentThisWeek").parent().parent().show();
+            }
 		}
 		if (json.statistics.cost.thisMonth !== json.statistics.cost.thisWeek){
-			$("#spentThisMonth").parent().parent().show();
+			if(json.option.liveStatsToDisplay.currMonthSpent == true){
+                $("#spentThisMonth").parent().parent().show();
+            }
 
 		}
 		if (json.statistics.cost.thisYear !== json.statistics.cost.thisMonth){
-			$("#spentThisYear").parent().parent().show();
-		
+            if(json.option.liveStatsToDisplay.currYearSpent == true){
+		    	$("#spentThisYear").parent().parent().show();
+            }
 		}
 
 	//}else if(relevantPane == "use-content"){
 
 		if (json.statistics.use.clickCounter !== 0){
 			$("#use-total").show();
-			$("#use-content .timer-recepticle").show();
-			$("#use-log-heading").show();
-
+            if(json.option.liveStatsToDisplay.sinceLastDone == true){
+			    $("#use-content .timer-recepticle").show();
+            }
 		}
 		
 		if(json.statistics.use.averageBetweenClicks !== 0){
-			$("#averageTimeBetweenUses").parent().show();
-			//Average time between uses
-			calculateAverageTimeBetween("use");	
+            if(json.option.liveStatsToDisplay.avgBetweenDone == true){
+			    $("#averageTimeBetweenUses").parent().show();
+                //Average time between uses
+                calculateAverageTimeBetween("use");	
+            }
 			
 		}
 
@@ -1375,40 +1561,36 @@ function showActiveStatistics(){
 
 		}
 		if(json.statistics.use.craveCounter !== 0 && json.statistics.use.clickCounter !== 0){
-			$("#avgDidntPerDid").parent().show();
-
+            if(json.option.liveStatsToDisplay.didntPerDid == true){
+			    $("#avgDidntPerDid").parent().show();
+            }
 		}
 		if(json.statistics.use.cravingsInARow !== 0){
-			$("#cravingsResistedInARow").parent().show();
-
+            if(json.option.liveStatsToDisplay.resistedInARow == true){
+		    	$("#cravingsResistedInARow").parent().show();
+            }
 		}
 
 
 	//}else if(relevantPane == "goal-content"){
 		//console.log("show stats goal tab");
 		if(json.statistics.goal.clickCounter !== 0){
-			$("#goal-content .timer-recepticle").show();
+             if(json.option.liveStatsToDisplay.untilGoalEnd == true){
+			    $("#goal-content .timer-recepticle").show();
+             }
 		}
 
 		if(json.statistics.goal.bestTimeSeconds !== 0){
-			$("#longestGoalCompleted").parent().show();
+             if(json.option.liveStatsToDisplay.longestGoal == true){
+			    $("#longestGoalCompleted").parent().show();
+             }
 			//console.log("showing lng compl");
 		}
 		if(json.statistics.goal.completedGoals !== 0){
 			$("#numberOfGoalsCompleted").parent().show();
-			$("#goal-log-heading").show();
 		}
 
-		//track in clickType:goal records in action table
-		//goalStatus: 1 (pending), 2 (partial), 3 (achieved)
-		/*
-		if(json.statistics.goalCounter:partial !== 0){
-			$("#numberOfGoalsCompleted").parent().show();
-		}
-		if(json.statistics.goalCounter:achieved !== 0){
-			$("#longestGoalCompleted").parent().show();
-		}
-		*/
+		
 
 	//}
 
@@ -1422,18 +1604,29 @@ function showActiveStatistics(){
 		function undoLastAction(){
 			
 			//console.log("undo last action - clicked");
-
-			var currJsonString =  localStorage.esCrave;
-			var jsonObject = JSON.parse(currJsonString);
+			var jsonObject = retrieveStorageObject();
 				//console.log(jsonObject);
+
+        
 				//remove most recent (last) one
 				jsonObject["action"].pop();
+
+                //change goal status, if last action broke a goal
+                    //if most recent record is a goal record
+                        //find most recent goal actiontype,
+                        //if this.status !== 1
+                            //set this.status
+
+
 				//console.log(jsonObject);
-			var jsonString = JSON.stringify(jsonObject);
-				localStorage.esCrave = jsonString;
+	    	setStorageObject(jsonObject);
+			
+
 
 			//reload the page refresh
 				window.location.reload();
+
+            
 
 		}
 
@@ -1447,7 +1640,7 @@ function showActiveStatistics(){
 		function shareActions(){
 			
 			//window.location("dataexport.html");
-			window.open("dataexport.html", "_blank");
+			//window.open("dataexport.html", "_blank");
 		}
 
 		/*OPTIONS MENU CLICK EVENTS */
@@ -1479,8 +1672,7 @@ function showActiveStatistics(){
 	/* CREATE NEW RECORD OF ACTION */
 	//timestamp, clicktype, spent, goalStamp, goalType
 	function updateActionTable(ts, ct, spt, gs, gt){
-		var currJsonString =  localStorage.esCrave;
-		var jsonObject = JSON.parse(currJsonString);
+		var jsonObject = retrieveStorageObject();
 
 			ts = ts.toString();
 		
@@ -1502,8 +1694,8 @@ function showActiveStatistics(){
 
 			jsonObject["action"].push(newRecord);
 			
-		var jsonString = JSON.stringify(jsonObject);
-			localStorage.esCrave = jsonString;
+		    setStorageObject(jsonObject);
+		
 	}
 	
 
@@ -1676,7 +1868,7 @@ function showActiveStatistics(){
 		$("#settings-tab-toggler").removeClass("active");
         $("#settings-tab-toggler").attr( "aria-expanded", "false");
 
-		console.log('statistics tab clicked');
+		//console.log('statistics tab clicked');
 
 	});
 	$(document).delegate("#settings-tab-toggler", 'click', function(e){
@@ -1693,10 +1885,10 @@ function showActiveStatistics(){
 	//create initial state of app
 //If json action table doesn't exist, create it
 if(localStorage.esCrave){
-	retrieveActionTable();
-	retrieveOptionTable();
+	setStateFromRecords();
+	setOptionsFromStorage();
 //dump stats
-console.log(json);
+//console.log(json);
 
 //set stats	
 	//set total clicks for each button
@@ -1712,8 +1904,14 @@ console.log(json);
 	hideTimersOnLoad();
 
 }else{
-	//replace this with empty action table
-	var newJsonString = '{ "action":[], "option": { "activeTab" : "reports-content"} }';
+	//replace this with 
+        //empty action table
+        //basic stat display settings option table
+	var newJsonString = '{ "action":[], "option": { "activeTab" : "reports-content",' +
+                                                    '"liveStatsToDisplay" : {"untilGoalEnd": true, "longestGoal": true, "sinceLastDone": true, "avgBetweenDone": true, "didntPerDid": true, "resistedInARow": true, "sinceLastSpent": true,"avgBetweenSpent": true, "totalSpent": true, "currWeekSpent": true, "currMonthSpent": true, "currYearSpent": true},' + 
+                                                    '"logItemsToDisplay" : {"goal": true, "used": true, "craved": true,	"bought": true},' + 
+                                                    '"reportItemsToDisplay" : {	"useChangeVsBaseline": false, "useChangeVsLastWeek": true, "costChangeVsBaseline": false, "costChangeVsLastWeek": true, "useGoalVsThisWeek": false, "costGoalVsThisWeek": false}' + 
+                                                    '} }';
 		localStorage.setItem("esCrave", newJsonString);
 
 		hideInactiveStatistics();

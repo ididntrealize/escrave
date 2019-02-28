@@ -73,8 +73,8 @@
                 </div>
             </div>
             <div class="logo-and-tagline">
-                <img class="img-fluid" src="../images/graph-logo-large.png" />
-                <span class="tagline">esCrave</span>
+                <img class="img-fluid" src="../images/escrave-logo-extended-inverse.png" />
+                <!--span class="tagline">esCrave</span-->
                 <!--p style="">Anonymous Habit Tracker</p -->
             </div>
         </div>
@@ -189,36 +189,17 @@
                                     <label>Have you picked something specific to track?</label>
                                     <div class="form-check">
                                         <label class="form-check-label">
-                                            <input type="radio" class="form-check-input" name="optradio" id="serious-user">Yes
+                                            <input type="radio" class="serious-user form-check-input" name="optradio">&nbsp;Yes
                                         </label>
                                     </div>
                                     <div class="form-check">
                                         <label class="form-check-label">
-                                            <input type="radio" class="form-check-input" name="optradio" id="passerby-user">No
+                                            <input type="radio" class="passerby-user form-check-input" name="optradio">&nbsp;No
                                         </label>
                                     </div>
                                 </div>
 
-                                <div class="follow-up-questions">
-                                    <div class="question">
-                                        <label>How many times do you currently do it per week?</label>
-                                        <div class="input-group">
-                                            <input type="number" min="0" max="500" class="form-control"
-                                                placeholder="Approximate amount">
-
-                                        </div>
-                                    </div>
-
-                                    <div class="question">
-                                        <label>How often would you prefer to do it per week?</label>
-                                        <div class="input-group">
-                                            <input type="number" min="0" max="500" class="form-control"
-                                                placeholder="Goal amount">
-
-                                        </div>
-                                    </div>
-
-
+                                <div class="follow-up-questions d-none">
                                     <div class="question">
                                         <label>How much do you currently spend on that thing per week?</label>
                                         <div class="input-group">
@@ -240,8 +221,29 @@
                                         </div>
                                     </div>
 
+                                    <div class="question">
+                                        <label>How many times do you currently do it per week?</label>
+                                        <div class="input-group">
+                                            <input type="number" min="0" max="500" class="form-control"
+                                                placeholder="Approximate amount">
+
+                                        </div>
+                                    </div>
+
+                                    <div class="question">
+                                        <label>How often would you prefer to do it per week?</label>
+                                        <div class="input-group">
+                                            <input type="number" min="0" max="500" class="form-control"
+                                                placeholder="Goal amount">
+
+                                        </div>
+                                    </div>
+
+
+                                    
+
                                     <div class="text-xs-right">
-                                        <button class="btn btn-outline-success">Submit</button>
+                                        <button class="btn btn-outline-success submit">Submit</button>
                                     </div>
 
                                 </div>
@@ -252,7 +254,7 @@
 
 
                     </div>
-                    <div class="weekly-report-template">
+                    <div class="weekly-report-template d-none">
                         <div class="row">
                             <div class="col-12">
 
@@ -339,7 +341,7 @@
                                           <div class="statistic">
                                               <label>Goal Usage / week:</label>
                                           
-                                               <div class="percent-changed up">
+                                               <div class="percent-changed">
                                                     5
                                               </div>
                                             </div>
@@ -362,7 +364,7 @@
                                           <div class="statistic">
                                               <label>Goal Usage / week:</label>
                                           
-                                               <div class="percent-changed up">
+                                               <div class="percent-changed">
                                                     0$
                                               </div>
                                             </div>
@@ -678,184 +680,233 @@
                             <button id="clearTablesButton" class="btn btn-outline-danger" href="#"><i
                                     class="fas fa-trash-alt"></i>&nbsp;Reset all app data</button>
 
-
+                        <div class="live-statistics-display-options">
                             <h3>Displayed Live Statistics</h3>
 
+                                <h4>Goal-related</h4>
+                                    <div class="form-check">
+                                        <label class="form-check-label" for="showGoalButon">
+                                            <input class="form-check-input" type="checkbox" value="" id="goalButonDisplayed" checked>
+                                            'Set Goal' Button
+                                        </label>
+                                    </div>
 
-                            <div class="form-check">
-                                <label class="form-check-label" for="defaultCheck1">
-                                    <input class="form-check-input" type="checkbox" value="" id="defaultCheck1" checked>
+                                    <div class="form-check">
+                                        <label class="form-check-label" for="showUntilGoalEnd">
+                                            <input class="form-check-input" type="checkbox" value="" id="untilGoalEndDisplayed" checked>
 
-                                    Time until goal end
-                                </label>
-                            </div>
+                                            Time until goal end
+                                        </label>
+                                    </div>
 
-                            <div class="form-check">
-                                <label class="form-check-label" for="defaultCheck1">
+                                    <div class="form-check">
+                                        <label class="form-check-label" for="longestGoalDisplayed">
 
-                                    <input class="form-check-input" type="checkbox" value="" id="defaultCheck1" checked>
-                                    Longest Goal completed
-                                </label>
-                            </div>
+                                            <input class="form-check-input" type="checkbox" value="" id="longestGoalDisplayed" checked>
+                                            Longest Goal completed
+                                        </label>
+                                    </div>
+                                <h4>Use-related</h4>
+                                    <div class="form-check">
+                                        <label class="form-check-label" for="usedButtonDisplayed">
+                                            <input class="form-check-input" type="checkbox" value="" id="usedButtonDisplayed" checked>
+                                            'Did It' Button
+                                        </label>
+                                    </div>
+                                    <div class="form-check">
+                                        <label class="form-check-label" for="cravedButtonDisplayed">
+                                            <input class="form-check-input" type="checkbox" value="" id="cravedButtonDisplayed" checked>
+                                            'Didnt' Button
+                                        </label>
+                                    </div>
+                                    <div class="form-check">
+                                        <label class="form-check-label" for="sinceLastDoneDisplayed">
 
-                            <div class="form-check">
-                                <label class="form-check-label" for="defaultCheck1">
+                                            <input class="form-check-input" type="checkbox" value="" id="sinceLastDoneDisplayed" checked>
+                                            Time since you last did it
+                                        </label>
+                                    </div>
 
-                                    <input class="form-check-input" type="checkbox" value="" id="defaultCheck1" checked>
-                                    Time since you last did it
-                                </label>
-                            </div>
+                                    <div class="form-check">
 
-                            <div class="form-check">
+                                        <label class="form-check-label" for="avgBetweenDoneDisplayed">
+                                            <input class="form-check-input" type="checkbox" value="" id="avgBetweenDoneDisplayed" checked>
+                                            Average time between doing it
+                                        </label>
+                                    </div>
 
-                                <label class="form-check-label" for="defaultCheck1">
-                                    <input class="form-check-input" type="checkbox" value="" id="defaultCheck1" checked>
-                                    Average time between doing it
-                                </label>
-                            </div>
+                                    <div class="form-check">
+                                        <label class="form-check-label" for="didntPerDidDisplayed">
+                                            <input class="form-check-input" type="checkbox" value="" id="didntPerDidDisplayed" checked>
+                                            Ratio of times you've resisted doing it to times you've done it
+                                        </label>
+                                    </div>
 
-                            <div class="form-check">
-                                <label class="form-check-label" for="defaultCheck1">
-                                    <input class="form-check-input" type="checkbox" value="" id="defaultCheck1" checked>
-                                    Ratio of times you've resisted doing it to times you've done it
-                                </label>
-                            </div>
+                                    <div class="form-check">
+                                        <label class="form-check-label" for="resistedInARowDisplayed">
+                                            <input class="form-check-input" type="checkbox" value="" id="resistedInARowDisplayed" checked>
+                                            Number of times you've resisted doing it in a row
+                                        </label>
+                                    </div>
 
-                            <div class="form-check">
-                                <label class="form-check-label" for="defaultCheck1">
-                                    <input class="form-check-input" type="checkbox" value="" id="defaultCheck1" checked>
-                                    Number of times you've resisted doing it in a row
-                                </label>
-                            </div>
+                                <h4>Cost-related</h4>
+                                    <div class="form-check">
+                                        <label class="form-check-label" for="BoughtButtonDisplayed">
+                                            <input class="form-check-input" type="checkbox" value="" id="BoughtButtonDisplayed" checked>
+                                            'Spent' Button
+                                        </label>
+                                    </div>
+                                    <div class="form-check">
+                                        <label class="form-check-label" for="sinceLastSpentDisplayed">
+                                            <input class="form-check-input" type="checkbox" value="" id="sinceLastSpentDisplayed" checked>
+                                            Time since the last time you spent money on it
+                                        </label>
+                                    </div>
 
-                            <div class="form-check">
-                                <label class="form-check-label" for="defaultCheck1">
-                                    <input class="form-check-input" type="checkbox" value="" id="defaultCheck1" checked>
-                                    Time since the last time you spent money on it
-                                </label>
-                            </div>
-
-                            <div class="form-check">
-                                <label class="form-check-label" for="defaultCheck1">
-                                    <input class="form-check-input" type="checkbox" value="" id="defaultCheck1" checked>
-                                    Average time between spending money on it
-                                </label>
-                            </div>
-
-
-                            <div class="form-check">
-                                <label class="form-check-label" for="defaultCheck1">
-                                    <input class="form-check-input" type="checkbox" value="" id="defaultCheck1" checked>
-                                    Total spent
-                                </label>
-                            </div>
-
-
-                            <div class="form-check">
-                                <label class="form-check-label" for="defaultCheck1">
-                                    <input class="form-check-input" type="checkbox" value="" id="defaultCheck1" checked>
-                                    spent this week
-                                </label>
-                            </div>
-
-
-                            <div class="form-check">
-                                <label class="form-check-label" for="defaultCheck1">
-                                    <input class="form-check-input" type="checkbox" value="" id="defaultCheck1" checked>
-                                    spent this month
-                                </label>
-                            </div>
-
-
-                            <div class="form-check">
-                                <label class="form-check-label" for="defaultCheck1">
-                                    <input class="form-check-input" type="checkbox" value="" id="defaultCheck1" checked>
-                                    spent this year
-                                </label>
-                            </div>
+                                    <div class="form-check">
+                                        <label class="form-check-label" for="avgBetweenSpentDisplayed">
+                                            <input class="form-check-input" type="checkbox" value="" id="avgBetweenSpentDisplayed" checked>
+                                            Average time between spending money on it
+                                        </label>
+                                    </div>
 
 
+                                    <div class="form-check">
+                                        <label class="form-check-label" for="totalSpentDisplayed">
+                                            <input class="form-check-input" type="checkbox" value="" id="totalSpentDisplayed" checked>
+                                            Total spent
+                                        </label>
+                                    </div>
 
-                            <h3>Included Habit Log Entries</h3>
 
-                            <div class="form-check">
-                                <label class="form-check-label" for="defaultCheck1">
-                                    <input class="form-check-input" type="checkbox" value="" id="defaultCheck1" checked>
-                                    Ended goals
-                                </label>
-                            </div>
+                                    <div class="form-check">
+                                        <label class="form-check-label" for="currWeekSpentDisplayed">
+                                            <input class="form-check-input" type="checkbox" value="" id="currWeekSpentDisplayed" checked>
+                                            spent this week
+                                        </label>
+                                    </div>
 
-                            <div class="form-check">
-                                <label class="form-check-label" for="defaultCheck1">
-                                    <input class="form-check-input" type="checkbox" value="" id="defaultCheck1" checked>
-                                    Doing it
-                                </label>
-                            </div>
 
-                            <div class="form-check">
-                                <label class="form-check-label" for="defaultCheck1">
-                                    <input class="form-check-input" type="checkbox" value="" id="defaultCheck1" checked>
-                                    Not doing it
-                                </label>
-                            </div>
+                                    <div class="form-check">
+                                        <label class="form-check-label" for="currMonthSpentDisplayed">
+                                            <input class="form-check-input" type="checkbox" value="" id="currMonthSpentDisplayed" checked>
+                                            spent this month
+                                        </label>
+                                    </div>
 
-                            <div class="form-check">
-                                <label class="form-check-label" for="defaultCheck1">
-                                    <input class="form-check-input" type="checkbox" value="" id="defaultCheck1" checked>
-                                    Spending on it
-                                </label>
-                            </div>
 
-                            <h3>Shown on weekly reports</h3>
+                                    <div class="form-check">
+                                        <label class="form-check-label" for="currYearSpentDisplayed">
+                                            <input class="form-check-input" type="checkbox" value="" id="currYearSpentDisplayed" checked>
+                                            spent this year
+                                        </label>
+                                    </div>
+                        </div>
+                        <div class="habit-log-display-options">
 
-                            <div class="form-check">
-                                <label class="form-check-label" for="defaultCheck1">
-                                    <input class="form-check-input" type="checkbox" value="" id="defaultCheck1" checked>
-                                    Percent change of uses this week vs baseline
-                                </label>
-                            </div>
 
-                            <div class="form-check">
-                                <label class="form-check-label" for="defaultCheck1">
-                                    <input class="form-check-input" type="checkbox" value="" id="defaultCheck1" checked>
-                                    Percent change of uses this week vs last week
-                                </label>
-                            </div>
+                            <h3>Displayed in Habit Log</h3>
 
-                            <div class="form-check">
-                                <label class="form-check-label" for="defaultCheck1">
-                                    <input class="form-check-input" type="checkbox" value="" id="defaultCheck1" checked>
-                                    Percent change of amount spent this week vs baseline
-                                </label>
-                            </div>
+                                <div class="form-check">
+                                    <label class="form-check-label" for="defaultCheck1">
+                                        <input class="form-check-input" type="checkbox" value="" id="defaultCheck1" checked>
+                                        Ended goals
+                                    </label>
+                                </div>
 
-                            <div class="form-check">
-                                <label class="form-check-label" for="defaultCheck1">
-                                    <input class="form-check-input" type="checkbox" value="" id="defaultCheck1" checked>
-                                    Percent change of amount spent this week vs last week
-                                </label>
-                            </div>
+                                <div class="form-check">
+                                    <label class="form-check-label" for="defaultCheck1">
+                                        <input class="form-check-input" type="checkbox" value="" id="defaultCheck1" checked>
+                                        Doing it
+                                    </label>
+                                </div>
 
-                            <!-- div class="form-check">
-                                <label class="form-check-label" for="defaultCheck1">
-                                    <input class="form-check-input" type="checkbox" value="" id="defaultCheck1" checked>
-                                    Average time between uses this week
-                                </label>
-                            </div-->
+                                <div class="form-check">
+                                    <label class="form-check-label" for="defaultCheck1">
+                                        <input class="form-check-input" type="checkbox" value="" id="defaultCheck1" checked>
+                                        Not doing it
+                                    </label>
+                                </div>
 
-                            <!-- div class="form-check">
-                                <label class="form-check-label" for="defaultCheck1">
-                                    <input class="form-check-input" type="checkbox" value="" id="defaultCheck1" checked>
-                                    Cravings resisted this week
-                                </label>
-                            </div-->
+                                <div class="form-check">
+                                    <label class="form-check-label" for="defaultCheck1">
+                                        <input class="form-check-input" type="checkbox" value="" id="defaultCheck1" checked>
+                                        Spending on it
+                                    </label>
+                                </div>
+                        </div>
+                        <div class="weekly-reports-display-options">
+                            <h3>Displayed on weekly reports</h3>
+
+                                <div class="form-check">
+                                    <label class="form-check-label" for="defaultCheck1">
+                                        <input class="form-check-input" type="checkbox" value="" id="defaultCheck1" checked>
+                                        Percent change of uses this week vs baseline
+                                    </label>
+                                </div>
+
+                                <div class="form-check">
+                                    <label class="form-check-label" for="defaultCheck1">
+                                        <input class="form-check-input" type="checkbox" value="" id="defaultCheck1" checked>
+                                        Percent change of uses this week vs last week
+                                    </label>
+                                </div>
+
+                                <div class="form-check">
+                                    <label class="form-check-label" for="defaultCheck1">
+                                        <input class="form-check-input" type="checkbox" value="" id="defaultCheck1" checked>
+                                        Percent change of amount spent this week vs baseline
+                                    </label>
+                                </div>
+
+                                <div class="form-check">
+                                    <label class="form-check-label" for="defaultCheck1">
+                                        <input class="form-check-input" type="checkbox" value="" id="defaultCheck1" checked>
+                                        Percent change of amount spent this week vs last week
+                                    </label>
+                                </div>
+
+                                <div class="form-check">
+                                    <label class="form-check-label" for="defaultCheck1">
+                                        <input class="form-check-input" type="checkbox" value="" id="defaultCheck1" checked>
+                                        Done this Week vs. Goal done / Week
+                                    </label>
+                                </div>
+
+                                <div class="form-check">
+                                    <label class="form-check-label" for="defaultCheck1">
+                                        <input class="form-check-input" type="checkbox" value="" id="defaultCheck1" checked>
+                                        Spent this Week vs. Goal spent / Week
+                                    </label>
+                                </div>
+
+                                <!-- div class="form-check">
+                                    <label class="form-check-label" for="defaultCheck1">
+                                        <input class="form-check-input" type="checkbox" value="" id="defaultCheck1" checked>
+                                        Average time between uses this week
+                                    </label>
+                                </div-->
+
+                                <!-- div class="form-check">
+                                    <label class="form-check-label" for="defaultCheck1">
+                                        <input class="form-check-input" type="checkbox" value="" id="defaultCheck1" checked>
+                                        Cravings resisted this week
+                                    </label>
+                                </div-->
+                        </div>
 
                             <h3>More</h3>
 
-                            <button class="btn btn-outline-info"><i class="fas fa-question"></i>&nbsp;About Escrave</button>
+                               <button class="btn btn-outline-info">
+                                    <i class="fas fa-question"></i>
+                                    &nbsp;About Escrave
+                                </button>
 
-                            <button class="btn btn-outline-success"><i class="far fa-comments"></i>&nbsp;Give Feedback</button>
-                       
+                                <button class="btn btn-outline-success">
+                                   <i class="far fa-comments"></i>
+                                   &nbsp;Give Feedback
+                                </button>
+
                        
                         </div>
                     </div>
