@@ -1,4 +1,3 @@
-var welcomeToMyJavascriptDoc;
 /****************************************************************************
  * This document is kinda long, like over 3000 lines,
  * so let me give you a quick overview of how everything works
@@ -52,7 +51,7 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 
 *********************************************************************************/
-
+var welcomeHome;
 
 $( document ).ready(function() {
 
@@ -179,12 +178,16 @@ var userIsActive = true;
 					{
 						"activeTab": "reports-content",
                         "liveStatsToDisplay":{
+                                    "goalButton": true,
 									"untilGoalEnd": true,
 									"longestGoal": true,
+                                    "usedButton": true,
+                                    "cravedButton": true,
 									"sinceLastDone": true,
 									"avgBetweenDone": true,
 									"didntPerDid": true,
 									"resistedInARow": true,
+                                    "spentButton": true,
 									"sinceLastSpent": true,
 									"avgBetweenSpent": true,
 									"totalSpent": true,
@@ -231,7 +234,45 @@ var userIsActive = true;
         }
 
 
-		//get data from storage and convert to working json object
+	
+
+        //get configuration from storage
+			function setOptionsFromStorage(){
+				var jsonObject = retrieveStorageObject();
+
+				//set local json from option in local storage
+				json.option.activeTab = jsonObject.option.activeTab;
+                     //console.log("json.option.activeTab was set to " + jsonObject.option.activeTab);
+
+                //set remembered variables for settings page 
+                //display logic
+                    json.option.liveStatsToDisplay = jsonObject.option.liveStatsToDisplay;
+                    json.option.logItemsToDisplay = jsonObject.option.logItemsToDisplay;
+                    json.option.reportItemsToDisplay = jsonObject.option.reportItemsToDisplay;
+
+
+        //SETTINGS PAGE INITIAL DISPLAY
+            //loop over 
+                //LIVE STATS
+                for( var key in json.option.liveStatsToDisplay){
+                    $("#" + key + "Displayed").prop('checked', json.option.liveStatsToDisplay[key]);
+                }
+
+                //HABIT LOG
+                 for( var key in json.option.logItemsToDisplay){
+                    $("#" + key + "RecordDisplayed").prop('checked', json.option.logItemsToDisplay[key]);
+                }
+
+                //WEEKLY REPORT
+                 for( var key in json.option.reportItemsToDisplay){
+                    $("#" + key + "Displayed").prop('checked', json.option.reportItemsToDisplay[key]);
+                }
+
+			}
+
+
+    //SET STATS FROM STORAGE
+        //get data from storage and convert to working json object
             //set initial values in app			 
 			function setStateFromRecords(){
 				
@@ -563,41 +604,6 @@ var userIsActive = true;
 							
 			}
 
-        //get configuration from storage
-			function setOptionsFromStorage(){
-				var jsonObject = retrieveStorageObject();
-
-				//set local json from option in local storage
-				json.option.activeTab = jsonObject.option.activeTab;
-                     //console.log("json.option.activeTab was set to " + jsonObject.option.activeTab);
-
-                //set remembered variables for settings page 
-                //display logic
-                json.option.liveStatsToDisplay = jsonObject.option.liveStatsToDisplay;
-                json.option.logItemsToDisplay = jsonObject.option.logItemsToDisplay;
-                json.option.reportItemsToDisplay = jsonObject.option.reportItemsToDisplay;
-
-
-        //SETTINGS PAGE INITIAL DISPLAY
-            //loop over 
-                //LIVE STATS
-                for( var key in json.option.liveStatsToDisplay){
-                    $("#" + key + "Displayed").prop('checked', json.option.liveStatsToDisplay[key]);
-                }
-
-                //HABIT LOG
-                 for( var key in json.option.logItemsToDisplay){
-                    $("#" + key + "Displayed").prop('checked', json.option.logItemsToDisplay[key]);
-                }
-
-                //WEEKLY REPORT
-                 for( var key in json.option.reportItemsToDisplay){
-                    $("#" + key + "Displayed").prop('checked', json.option.reportItemsToDisplay[key]);
-                }
-
-               
-			}
-
 		
 		//Restrict possible dates chosen in goal tab datepicker
 
@@ -846,7 +852,7 @@ var userIsActive = true;
 				actionGerund = 'do';
 			}
 
-			var template =  '<div class="item">' +
+			var template =  '<div class="item goal-record">' +
 								'<hr/><p class="title"><i class="far fa-calendar-plus"></i>&nbsp;' +
 									'You waited <b><span class="timeElapsed">' + timeElapsed + '</span></b>&nbsp;' +
 									'to <span class="actionGerund">' + actionGerund + '</span> it!' +
@@ -860,7 +866,7 @@ var userIsActive = true;
 
             //assure user has selected to display this log item type 
             //controller is on settings pane
-            if(json.option.logItemsToDisplay.goal == true){
+            if(json.option.logItemsToDisplay.goal === true){
                 if(placeBelow){
                     $('#habit-log').append(template);
 
@@ -1006,7 +1012,7 @@ function placeActionIntoLog(clickStamp, clickType, amountSpent, placeBelow){
 
 	}
 
-	var template =  '<div class="item">' +
+	var template =  '<div class="item ' + clickType + '-record">' +
 						'<hr/><p class="title">' + titleHTML + '</p>' +
 						'<p class="date" style="text-align:center;color:D8D8D8">' +
 							'<span class="dayOfTheWeek">' + dayOfTheWeek + '</span>,&nbsp;' +
@@ -1017,17 +1023,17 @@ function placeActionIntoLog(clickStamp, clickType, amountSpent, placeBelow){
 					//console.log(template);
 
 
-    if(json.option.logItemsToDisplay[clickType] == true){
+    if(json.option.logItemsToDisplay[clickType] === true){
         if(placeBelow){
             $(target).append(template);
         }else{
             $(target).prepend(template);
         }	
-
+       // console.log(json.option.logItemsToDisplay[clickType]);
         //and make sure the heading exists too
         $(target + "-heading").show();
     }else{
-        //console.log("create log entry of type: '" + clickType + "' did not display.");
+      //  console.log("create log entry of type: '" + clickType + "' did not display.");
     }
 }
 
@@ -1262,14 +1268,15 @@ function restartTimerAtValues(timerArea, sinceLastAction){
             //change value in JSON
                 var jsonHandle = itemHandle.replace("Displayed", "");
                 json.option.liveStatsToDisplay[jsonHandle] = displayCorrespondingStat;
-                console.log(jsonHandle + " will be displayed = " + displayCorrespondingStat);
+                //console.log(jsonHandle + " will be displayed = " + displayCorrespondingStat);
 
             //update option table value
             var jsonObject = retrieveStorageObject();
                 jsonObject.option.liveStatsToDisplay[jsonHandle] = displayCorrespondingStat;
             
             setStorageObject(jsonObject);
-
+            showActiveStatistics();
+            hideInactiveStatistics();
 
     });
 
@@ -1286,17 +1293,21 @@ function restartTimerAtValues(timerArea, sinceLastAction){
                 }
 
                 //change value in JSON
-                    var jsonHandle = itemHandle.replace("Displayed", "");
+                    var jsonHandle = itemHandle.replace("RecordDisplayed", "");
                     json.option.logItemsToDisplay[jsonHandle] = displayCorrespondingStat;
                     console.log(jsonHandle + " will be displayed = " + displayCorrespondingStat);
 
                 //update option table value
+                    var jsonObject = retrieveStorageObject();
+                        jsonObject.option.logItemsToDisplay[jsonHandle] = displayCorrespondingStat;
+                    
+                    setStorageObject(jsonObject);
 
         });
 
     //WEEKLY REPORT
     //listen when changed checkbox inside display options area
-        $(".weekly-report-display-options .form-check-input").on('change', function(){
+        $(".report-display-options .form-check-input").on('change', function(){
             
                 //detect specific id
                 var itemHandle = this.id;
@@ -1316,15 +1327,14 @@ function restartTimerAtValues(timerArea, sinceLastAction){
         });
 })();
 
-  console.log(json.option);
-
 
 
 
 
 //TOGGLE ANY STATS WHICH ARE NOT ZERO 
 function hideInactiveStatistics(){
-
+          
+    //console.log("inside show inactive");
 
     var statisticPresent = false;
 	//bought page 
@@ -1424,19 +1434,7 @@ function hideInactiveStatistics(){
                 
             }
 
-            //figure a way to mark goals complete
-                //track in clickType:goal records in action table
-                //goalStatus: 1 (pending), 2 (unverified), 3 (partial - ended), 4 (achieved - ended)
-                /*
-                if(json.statistics.goalCounter:partial === 0){
-                    $("#numberOfGoalsCompleted").parent().hide();
-                    //remove from previous conditional
-                }
-                if(json.statistics.goalCounter:achieved === 0){
-                    $("#longestGoalCompleted").parent().hide();
-                    //remove from previous conditional
-                }
-                */
+        
 
         //}
             if(statisticPresent){
@@ -1447,6 +1445,10 @@ function hideInactiveStatistics(){
 
     /* HIDE UNWANTED STATISTICS */
         //COST
+             if(json.option.liveStatsToDisplay.spentButton == false){
+                $("#bought-button").parent().hide();
+             }
+
             if(json.option.liveStatsToDisplay.sinceLastSpent == false){
                 $("#cost-content .timer-recepticle").hide();
             }
@@ -1472,6 +1474,12 @@ function hideInactiveStatistics(){
             }
         
         //USE
+            if(json.option.liveStatsToDisplay.usedButton == false){
+                $("#use-button").parent().hide();
+            }
+            if(json.option.liveStatsToDisplay.cravedButton == false){
+                $("#crave-button").parent().hide();
+            }
             if(json.option.liveStatsToDisplay.sinceLastDone == false){
                 $("#use-content .timer-recepticle").hide();
             }
@@ -1489,6 +1497,9 @@ function hideInactiveStatistics(){
             }
 
         //GOAL    
+            if(json.option.liveStatsToDisplay.goalButton == false){
+                $("#goal-button").parent().hide();
+            }
 
            if(json.option.liveStatsToDisplay.longestGoal === 0){
                 $("#longestGoalCompleted").parent().hide();
@@ -1496,6 +1507,23 @@ function hideInactiveStatistics(){
 
 }
 function showActiveStatistics(){
+
+    //console.log("inside show active");
+
+    //Show Buttons if requested
+        if(json.option.liveStatsToDisplay.spentButton == true){
+            $("#bought-button").parent().show();
+        }
+        if(json.option.liveStatsToDisplay.usedButton == true){
+            $("#use-button").parent().show();
+        }
+        if(json.option.liveStatsToDisplay.cravedButton == true){
+            $("#crave-button").parent().show();
+        }
+        if(json.option.liveStatsToDisplay.goalButton == true){
+            $("#goal-button").parent().show();
+        }
+
 
 	//bought page 
 	//if(relevantPane == "cost-content"){	
@@ -1881,49 +1909,53 @@ function showActiveStatistics(){
 	});
 	
 	
-	
-	//create initial state of app
-//If json action table doesn't exist, create it
-if(localStorage.esCrave){
-	setStateFromRecords();
-	setOptionsFromStorage();
-//dump stats
-//console.log(json);
+/* CALL INITIAL STATE OF APP */	
 
-//set stats	
-	//set total clicks for each button
-	$("#use-total").html(json.statistics.use.clickCounter);
-	$("#crave-total").html(json.statistics.use.craveCounter);
-	$("#bought-total").html(json.statistics.cost.clickCounter);
-	
-	//Average time between
-	displayAverageTimeBetween("use");	
-	displayAverageTimeBetween("cost");	
-	displayLongestGoal();
-	returnToActiveTab();	
-	hideTimersOnLoad();
+    //If json action table doesn't exist, create it
+    if(localStorage.esCrave){
+        setOptionsFromStorage();
+        setStateFromRecords();
+    //dump stats
+    //console.log(json);
 
-}else{
-	//replace this with 
-        //empty action table
-        //basic stat display settings option table
-	var newJsonString = '{ "action":[], "option": { "activeTab" : "reports-content",' +
-                                                    '"liveStatsToDisplay" : {"untilGoalEnd": true, "longestGoal": true, "sinceLastDone": true, "avgBetweenDone": true, "didntPerDid": true, "resistedInARow": true, "sinceLastSpent": true,"avgBetweenSpent": true, "totalSpent": true, "currWeekSpent": true, "currMonthSpent": true, "currYearSpent": true},' + 
-                                                    '"logItemsToDisplay" : {"goal": true, "used": true, "craved": true,	"bought": true},' + 
-                                                    '"reportItemsToDisplay" : {	"useChangeVsBaseline": false, "useChangeVsLastWeek": true, "costChangeVsBaseline": false, "costChangeVsLastWeek": true, "useGoalVsThisWeek": false, "costGoalVsThisWeek": false}' + 
-                                                    '} }';
-		localStorage.setItem("esCrave", newJsonString);
+    //set stats	
+        //set total clicks for each button
+        $("#use-total").html(json.statistics.use.clickCounter);
+        $("#crave-total").html(json.statistics.use.craveCounter);
+        $("#bought-total").html(json.statistics.cost.clickCounter);
+        
+        //Average time between
+        displayAverageTimeBetween("use");	
+        displayAverageTimeBetween("cost");	
+        displayLongestGoal();
+        returnToActiveTab();	
+        hideTimersOnLoad();
 
-		hideInactiveStatistics();
-		//console.log("hiding inactive use");
-}
+        //after all is said and done 
+        //hide/show stats
+            hideInactiveStatistics();
+
+    }else{
+        //replace this with 
+            //empty action table
+            //basic stat display settings option table
+        var newJsonString = '{ "action":[], "option": { "activeTab" : "reports-content",' +
+                                                        '"liveStatsToDisplay" : {"untilGoalEnd": true, "longestGoal": true, "sinceLastDone": true, "avgBetweenDone": true, "didntPerDid": true, "resistedInARow": true, "sinceLastSpent": true,"avgBetweenSpent": true, "totalSpent": true, "currWeekSpent": true, "currMonthSpent": true, "currYearSpent": true},' + 
+                                                        '"logItemsToDisplay" : {"goal": true, "used": true, "craved": true,	"bought": true},' + 
+                                                        '"reportItemsToDisplay" : {	"useChangeVsBaseline": false, "useChangeVsLastWeek": true, "costChangeVsBaseline": false, "costChangeVsLastWeek": true, "useGoalVsThisWeek": false, "costGoalVsThisWeek": false}' + 
+                                                        '} }';
+            localStorage.setItem("esCrave", newJsonString);
+
+            hideInactiveStatistics();
+            //console.log("hiding inactive use");
+    }
 	
 		
 	//SMOKE BUTTON		
 	//CRAVE BUTTON 					
 	//BOUGHT BUTTON		
 			
-			 $("#bought-button,	#crave-button, #smoke-button, #goal-button").click(function(){
+			 $("#bought-button,	#crave-button, #use-button, #goal-button").click(function(){
               
                 //Detect section
                 var timerSection;
@@ -1961,7 +1993,7 @@ if(localStorage.esCrave){
 						}
 
 						
-					}else if(this.id == "smoke-button"){
+					}else if(this.id == "use-button"){
 						//update relevant statistics
 							updateActionTable(timestampSeconds, "used");
 						
