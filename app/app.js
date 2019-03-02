@@ -55,49 +55,6 @@ var welcomeHome;
 
 $( document ).ready(function() {
 
-
-//refreshes the page automatically, upon user action,
-//to refresh timers from local storage timestamp
-var userIsActive = true;
-(function manageInactivity(){
-	var idleTime = 0;
-		//Increment the idle time counter every minute.
-		var idleInterval = setInterval(timerIncrement, 60000); // 1 minute
-
-		//Zero the idle timer on mouse movement.
-		$(this).mousemove(function (e) {
-			idleTime = 0;
-		});
-		$(this).keypress(function (e) {
-			idleTime = 0;
-		});
-	
-
-	function timerIncrement() {
-		idleTime = idleTime + 1;
-		if (idleTime >= 5) { // 5 minutes
-			
-			userIsActive = false;
-			$(this).mousemove(function (e) {
-				if(!userIsActive){
-					window.location.reload();
-				}
-				userIsActive = true;
-			});
-			$(this).keypress(function (e) {
-				if(!userIsActive){
-					window.location.reload();
-				}
-				userIsActive = true;
-				
-			});
-			
-		}
-	}
-
-
-})();
-	
     //CLIENT CAN USE STORAGE SYSTEM - html5
         if (typeof(Storage) !== "undefined") {
 
@@ -213,7 +170,8 @@ var userIsActive = true;
 					}
 
 				};
-		//open 
+
+	//open local storage, make it into an object
         function retrieveStorageObject(key){
             //convert localStorage to json
             if(key){
@@ -228,13 +186,11 @@ var userIsActive = true;
             return jsonObject;
         }
 
+    //stringify object, write it to localstorage
         function setStorageObject(object){
             var jsonString = JSON.stringify(object);
 		    localStorage.esCrave = jsonString;
         }
-
-
-	
 
         //get configuration from storage
 			function setOptionsFromStorage(){
@@ -251,27 +207,32 @@ var userIsActive = true;
                     json.option.reportItemsToDisplay = jsonObject.option.reportItemsToDisplay;
 
 
-        //SETTINGS PAGE INITIAL DISPLAY
-            //loop over 
-                //LIVE STATS
-                for( var key in json.option.liveStatsToDisplay){
-                    $("#" + key + "Displayed").prop('checked', json.option.liveStatsToDisplay[key]);
-                }
+                //SETTINGS PAGE INITIAL DISPLAY
+                    //loop over 
+                        //LIVE STATS
+                        for( var key in json.option.liveStatsToDisplay){
+                            $("#" + key + "Displayed").prop('checked', json.option.liveStatsToDisplay[key]);
+                        }
 
-                //HABIT LOG
-                 for( var key in json.option.logItemsToDisplay){
-                    $("#" + key + "RecordDisplayed").prop('checked', json.option.logItemsToDisplay[key]);
-                }
+                        //HABIT LOG
+                        for( var key in json.option.logItemsToDisplay){
+                            $("#" + key + "RecordDisplayed").prop('checked', json.option.logItemsToDisplay[key]);
+                        }
 
-                //WEEKLY REPORT
-                 for( var key in json.option.reportItemsToDisplay){
-                    $("#" + key + "Displayed").prop('checked', json.option.reportItemsToDisplay[key]);
-                }
+                        //WEEKLY REPORT
+                        for( var key in json.option.reportItemsToDisplay){
+                            $("#" + key + "Displayed").prop('checked', json.option.reportItemsToDisplay[key]);
+                        }
+
+                //baseline questionnaire
+
+
+
 
 			}
 
 
-    //SET STATS FROM STORAGE
+        //SET STATS FROM STORAGE
         //get data from storage and convert to working json object
             //set initial values in app			 
 			function setStateFromRecords(){
@@ -604,13 +565,264 @@ var userIsActive = true;
 							
 			}
 
-		
-		//Restrict possible dates chosen in goal tab datepicker
 
-		//restrictGoalRange();
-		$( "#goalEndPicker" ).datepicker({minDate: 0});
-		//INITIALIZE GOAL DATE TIME PICKER
-		$( "#goalEndPicker" ).datepicker();
+        //listen for baseline responses 
+            (function updateBaselineResponses(){
+
+                //user declared they have chosen something to track
+                    //display further baseline questions
+                    $(".baseline-questionnaire .serious-user").on('change', function(){
+                        $(".baseline-questionnaire .follow-up-questions").removeClass("d-none");
+                    });
+                
+                //user doesn't know what to track, 
+                    //send them to 'what to track' help docs
+                    $(".baseline-questionnaire .passerby-user").on('change', function(){
+                        $(".baseline-questionnaire .follow-up-questions").addClass("d-none");
+
+                        var message = "Feel free to poke around, you can reset the entire app (in settings) if you decide to track something specific.";
+                        var responseTools =  "<a class='btn btn-md btn-outline-info' href='https://escrave.com#habits'>Some Suggestions</a>";
+                        createNotification(message, responseTools);
+                    });
+
+                    //.follow-up-questions
+                    $(".baseline-questionnaire .submit").on("click", function(){
+                        
+                        //if there's no reports made yet,
+                            //update json && localstorage obj with responses
+                                //baseline spent / week
+                                //goal spend / week
+                                //baseline done / week
+                                //goal done / week
+
+
+                            //if baseline spent == 0 && baseline goal == 0
+                                //trigger clicks to spent statistics (likely they are not useful)
+
+                    });
+
+            })();
+
+        //function to read settings changes for which stats to display
+            (function settingsDisplayChanges(){
+
+                //LIVE STATISTICS
+                //listen when changed checkbox inside display options area
+                $(".live-statistics-display-options .form-check-input").on('change', function(){
+                    
+                        //detect specific id
+                        var itemHandle = this.id;
+                        var displayCorrespondingStat = false;
+                    
+                        if($("#" + itemHandle).is(":checked")){
+                            displayCorrespondingStat = true;
+                        }
+
+                        //change value in JSON
+                            var jsonHandle = itemHandle.replace("Displayed", "");
+                            json.option.liveStatsToDisplay[jsonHandle] = displayCorrespondingStat;
+                            //console.log(jsonHandle + " will be displayed = " + displayCorrespondingStat);
+
+                        //update option table value
+                        var jsonObject = retrieveStorageObject();
+                            jsonObject.option.liveStatsToDisplay[jsonHandle] = displayCorrespondingStat;
+                        
+                        setStorageObject(jsonObject);
+                        showActiveStatistics();
+                        hideInactiveStatistics();
+
+                });
+
+                //HABIT LOG 
+                //listen when changed checkbox inside display options area
+                    $(".habit-log-display-options .form-check-input").on('change', function(){
+                        
+                            //detect specific id
+                            var itemHandle = this.id;
+                            var jsonHandle = itemHandle.replace("RecordDisplayed", "");
+
+
+                            var displayCorrespondingStat = false;
+                        
+                            if($("#" + itemHandle).is(":checked")){
+                                displayCorrespondingStat = true;
+
+                                //remove display none from relevant habit log items
+                                $("#habit-log .item." + jsonHandle + "-record").removeClass("d-none");
+
+                            }else{
+                                //add display none to relevant habit log items
+                                $("#habit-log .item." + jsonHandle + "-record").addClass("d-none");
+                            }
+
+                            //change value in JSON
+                                json.option.logItemsToDisplay[jsonHandle] = displayCorrespondingStat;
+                            
+                            //update option table value
+                                var jsonObject = retrieveStorageObject();
+                                    jsonObject.option.logItemsToDisplay[jsonHandle] = displayCorrespondingStat;
+                                
+                                setStorageObject(jsonObject);
+
+                    });
+
+                //WEEKLY REPORT
+                //listen when changed checkbox inside display options area
+                    $(".report-display-options .form-check-input").on('change', function(){
+                        
+                            //detect specific id
+                            var itemHandle = this.id;
+                            var displayCorrespondingStat = false;
+                        
+                            if($("#" + itemHandle).is(":checked")){
+                                displayCorrespondingStat = true;
+                            }
+
+                            //change value in JSON
+                                var jsonHandle = itemHandle.replace("Displayed", "");
+                                json.option.reportItemsToDisplay[jsonHandle] = displayCorrespondingStat;
+                                //console.log(jsonHandle + " will be displayed = " + displayCorrespondingStat);
+
+                            //update option table value
+                                var jsonObject = retrieveStorageObject();
+                                    jsonObject.option.reportItemsToDisplay[jsonHandle] = displayCorrespondingStat;
+                                
+                                setStorageObject(jsonObject);
+                    });
+            })();
+
+            //return to last active tab
+                function returnToActiveTab(){
+                    if(json.option.activeTab){
+                        var tabName = json.option.activeTab.split("-")[0];
+                        $("#" + tabName + "-tab-toggler").click();
+                        //console.log("json.option.activeTab = " + json.option.activeTab);
+                        //console.log($("#" + tabName + "-tab-toggler"));
+                    }else{
+                        //console.log("option returns false");
+                        $("#" + "reports" + "-tab-toggler").click();
+                    }
+
+                    /*
+                    //toggle active class on nav-tabs
+                        $(".nav-tabs li").removeClass("active");
+                        $("#" + tabName + "-tab-toggler").parent().addClass("active");
+                    //toggle active class on actual tab content
+                        $(".tab-pane").removeClass("active");
+                        $("#" + tabName + "-content").addClass("active");
+                    */	
+
+                }
+
+            //save current tab on switch
+                function saveActiveTab(){
+                    //update instance json
+                    json.option.activeTab = $(".tab-pane.active").attr('id');
+                    //console.log("save active tab fired");
+                    //console.log($(".tab-pane.active").attr('id'));
+
+                    //update in option table
+                        //convert localStorage to json
+                            var jsonObject = retrieveStorageObject();
+                                
+                                jsonObject.option.activeTab =  $(".tab-pane.active").attr('id');
+
+                            setStorageObject(jsonObject);
+                        
+
+                }
+
+            //convert last timestamp to a running timer
+                function restartTimerAtValues(timerArea, sinceLastAction){
+                    var timeNow = new Date()/1000;
+                    
+                    //console.log("timer is trying to restart " + sinceLastAction);
+                    //update json with previous timer values
+                    var newTimerTotalSeconds = Math.floor(timeNow - sinceLastAction);
+                    
+                    var newTimerSeconds = -1,
+                        newTimerMinutes = -1,
+                        newTimerHours   = -1,
+                        newTimerDays    = -1;
+                        
+                        //calc mins and secs
+                            if(newTimerTotalSeconds > 60){
+                                newTimerSeconds = newTimerTotalSeconds % 60;
+                                newTimerMinutes = Math.floor(newTimerTotalSeconds / 60);
+                                if(newTimerMinutes<10){
+                                    newTimerMinutes = "0" + newTimerMinutes;
+                                }
+
+
+                            }else{
+                                newTimerSeconds = newTimerTotalSeconds;
+                                newTimerMinutes = 0;
+                            }
+                        
+                        //calc hours
+                            if(newTimerTotalSeconds > (60*60)){
+                                newTimerMinutes = newTimerMinutes % 60;
+                                newTimerHours = Math.floor(newTimerTotalSeconds / (60*60));
+                                if(newTimerMinutes<10){
+                                    newTimerMinutes = "0" + newTimerMinutes;
+                                }
+                                if(newTimerHours<10){
+                                    newTimerHours = "0" + newTimerHours;
+                                }
+
+                            }else{
+                                newTimerHours = 0;
+                            }
+                            
+                        //calc days
+                            if(newTimerTotalSeconds > (60*60*24)){
+                                newTimerHours = newTimerHours % 24;
+                                newTimerDays = Math.floor(newTimerTotalSeconds / (60*60*24));
+                                if(newTimerHours<10){
+                                    newTimerHours = "0" + newTimerHours;
+                                }
+
+                            }else{
+                                newTimerDays = 0;
+                            }
+                        
+                        //update appropriate JSON values
+                                json.statistics[timerArea].sinceTimerStart.totalSeconds = newTimerTotalSeconds;
+                                json.statistics[timerArea].sinceTimerStart.seconds = newTimerSeconds;
+                                json.statistics[timerArea].sinceTimerStart.minutes = newTimerMinutes;					
+                                json.statistics[timerArea].sinceTimerStart.hours = newTimerHours;	
+                                json.statistics[timerArea].sinceTimerStart.days = newTimerDays;
+                                
+                            
+                }
+
+            //hide timers on initiation if needed
+                function hideTimersOnLoad(){
+                    if(json.statistics.use.sinceTimerStart.totalSeconds == 0){
+                    $("#use-content .fibonacci-timer:first-child").toggle();
+
+                    }else{
+                        //start timer from json values
+                        initiateSmokeTimer();
+                    }
+
+                    if(json.statistics.cost.sinceTimerStart.totalSeconds == 0){
+                    $("#cost-content .fibonacci-timer:first-child").toggle();
+
+                    }else{
+                        //start timer from json values
+                        initiateBoughtTimer();	
+                    }
+
+                    if(json.statistics.goal.untilTimerEnd.totalSeconds == 0){
+                    $("#goal-content .fibonacci-timer").toggle();
+
+                    }else{
+                        //start timer from json values
+                        initiateGoalTimer();	
+                    }
+                }
+
 
 /* NOTIFICATION CREATION AND RESPONSES */
 
@@ -627,7 +839,6 @@ var userIsActive = true;
 					currNotification.css("display", "none");
 				});	
 	}
-
 
 	function createNotification(message, responseTools){
 		var template =  '<div class="notification" style="left:600px;">' + 
@@ -826,8 +1037,7 @@ var userIsActive = true;
 	});
 
 
-/* GOAL LOG FUNCTIONS */
-
+/* GOAL LOG FUNCTION */
 	function placeGoalIntoLog(startStamp, endStamp, goalType, placeBelow){
 		
 		
@@ -883,35 +1093,79 @@ var userIsActive = true;
             }
 	}
 
-	function changeGoalStatus(newGoalStatus, goalType, actualEnd){
+/* COST && USE LOG FUNCTION */
+    function placeActionIntoLog(clickStamp, clickType, amountSpent, placeBelow){
+            
+        //data seems to be in order
+        //console.log(clickStamp, clickType, amountSpent, target, placeBelow);
+        
+        var endDateObj = new Date(parseInt(clickStamp + "000"));
+        var	dayOfTheWeek = endDateObj.toString().split(' ')[0];
+        var	shortHandDate = (endDateObj.getMonth() + 1) + "/" + 
+                            endDateObj.getDate() + "/" + 
+                            (endDateObj.getFullYear());
+        var shortHandTimeHours = (endDateObj.getHours()),
+            shortHandTimeMinutes = (endDateObj.getMinutes()),
+            shortHandTimeAMPM = "am";
 
-		//goal status
-			//1 == active goal
-			//2 == partially completed goal
-			//3 == completed goal
+            if(shortHandTimeHours == 12){
+                shortHandTimeAMPM = "pm";
 
-		//console.log("inside changeGoalStatus, newGoalStatus = " + newGoalStatus);
-		//convert localStorage to json
-			var jsonObject = retrieveStorageObject();
+            }else if(shortHandTimeHours > 12){
+            
+                shortHandTimeHours = shortHandTimeHours % 12;
+                shortHandTimeAMPM = "pm";
+            }
+            if(shortHandTimeMinutes < 10){
+                shortHandTimeMinutes = "0" + shortHandTimeMinutes;
+            }
 
-		var goals = jsonObject.action.filter(function(e){
-			return e.clickType == 'goal' && e.goalType == goalType
-		});
-		var mostRecentGoal = goals[goals.length - 1];
-			mostRecentGoal.status = newGoalStatus;
+        var	shortHandTime = shortHandTimeHours + "<b>:</b>" + shortHandTimeMinutes + shortHandTimeAMPM;
 
-		//actual end was passed to function	
-		if(actualEnd){
-			//console.log("actualEnd returns true, and is = " + actualEnd)
-			mostRecentGoal.goalStopped = actualEnd;
-		}else{
-			//else set the actual end to end of goal endDate
-			mostRecentGoal.goalStopped = mostRecentGoal.goalStamp;
-		}
 
-		setStorageObject(jsonObject);
-	}
+        var	titleHTML = "";
+        var target = "#habit-log";
+        
+        if(clickType == "bought"){
+            titleHTML = '<i class="fas fa-dollar-sign"></i>&nbsp;&nbsp;' + "You spent <b>" + parseInt(amountSpent) + "$</b> on it.";
+            //target = "#cost-log";
 
+        }else if (clickType == "used"){
+            titleHTML = '<i class="fas fa-cookie-bite"></i>&nbsp;' + "You did it at <b>" + shortHandTime + "</b>.";
+            //target = "#use-log";
+
+        }else if(clickType == "craved"){
+            titleHTML = '<i class="fas fa-ban"></i>&nbsp;' + "You didn\'t do it at <b>" + shortHandTime + "</b>.";
+            //target = "#use-log";
+
+        }
+
+        var template =  '<div class="item ' + clickType + '-record">' +
+                            '<hr/><p class="title">' + titleHTML + '</p>' +
+                            '<p class="date" style="text-align:center;color:D8D8D8">' +
+                                '<span class="dayOfTheWeek">' + dayOfTheWeek + '</span>,&nbsp;' +
+                                '<span class="shortHandDate">' + shortHandDate + '</span>' +
+                            '</p>' + 
+                        '</div><!--end habit-log item div-->';
+
+                        //console.log(template);
+
+
+        if(json.option.logItemsToDisplay[clickType] === true){
+            if(placeBelow){
+                $(target).append(template);
+            }else{
+                $(target).prepend(template);
+            }	
+        // console.log(json.option.logItemsToDisplay[clickType]);
+            //and make sure the heading exists too
+            $(target + "-heading").show();
+        }else{
+        //  console.log("create log entry of type: '" + clickType + "' did not display.");
+        }
+    }
+
+/* Format entries into HABIT LOG */    
 	function convertSecondsToDateFormat(rangeInSeconds){
 				
 			//s
@@ -965,77 +1219,39 @@ var userIsActive = true;
 			
 	}
 
-/* COST && USE LOG FUNCTION */
-function placeActionIntoLog(clickStamp, clickType, amountSpent, placeBelow){
-		
-	//data seems to be in order
-	//console.log(clickStamp, clickType, amountSpent, target, placeBelow);
-	
-	var endDateObj = new Date(parseInt(clickStamp + "000"));
-	var	dayOfTheWeek = endDateObj.toString().split(' ')[0];
-	var	shortHandDate = (endDateObj.getMonth() + 1) + "/" + 
-						endDateObj.getDate() + "/" + 
-						(endDateObj.getFullYear());
-	var shortHandTimeHours = (endDateObj.getHours()),
-		shortHandTimeMinutes = (endDateObj.getMinutes()),
-		shortHandTimeAMPM = "am";
+/* Goal completion management */
+	function changeGoalStatus(newGoalStatus, goalType, actualEnd){
 
-		if(shortHandTimeHours == 12){
-			shortHandTimeAMPM = "pm";
+		//goal status
+			//1 == active goal
+			//2 == partially completed goal
+			//3 == completed goal
 
-		}else if(shortHandTimeHours > 12){
-           
-			shortHandTimeHours = shortHandTimeHours % 12;
-             shortHandTimeAMPM = "pm";
-        }
-		if(shortHandTimeMinutes < 10){
-			shortHandTimeMinutes = "0" + shortHandTimeMinutes;
+		console.log("inside changeGoalStatus, newGoalStatus = " + newGoalStatus);
+		//convert localStorage to json
+			var jsonObject = retrieveStorageObject();
+
+		var goals = jsonObject.action.filter(function(e){
+			return e.clickType == 'goal' && e.goalType == goalType
+		});
+		var mostRecentGoal = goals[goals.length - 1];
+			mostRecentGoal.status = newGoalStatus;
+
+		//actual end was passed to function	
+		if(actualEnd){
+			//console.log("actualEnd returns true, and is = " + actualEnd)
+			mostRecentGoal.goalStopped = actualEnd;
+		}else{
+			//else set the actual end to end of goal endDate
+			mostRecentGoal.goalStopped = mostRecentGoal.goalStamp;
 		}
 
-	var	shortHandTime = shortHandTimeHours + "<b>:</b>" + shortHandTimeMinutes + shortHandTimeAMPM;
+            console.log("at the end of change Goal Status, whole object being put in looks like: ");
+            console.log(jsonObject);
 
-
-	var	titleHTML = "";
-	var target = "#habit-log";
-	
-	if(clickType == "bought"){
-		titleHTML = '<i class="fas fa-dollar-sign"></i>&nbsp;&nbsp;' + "You spent <b>" + parseInt(amountSpent) + "$</b> on it.";
-		//target = "#cost-log";
-
-	}else if (clickType == "used"){
-		titleHTML = '<i class="fas fa-cookie-bite"></i>&nbsp;' + "You did it at <b>" + shortHandTime + "</b>.";
-		//target = "#use-log";
-
-	}else if(clickType == "craved"){
-		titleHTML = '<i class="fas fa-ban"></i>&nbsp;' + "You didn\'t do it at <b>" + shortHandTime + "</b>.";
-		//target = "#use-log";
-
+		setStorageObject(jsonObject);
 	}
 
-	var template =  '<div class="item ' + clickType + '-record">' +
-						'<hr/><p class="title">' + titleHTML + '</p>' +
-						'<p class="date" style="text-align:center;color:D8D8D8">' +
-							'<span class="dayOfTheWeek">' + dayOfTheWeek + '</span>,&nbsp;' +
-							'<span class="shortHandDate">' + shortHandDate + '</span>' +
-						'</p>' + 
-					'</div><!--end habit-log item div-->';
-
-					//console.log(template);
-
-
-    if(json.option.logItemsToDisplay[clickType] === true){
-        if(placeBelow){
-            $(target).append(template);
-        }else{
-            $(target).prepend(template);
-        }	
-       // console.log(json.option.logItemsToDisplay[clickType]);
-        //and make sure the heading exists too
-        $(target + "-heading").show();
-    }else{
-      //  console.log("create log entry of type: '" + clickType + "' did not display.");
-    }
-}
 
 
 /* CONVERT JSON TO LIVE STATS */
@@ -1106,527 +1322,303 @@ function placeActionIntoLog(clickStamp, clickType, amountSpent, placeBelow){
 	}
 
 
-//return to last active tab
-function returnToActiveTab(){
-	if(json.option.activeTab){
-		var tabName = json.option.activeTab.split("-")[0];
-		$("#" + tabName + "-tab-toggler").click();
-		//console.log("json.option.activeTab = " + json.option.activeTab);
-		//console.log($("#" + tabName + "-tab-toggler"));
-	}else{
-		//console.log("option returns false");
-		$("#" + "reports" + "-tab-toggler").click();
-	}
-
-	/*
-	//toggle active class on nav-tabs
-		$(".nav-tabs li").removeClass("active");
-		$("#" + tabName + "-tab-toggler").parent().addClass("active");
-	//toggle active class on actual tab content
-		$(".tab-pane").removeClass("active");
-		$("#" + tabName + "-content").addClass("active");
-	*/	
-
-}
-//save current tab on switch
-function saveActiveTab(){
-	//update instance json
-	json.option.activeTab = $(".tab-pane.active").attr('id');
-	//console.log("save active tab fired");
-	//console.log($(".tab-pane.active").attr('id'));
-
-	//update in option table
-        //convert localStorage to json
-			var jsonObject = retrieveStorageObject();
-				
-                jsonObject.option.activeTab =  $(".tab-pane.active").attr('id');
-
-              setStorageObject(jsonObject);
-		 
-
-}
-
-//convert last timestamp to a running timer
-function restartTimerAtValues(timerArea, sinceLastAction){
-	var timeNow = new Date()/1000;
-	
-	//console.log("timer is trying to restart " + sinceLastAction);
-	//update json with previous timer values
-	var newTimerTotalSeconds = Math.floor(timeNow - sinceLastAction);
-	
-	var newTimerSeconds = -1,
-		newTimerMinutes = -1,
-		newTimerHours   = -1,
-		newTimerDays    = -1;
-		
-		//calc mins and secs
-			if(newTimerTotalSeconds > 60){
-				newTimerSeconds = newTimerTotalSeconds % 60;
-				newTimerMinutes = Math.floor(newTimerTotalSeconds / 60);
-				if(newTimerMinutes<10){
-					newTimerMinutes = "0" + newTimerMinutes;
-				}
-
-
-			}else{
-				newTimerSeconds = newTimerTotalSeconds;
-				newTimerMinutes = 0;
-			}
-		
-		//calc hours
-			if(newTimerTotalSeconds > (60*60)){
-				newTimerMinutes = newTimerMinutes % 60;
-				newTimerHours = Math.floor(newTimerTotalSeconds / (60*60));
-				if(newTimerMinutes<10){
-					newTimerMinutes = "0" + newTimerMinutes;
-				}
-				if(newTimerHours<10){
-					newTimerHours = "0" + newTimerHours;
-				}
-
-			}else{
-				newTimerHours = 0;
-			}
-			
-		//calc days
-			if(newTimerTotalSeconds > (60*60*24)){
-				newTimerHours = newTimerHours % 24;
-				newTimerDays = Math.floor(newTimerTotalSeconds / (60*60*24));
-				if(newTimerHours<10){
-					newTimerHours = "0" + newTimerHours;
-				}
-
-			}else{
-				newTimerDays = 0;
-			}
-		
-		//update appropriate JSON values
-				json.statistics[timerArea].sinceTimerStart.totalSeconds = newTimerTotalSeconds;
-				json.statistics[timerArea].sinceTimerStart.seconds = newTimerSeconds;
-				json.statistics[timerArea].sinceTimerStart.minutes = newTimerMinutes;					
-				json.statistics[timerArea].sinceTimerStart.hours = newTimerHours;	
-				json.statistics[timerArea].sinceTimerStart.days = newTimerDays;
-				
-			
-}
-
-//listen for baseline responses 
-(function updateBaselineResponses(){
-
-    //user declared they have chosen something to track
-        //display further baseline questions
-        $(".baseline-questionnaire .serious-user").on('change', function(){
-            $(".baseline-questionnaire .follow-up-questions").removeClass("d-none");
-        });
-	
-	//user doesn't know what to track, 
-        //send them to 'what to track' help docs
-        $(".baseline-questionnaire .passerby-user").on('change', function(){
-            $(".baseline-questionnaire .follow-up-questions").addClass("d-none");
-
-            var message = "Feel free to poke around, you can reset the entire app (in settings) if you decide to track something specific.";
-            var responseTools =  "<a class='btn btn-md btn-outline-info' href='https://escrave.com#habits'>Some Suggestions</a>";
-            createNotification(message, responseTools);
-        });
-
-        //.follow-up-questions
-        $(".baseline-questionnaire .submit").on("click", function(){
-            
-            //if there's no reports made yet,
-                //update json && localstorage obj with responses
-                    //baseline spent / week
-                    //goal spend / week
-                    //baseline done / week
-                    //goal done / week
-
-
-                //if baseline spent == 0 && baseline goal == 0
-                    //trigger clicks to spent statistics (likely they are not useful)
-
-        });
-
-})();
-
-
-
-//function to read settings changes for which
-//stats to display
-(function settingsDisplayChanges(){
-
-    //LIVE STATISTICS
-    //listen when changed checkbox inside display options area
-    $(".live-statistics-display-options .form-check-input").on('change', function(){
-        
-            //detect specific id
-            var itemHandle = this.id;
-            var displayCorrespondingStat = false;
-        
-            if($("#" + itemHandle).is(":checked")){
-                displayCorrespondingStat = true;
-            }
-
-            //change value in JSON
-                var jsonHandle = itemHandle.replace("Displayed", "");
-                json.option.liveStatsToDisplay[jsonHandle] = displayCorrespondingStat;
-                //console.log(jsonHandle + " will be displayed = " + displayCorrespondingStat);
-
-            //update option table value
-            var jsonObject = retrieveStorageObject();
-                jsonObject.option.liveStatsToDisplay[jsonHandle] = displayCorrespondingStat;
-            
-            setStorageObject(jsonObject);
-            showActiveStatistics();
-            hideInactiveStatistics();
-
-    });
-
-    //HABIT LOG 
-    //listen when changed checkbox inside display options area
-        $(".habit-log-display-options .form-check-input").on('change', function(){
-            
-                //detect specific id
-                var itemHandle = this.id;
-                var displayCorrespondingStat = false;
-            
-                if($("#" + itemHandle).is(":checked")){
-                    displayCorrespondingStat = true;
-                }
-
-                //change value in JSON
-                    var jsonHandle = itemHandle.replace("RecordDisplayed", "");
-                    json.option.logItemsToDisplay[jsonHandle] = displayCorrespondingStat;
-                    console.log(jsonHandle + " will be displayed = " + displayCorrespondingStat);
-
-                //update option table value
-                    var jsonObject = retrieveStorageObject();
-                        jsonObject.option.logItemsToDisplay[jsonHandle] = displayCorrespondingStat;
-                    
-                    setStorageObject(jsonObject);
-
-        });
-
-    //WEEKLY REPORT
-    //listen when changed checkbox inside display options area
-        $(".report-display-options .form-check-input").on('change', function(){
-            
-                //detect specific id
-                var itemHandle = this.id;
-                var displayCorrespondingStat = false;
-            
-                if($("#" + itemHandle).is(":checked")){
-                    displayCorrespondingStat = true;
-                }
-
-                //change value in JSON
-                    var jsonHandle = itemHandle.replace("Displayed", "");
-                    json.option.reportItemsToDisplay[jsonHandle] = displayCorrespondingStat;
-                    console.log(jsonHandle + " will be displayed = " + displayCorrespondingStat);
-
-                //update option table value
-
-        });
-})();
-
-
-
-
-
 //TOGGLE ANY STATS WHICH ARE NOT ZERO 
-function hideInactiveStatistics(){
-          
-    //console.log("inside show inactive");
-
-    var statisticPresent = false;
-	//bought page 
-	//if(relevantPane == "cost-content"){	
-    
-        /*HIDE UNAVAILABLE STATS */
-            if (json.statistics.cost.clickCounter === 0){
-                $("#bought-total").hide();
-                $("#cost-content .timer-recepticle").hide();
-
-            }else{
-                statisticPresent = true;
-            }
-
-            if(json.statistics.cost.averageBetweenClicks === 0){
-                $("#averageTimeBetweenBoughts").parent().hide();
-                
-            }
-
-            if (json.statistics.cost.total === 0){
-                //console.log("total spent is 0: " + json.statistics.totalSpent);
-                //toggle all
-                $("#cost-content .statistic-recepticle").hide();
-                $("#totalAmountSpent").parent().parent().hide();
-                $("#spentThisWeek").parent().parent().hide();
-                $("#spentThisMonth").parent().parent().hide();
-                $("#spentThisYear").parent().parent().hide();
-
-            }else if (json.statistics.cost.thisWeek == json.statistics.cost.total){
-                //console.log("toggle all but total - spent this week equals total");
-                //toggle year month week 
-                $("#spentThisWeek").parent().parent().hide();
-                $("#spentThisMonth").parent().parent().hide();
-                $("#spentThisYear").parent().parent().hide();
-                
-
-            }else if (json.statistics.cost.thisMonth == json.statistics.cost.thisWeek){
-                //console.log("toggle all but week - spent this month equals week");
-                //toggle year and month
-                $("#spentThisMonth").parent().parent().hide();
-                $("#spentThisYear").parent().parent().hide();
-                
-
-            }else if (json.statistics.cost.thisYear == json.statistics.cost.thisMonth){
-                //console.log("toggle year - spent this year equals month");
-                $("#spentThisYear").parent().parent().hide();
-                
+    function hideInactiveStatistics(){
             
+        //console.log("inside show inactive");
+
+        var statisticPresent = false;
+        //bought page 
+        //if(relevantPane == "cost-content"){	
+        
+            /*HIDE UNAVAILABLE STATS */
+                if (json.statistics.cost.clickCounter === 0){
+                    $("#bought-total").hide();
+                    $("#cost-content .timer-recepticle").hide();
+
+                }else{
+                    statisticPresent = true;
+                }
+
+                if(json.statistics.cost.averageBetweenClicks === 0){
+                    $("#averageTimeBetweenBoughts").parent().hide();
+                    
+                }
+
+                if (json.statistics.cost.total === 0){
+                    //console.log("total spent is 0: " + json.statistics.totalSpent);
+                    //toggle all
+                    $("#cost-content .statistic-recepticle").hide();
+                    $("#totalAmountSpent").parent().hide();
+                    $("#spentThisWeek").parent().hide();
+                    $("#spentThisMonth").parent().hide();
+                    $("#spentThisYear").parent().hide();
+
+                }else if (json.statistics.cost.thisWeek == json.statistics.cost.total){
+                    //console.log("toggle all but total - spent this week equals total");
+                    //toggle year month week 
+                    $("#spentThisWeek").parent().hide();
+                    $("#spentThisMonth").parent().hide();
+                    $("#spentThisYear").parent().hide();
+                    
+
+                }else if (json.statistics.cost.thisMonth == json.statistics.cost.thisWeek){
+                    //console.log("toggle all but week - spent this month equals week");
+                    //toggle year and month
+                    $("#spentThisMonth").parent().hide();
+                    $("#spentThisYear").parent().hide();
+                    
+
+                }else if (json.statistics.cost.thisYear == json.statistics.cost.thisMonth){
+                    //console.log("toggle year - spent this year equals month");
+                    $("#spentThisYear").parent().hide();
+                    
+                
+                }
+
+            //}else if(relevantPane == "use-content"){
+
+                if (json.statistics.use.clickCounter === 0){
+                    $("#use-total").hide();
+                    $("#use-content .timer-recepticle").hide();
+
+                }else{
+                    statisticPresent = true;
+                }
+
+                if(json.statistics.use.averageBetweenClicks === 0){
+                    $("#averageTimeBetweenUses").parent().hide();
+
+                }
+
+                if (json.statistics.use.craveCounter === 0){
+                    $("#crave-total").hide();
+
+                }else{
+                    statisticPresent = true;
+                }
+
+                if(json.statistics.use.craveCounter === 0 || json.statistics.use.clickCounter === 0){
+                    $("#avgDidntPerDid").parent().hide();
+
+                }
+
+                if(json.statistics.use.cravingsInARow === 0 || json.statistics.use.cravingsInARow === 1){
+                    $("#cravingsResistedInARow").parent().hide();
+
+                }
+
+            //}else if(relevantPane == "goal-content"){
+
+                if(json.statistics.goal.clickCounter === 0){
+                    $("#goal-content .timer-recepticle").hide();
+                }else{
+                    statisticPresent = true;
+                }
+
+                if(json.statistics.goal.bestTimeSeconds === 0){
+                    $("#longestGoalCompleted").parent().hide();
+                }
+
+                if(json.statistics.goal.completedGoals === 0){
+                    $("#numberOfGoalsCompleted").parent().hide();
+                    
+                }
+
+            
+
+            //}
+                if(statisticPresent){
+                    //hide instructions
+                // console.log("a statistic is present, hide instructions");
+                    $("#statistics-content .initial-instructions").hide();
+                }
+
+        /* HIDE UNWANTED STATISTICS */
+            //COST
+                if(json.option.liveStatsToDisplay.spentButton == false){
+                    $("#bought-button").parent().hide();
+                }
+
+                if(json.option.liveStatsToDisplay.sinceLastSpent == false){
+                    $("#cost-content .timer-recepticle").hide();
+                }
+
+                if(json.option.liveStatsToDisplay.avgBetweenSpent == false){
+                    $("#averageTimeBetweenBoughts").parent().hide();
+                }
+
+                if(json.option.liveStatsToDisplay.totalSpent == false){
+                    $("#totalAmountSpent").parent().parent().hide();
+                }
+                
+                if(json.option.liveStatsToDisplay.currWeekSpent == false){
+                    $("#spentThisWeek").parent().parent().hide();
+                }
+
+                if(json.option.liveStatsToDisplay.currMonthSpent == false){
+                    $("#spentThisMonth").parent().parent().hide();
+                }
+
+                if(json.option.liveStatsToDisplay.currYearSpent == false){
+                    $("#spentThisYear").parent().parent().hide();
+                }
+            
+            //USE
+                if(json.option.liveStatsToDisplay.usedButton == false){
+                    $("#use-button").parent().hide();
+                }
+                if(json.option.liveStatsToDisplay.cravedButton == false){
+                    $("#crave-button").parent().hide();
+                }
+                if(json.option.liveStatsToDisplay.sinceLastDone == false){
+                    $("#use-content .timer-recepticle").hide();
+                }
+
+                if(json.option.liveStatsToDisplay.avgBetweenDone == false){
+                    $("#averageTimeBetweenUses").parent().hide();
+                }
+
+                if(json.option.liveStatsToDisplay.didntPerDid == false){
+                    $("#avgDidntPerDid").parent().hide();
+                }
+
+                if(json.option.liveStatsToDisplay.resistedInARow == false){
+                    $("#cravingsResistedInARow").parent().hide();
+                }
+
+            //GOAL    
+                if(json.option.liveStatsToDisplay.goalButton == false){
+                    $("#goal-button").parent().hide();
+                }
+
+            if(json.option.liveStatsToDisplay.longestGoal === 0){
+                    $("#longestGoalCompleted").parent().hide();
+                }
+
+    }
+
+    function showActiveStatistics(){
+
+        //console.log("inside show active");
+
+        //Show Buttons if requested
+            if(json.option.liveStatsToDisplay.spentButton == true){
+                $("#bought-button").parent().show();
+            }
+            if(json.option.liveStatsToDisplay.usedButton == true){
+                $("#use-button").parent().show();
+            }
+            if(json.option.liveStatsToDisplay.cravedButton == true){
+                $("#crave-button").parent().show();
+            }
+            if(json.option.liveStatsToDisplay.goalButton == true){
+                $("#goal-button").parent().show();
+            }
+
+
+        //bought page 
+        //if(relevantPane == "cost-content"){	
+            if (json.statistics.cost.clickCounter !== 0){
+                $("#bought-total").show();
+                if(json.option.liveStatsToDisplay.sinceLastSpent == true){
+                    
+                    $("#cost-content .timer-recepticle").show();
+                }
+
+            }
+            if(json.statistics.cost.averageBetweenClicks !== 0){
+                if(json.option.liveStatsToDisplay.avgBetweenSpent == true){
+                    $("#averageTimeBetweenBoughts").parent().show();
+                    calculateAverageTimeBetween("cost");
+                }
+
+            }
+            if (json.statistics.cost.total !== 0){
+                    $("#cost-content .statistic-recepticle").show();
+
+                    if(json.option.liveStatsToDisplay.totalSpent == true){
+                        $("#totalAmountSpent").parent().show();
+                    }    
+
+            }
+            if (json.statistics.cost.thisWeek !== json.statistics.cost.total){
+                if(json.option.liveStatsToDisplay.currWeekSpent == true){
+                    $("#spentThisWeek").parent().show();
+                }
+            }
+            if (json.statistics.cost.thisMonth !== json.statistics.cost.thisWeek){
+                if(json.option.liveStatsToDisplay.currMonthSpent == true){
+                    $("#spentThisMonth").parent().show();
+                }
+
+            }
+            if (json.statistics.cost.thisYear !== json.statistics.cost.thisMonth){
+                if(json.option.liveStatsToDisplay.currYearSpent == true){
+                    $("#spentThisYear").parent().show();
+                }
             }
 
         //}else if(relevantPane == "use-content"){
 
-            if (json.statistics.use.clickCounter === 0){
-                $("#use-total").hide();
-                $("#use-content .timer-recepticle").hide();
-
-            }else{
-                statisticPresent = true;
+            if (json.statistics.use.clickCounter !== 0){
+                $("#use-total").show();
+                if(json.option.liveStatsToDisplay.sinceLastDone == true){
+                    $("#use-content .timer-recepticle").show();
+                }
             }
-
-            if(json.statistics.use.averageBetweenClicks === 0){
-                $("#averageTimeBetweenUses").parent().hide();
-
-            }
-
-            if (json.statistics.use.craveCounter === 0){
-                $("#crave-total").hide();
-
-            }else{
-                statisticPresent = true;
-            }
-
-            if(json.statistics.use.craveCounter === 0 || json.statistics.use.clickCounter === 0){
-                $("#avgDidntPerDid").parent().hide();
-
-            }
-
-            if(json.statistics.use.cravingsInARow === 0 || json.statistics.use.cravingsInARow === 1){
-                $("#cravingsResistedInARow").parent().hide();
-
-            }
-
-        //}else if(relevantPane == "goal-content"){
-
-            if(json.statistics.goal.clickCounter === 0){
-                $("#goal-content .timer-recepticle").hide();
-            }else{
-                statisticPresent = true;
-            }
-
-            if(json.statistics.goal.bestTimeSeconds === 0){
-                $("#longestGoalCompleted").parent().hide();
-            }
-
-            if(json.statistics.goal.completedGoals === 0){
-                $("#numberOfGoalsCompleted").parent().hide();
+            
+            if(json.statistics.use.averageBetweenClicks !== 0){
+                if(json.option.liveStatsToDisplay.avgBetweenDone == true){
+                    $("#averageTimeBetweenUses").parent().show();
+                    //Average time between uses
+                    calculateAverageTimeBetween("use");	
+                }
                 
             }
 
-        
+            if (json.statistics.use.craveCounter !== 0){
+                $("#crave-total").show();
+
+            }
+            if(json.statistics.use.craveCounter !== 0 && json.statistics.use.clickCounter !== 0){
+                if(json.option.liveStatsToDisplay.didntPerDid == true){
+                    $("#avgDidntPerDid").parent().show();
+                }
+            }
+            if(json.statistics.use.cravingsInARow !== 0){
+                if(json.option.liveStatsToDisplay.resistedInARow == true){
+                    $("#cravingsResistedInARow").parent().show();
+                }
+            }
+
+
+        //}else if(relevantPane == "goal-content"){
+            //console.log("show stats goal tab");
+            if(json.statistics.goal.clickCounter !== 0){
+                if(json.option.liveStatsToDisplay.untilGoalEnd == true){
+                    $("#goal-content .timer-recepticle").show();
+                }
+            }
+
+            if(json.statistics.goal.bestTimeSeconds !== 0){
+                if(json.option.liveStatsToDisplay.longestGoal == true){
+                    $("#longestGoalCompleted").parent().show();
+                }
+                //console.log("showing lng compl");
+            }
+            if(json.statistics.goal.completedGoals !== 0){
+                $("#numberOfGoalsCompleted").parent().show();
+            }
+
+            
 
         //}
-            if(statisticPresent){
-                //hide instructions
-            // console.log("a statistic is present, hide instructions");
-                $("#statistics-content .initial-instructions").hide();
-            }
 
-    /* HIDE UNWANTED STATISTICS */
-        //COST
-             if(json.option.liveStatsToDisplay.spentButton == false){
-                $("#bought-button").parent().hide();
-             }
-
-            if(json.option.liveStatsToDisplay.sinceLastSpent == false){
-                $("#cost-content .timer-recepticle").hide();
-            }
-
-            if(json.option.liveStatsToDisplay.avgBetweenSpent == false){
-                $("#averageTimeBetweenBoughts").parent().hide();
-            }
-
-            if(json.option.liveStatsToDisplay.totalSpent == false){
-                $("#totalAmountSpent").parent().parent().hide();
-            }
-            
-            if(json.option.liveStatsToDisplay.currWeekSpent == false){
-                $("#spentThisWeek").parent().parent().hide();
-            }
-
-            if(json.option.liveStatsToDisplay.currMonthSpent == false){
-                $("#spentThisMonth").parent().parent().hide();
-            }
-
-            if(json.option.liveStatsToDisplay.currYearSpent == false){
-                $("#spentThisYear").parent().parent().hide();
-            }
         
-        //USE
-            if(json.option.liveStatsToDisplay.usedButton == false){
-                $("#use-button").parent().hide();
-            }
-            if(json.option.liveStatsToDisplay.cravedButton == false){
-                $("#crave-button").parent().hide();
-            }
-            if(json.option.liveStatsToDisplay.sinceLastDone == false){
-                $("#use-content .timer-recepticle").hide();
-            }
-
-            if(json.option.liveStatsToDisplay.avgBetweenDone == false){
-                $("#averageTimeBetweenUses").parent().hide();
-            }
-
-            if(json.option.liveStatsToDisplay.didntPerDid == false){
-                $("#avgDidntPerDid").parent().hide();
-            }
-
-            if(json.option.liveStatsToDisplay.resistedInARow == false){
-                $("#cravingsResistedInARow").parent().hide();
-            }
-
-        //GOAL    
-            if(json.option.liveStatsToDisplay.goalButton == false){
-                $("#goal-button").parent().hide();
-            }
-
-           if(json.option.liveStatsToDisplay.longestGoal === 0){
-                $("#longestGoalCompleted").parent().hide();
-            }
-
-}
-function showActiveStatistics(){
-
-    //console.log("inside show active");
-
-    //Show Buttons if requested
-        if(json.option.liveStatsToDisplay.spentButton == true){
-            $("#bought-button").parent().show();
-        }
-        if(json.option.liveStatsToDisplay.usedButton == true){
-            $("#use-button").parent().show();
-        }
-        if(json.option.liveStatsToDisplay.cravedButton == true){
-            $("#crave-button").parent().show();
-        }
-        if(json.option.liveStatsToDisplay.goalButton == true){
-            $("#goal-button").parent().show();
-        }
-
-
-	//bought page 
-	//if(relevantPane == "cost-content"){	
-		if (json.statistics.cost.clickCounter !== 0){
-			$("#bought-total").show();
-            if(json.option.liveStatsToDisplay.sinceLastSpent == true){
-			    $("#cost-content .timer-recepticle").show();
-            }
-
-		}
-		if(json.statistics.cost.averageBetweenClicks !== 0){
-            if(json.option.liveStatsToDisplay.avgBetweenSpent == true){
-			    $("#averageTimeBetweenBoughts").parent().show();
-		    	calculateAverageTimeBetween("cost");
-            }
-
-		}
-		if (json.statistics.cost.total !== 0){
-                $("#cost-content .statistic-recepticle").show();
-
-                if(json.option.liveStatsToDisplay.totalSpent == true){
-                    $("#totalAmountSpent").parent().parent().show();
-                }    
-
-		}
-		if (json.statistics.cost.thisWeek !== json.statistics.cost.total){
-			if(json.option.liveStatsToDisplay.currWeekSpent == true){
-                $("#spentThisWeek").parent().parent().show();
-            }
-		}
-		if (json.statistics.cost.thisMonth !== json.statistics.cost.thisWeek){
-			if(json.option.liveStatsToDisplay.currMonthSpent == true){
-                $("#spentThisMonth").parent().parent().show();
-            }
-
-		}
-		if (json.statistics.cost.thisYear !== json.statistics.cost.thisMonth){
-            if(json.option.liveStatsToDisplay.currYearSpent == true){
-		    	$("#spentThisYear").parent().parent().show();
-            }
-		}
-
-	//}else if(relevantPane == "use-content"){
-
-		if (json.statistics.use.clickCounter !== 0){
-			$("#use-total").show();
-            if(json.option.liveStatsToDisplay.sinceLastDone == true){
-			    $("#use-content .timer-recepticle").show();
-            }
-		}
-		
-		if(json.statistics.use.averageBetweenClicks !== 0){
-            if(json.option.liveStatsToDisplay.avgBetweenDone == true){
-			    $("#averageTimeBetweenUses").parent().show();
-                //Average time between uses
-                calculateAverageTimeBetween("use");	
-            }
-			
-		}
-
-		if (json.statistics.use.craveCounter !== 0){
-			$("#crave-total").show();
-
-		}
-		if(json.statistics.use.craveCounter !== 0 && json.statistics.use.clickCounter !== 0){
-            if(json.option.liveStatsToDisplay.didntPerDid == true){
-			    $("#avgDidntPerDid").parent().show();
-            }
-		}
-		if(json.statistics.use.cravingsInARow !== 0){
-            if(json.option.liveStatsToDisplay.resistedInARow == true){
-		    	$("#cravingsResistedInARow").parent().show();
-            }
-		}
-
-
-	//}else if(relevantPane == "goal-content"){
-		//console.log("show stats goal tab");
-		if(json.statistics.goal.clickCounter !== 0){
-             if(json.option.liveStatsToDisplay.untilGoalEnd == true){
-			    $("#goal-content .timer-recepticle").show();
-             }
-		}
-
-		if(json.statistics.goal.bestTimeSeconds !== 0){
-             if(json.option.liveStatsToDisplay.longestGoal == true){
-			    $("#longestGoalCompleted").parent().show();
-             }
-			//console.log("showing lng compl");
-		}
-		if(json.statistics.goal.completedGoals !== 0){
-			$("#numberOfGoalsCompleted").parent().show();
-		}
-
-		
-
-	//}
-
-    
-}	
+    }	
 	
-
-	/*OPTIONS MENU FUNCTIONS*/
+	/*SETTINGS MENU FUNCTIONS*/
 
 		//undo last click
 		function undoLastAction(){
@@ -1634,25 +1626,45 @@ function showActiveStatistics(){
 			//console.log("undo last action - clicked");
 			var jsonObject = retrieveStorageObject();
 				//console.log(jsonObject);
+                
+                //check what the record to be removed - clicktype is
+                    var undoneActionClickType = jsonObject["action"][jsonObject["action"].length - 1].clickType;
+                    console.log("undone actions clickType = " + undoneActionClickType);
 
-        
-				//remove most recent (last) one
-				jsonObject["action"].pop();
+                 //remove most recent (last) record
+			    	jsonObject["action"].pop();
 
-                //change goal status, if last action broke a goal
-                    //if most recent record is a goal record
-                        //find most recent goal actiontype,
-                        //if this.status !== 1
-                            //set this.status
+                   
+                    //console.log(jsonObject);
+                setStorageObject(jsonObject);
 
+                //UNBREAK GOAL
+                //if action could have broken a goal
+                    if(undoneActionClickType == "used" || undoneActionClickType == "bought"){
+                        //cycle back through records until 
+                        for( var i = jsonObject["action"].length - 1; i >= 0; i--){
+                            var currRecord = jsonObject["action"][i];
+                            
+                            if(currRecord.clickType == "goal" && (currRecord.goalType == "both" || currRecord.goalType == undoneActionClickType)){
+                                    //if this first finds a goal which would have been broken by undoneActionClickType, 
+                                        //change this.status to active, exit loop 
+                                    console.log("effected goal detected on cycle = " + i);
+                                    changeGoalStatus(1, currRecord.goalType, -1);
+                                    break;    
+                                
+                            }else if(currRecord.clickType == undoneActionClickType){
+                                //if this first finds an action.clickType == undoneActionClickType, 
+                                    //then a goal could not have been broken, so exit loop without changing goal status
+                            
+                                break;
 
-				//console.log(jsonObject);
-	    	setStorageObject(jsonObject);
+                            }
+                        }  
+                    }
+
 			
-
-
-			//reload the page refresh
-				window.location.reload();
+    			//reload the page refresh
+			window.location.reload();
 
             
 
@@ -1666,141 +1678,136 @@ function showActiveStatistics(){
 
 		//share stats
 		function shareActions(){
-			
 			//window.location("dataexport.html");
 			//window.open("dataexport.html", "_blank");
 		}
+        
+        /*SETTINGS MENU CLICK EVENTS */
+            $("#undoActionButton").click(function(event){
+                event.preventDefault();
+                undoLastAction();
 
-		/*OPTIONS MENU CLICK EVENTS */
-		$("#undoActionButton").click(function(event){
-			event.preventDefault();
-			undoLastAction();
-			//close dropdown
-			$(".hamburger .navbar-toggler").click();
+            });
 
-		});
+            $("#clearTablesButton").click(function(event){
+                event.preventDefault();
+                clearActions();
+                //close dropdown
+                $(".hamburger .navbar-toggler").click();
 
-		$("#clearTablesButton").click(function(event){
-			event.preventDefault();
-			clearActions();
-			//close dropdown
-			$(".hamburger .navbar-toggler").click();
+            });
 
-		});
+            $("#shareStatsButton").click(function(event){
+                event.preventDefault();
+                shareActions();
+                //close dropdown
+                $(".hamburger .navbar-toggler").click();
 
-		$("#shareStatsButton").click(function(event){
-			event.preventDefault();
-			shareActions();
-			//close dropdown
-			$(".hamburger .navbar-toggler").click();
-
-		});
+            });
 
 
 	/* CREATE NEW RECORD OF ACTION */
-	//timestamp, clicktype, spent, goalStamp, goalType
-	function updateActionTable(ts, ct, spt, gs, gt){
-		var jsonObject = retrieveStorageObject();
+        //timestamp, clicktype, spent, goalStamp, goalType
+        function updateActionTable(ts, ct, spt, gs, gt){
+            var jsonObject = retrieveStorageObject();
 
-			ts = ts.toString();
-		
-		var newRecord;
-		
-		if(ct == "used" || ct == "craved"){
-			newRecord = { timestamp: ts, clickType: ct };
-			
-		}else if(ct == "bought"){
-			spt = spt.toString();
-			newRecord = { timestamp: ts, clickType: ct, spent: spt};
+                ts = ts.toString();
+            
+            var newRecord;
+            
+            if(ct == "used" || ct == "craved"){
+                newRecord = { timestamp: ts, clickType: ct };
+                
+            }else if(ct == "bought"){
+                spt = spt.toString();
+                newRecord = { timestamp: ts, clickType: ct, spent: spt};
 
-		}else if (ct == "goal"){
-			gs = gs.toString();
-			var st = 1;
-			var goalStopped = -1;
-			newRecord = { timestamp: ts, clickType: ct, goalStamp: gs, goalType: gt, status: st, goalStopped: goalStopped};
-		}	
+            }else if (ct == "goal"){
+                gs = gs.toString();
+                var st = 1;
+                var goalStopped = -1;
+                newRecord = { timestamp: ts, clickType: ct, goalStamp: gs, goalType: gt, status: st, goalStopped: goalStopped};
+            }	
 
-			jsonObject["action"].push(newRecord);
-			
-		    setStorageObject(jsonObject);
-		
-	}
+                jsonObject["action"].push(newRecord);
+                
+                setStorageObject(jsonObject);
+            
+        }
 	
-
 	//readjust timer box to correct size
-	function adjustFibonacciTimerToBoxes(timerId){
-		
-		var relevantPane = "";
-		
-		if(timerId == "smoke-timer"){
-			relevantPane = "use-content";
-		
-		}else if(timerId == "bought-timer"){
-			relevantPane = "cost-content";
-			
-		}else if(timerId == "goal-timer"){
-			relevantPane = "goal-content";
-			
-		}
-		//console.log(relevantPane);
-		var relevantPaneIsActive = false;
-		if($("#" + relevantPane).css("display") == "block"){
-			relevantPaneIsActive = true;
-		}
+        function adjustFibonacciTimerToBoxes(timerId){
+            
+            var relevantPane = "";
+            
+            if(timerId == "smoke-timer"){
+                relevantPane = "use-content";
+            
+            }else if(timerId == "bought-timer"){
+                relevantPane = "cost-content";
+                
+            }else if(timerId == "goal-timer"){
+                relevantPane = "goal-content";
+                
+            }
+            //console.log(relevantPane);
+            var relevantPaneIsActive = false;
+            if($("#" + relevantPane).css("display") == "block"){
+                relevantPaneIsActive = true;
+            }
 
+        
+            if(userIsActive && relevantPaneIsActive){
+                
+                //console.log("fibbo timer readjust fired with timerId = " + timerId);
+                var visibleBoxes = $("#" + timerId + " .boxes div:visible"),
+                    timerElement = document.getElementById(timerId);
+                //console.log("visibile boxes equals: " + visibleBoxes.length)
+
+
+                if(visibleBoxes.length == 1){
+                    //adjust .fibonacci-timer to timer height
+                        timerElement.style.width = "3.3rem";
+                        timerElement.style.height = "3.3rem";	
+                
+                            
+                }else if(visibleBoxes.length == 2){
+                    //adjust .fibonacci-timer to timer height
+                        timerElement.style.width = "6.4rem";
+                        timerElement.style.height = "3.3rem";
+                    
+                            
+                }else if(visibleBoxes.length == 3){
+                    //adjust .fibonacci-timer to timer height
+                        timerElement.style.width = "9.4rem";
+                        timerElement.style.height = "6.4rem";
+                        
+                        
+                }else if(visibleBoxes.length == 4){
+                    //adjust .fibonacci-timer to timer height
+                        timerElement.style.width = "9.4rem";
+                        timerElement.style.height = "15.9rem";
+            
+                }
+
+                //hack to resolve visible boxes = 0 bug
+                if(visibleBoxes.length == 0){
+                    //adjust .fibonacci-timer to timer height
+                        timerElement.style.width = "3.3rem";
+                        timerElement.style.height = "3.3rem";	
+            
+                }
+
+
+                //timerElement.style.display = "block";
+                timerElement.style.margin = "0 auto";
+                
+            }else{
+                
+            }
+            
+        }
 	
-		if(userIsActive && relevantPaneIsActive){
-			
-			//console.log("fibbo timer readjust fired with timerId = " + timerId);
-			var visibleBoxes = $("#" + timerId + " .boxes div:visible"),
-				timerElement = document.getElementById(timerId);
-			//console.log("visibile boxes equals: " + visibleBoxes.length)
-
-
-			if(visibleBoxes.length == 1){
-				//adjust .fibonacci-timer to timer height
-					timerElement.style.width = "3.3rem";
-					timerElement.style.height = "3.3rem";	
-			
-						
-			}else if(visibleBoxes.length == 2){
-				//adjust .fibonacci-timer to timer height
-					timerElement.style.width = "6.4rem";
-					timerElement.style.height = "3.3rem";
-				
-						
-			}else if(visibleBoxes.length == 3){
-				//adjust .fibonacci-timer to timer height
-					timerElement.style.width = "9.4rem";
-					timerElement.style.height = "6.4rem";
-					
-					
-			}else if(visibleBoxes.length == 4){
-				//adjust .fibonacci-timer to timer height
-					timerElement.style.width = "9.4rem";
-					timerElement.style.height = "15.9rem";
-		
-			}
-
-			//hack to resolve visible boxes = 0 bug
-			if(visibleBoxes.length == 0){
-				//adjust .fibonacci-timer to timer height
-					timerElement.style.width = "3.3rem";
-					timerElement.style.height = "3.3rem";	
-		
-			}
-
-
-			//timerElement.style.display = "block";
-			timerElement.style.margin = "0 auto";
-			
-		}else{
-			
-		}
-		
-	}
-	
-
 	//open more info div
 	
 		$(".log-more-info-div").toggle();
@@ -1843,39 +1850,11 @@ function showActiveStatistics(){
 			var goalTimer;
 
 
-	 //hide timers on initiation
-	 function hideTimersOnLoad(){
-            if(json.statistics.use.sinceTimerStart.totalSeconds == 0){
-              $("#use-content .fibonacci-timer:first-child").toggle();
-
-            }else{
-                //start timer from json values
-				initiateSmokeTimer();
-            }
-
-            if(json.statistics.cost.sinceTimerStart.totalSeconds == 0){
-              $("#cost-content .fibonacci-timer:first-child").toggle();
-
-            }else{
-                //start timer from json values
-				initiateBoughtTimer();	
-            }
-
-            if(json.statistics.goal.untilTimerEnd.totalSeconds == 0){
-              $("#goal-content .fibonacci-timer").toggle();
-
-            }else{
-                //start timer from json values
-                initiateGoalTimer();	
-			}
-		}
-			
-
 	/*Actions on switch tab */
 	$(document).delegate("#reports-tab-toggler", 'click', function(e){
 		saveActiveTab();
         $("#settings-tab-toggler").removeClass("active");
-        $("#settings-tab-toggler").attr( "aria-expanded", "false");
+         $("#statistics-tab-toggler").removeClass("active");
 		//console.log('reports tab clicked - code to generate reports here');
 
         //insert code here to generate most recent report
@@ -1883,18 +1862,21 @@ function showActiveStatistics(){
 	});
 	$(document).delegate("#statistics-tab-toggler", 'click', function(e){
 		
-		hideInactiveStatistics();
 		saveActiveTab();
 
 		//push adjusting fibo timer to end of stack, so it reads the number of needed boxes corectly
 			setTimeout(function(){
+                
+                showActiveStatistics();
+                hideInactiveStatistics();
+
 				adjustFibonacciTimerToBoxes("goal-timer");
 				adjustFibonacciTimerToBoxes("smoke-timer");
 				adjustFibonacciTimerToBoxes("bought-timer");
 
 			},0);
 		$("#settings-tab-toggler").removeClass("active");
-        $("#settings-tab-toggler").attr( "aria-expanded", "false");
+         $("#reports-tab-toggler").removeClass("active");
 
 		//console.log('statistics tab clicked');
 
@@ -1910,7 +1892,6 @@ function showActiveStatistics(){
 	
 	
 /* CALL INITIAL STATE OF APP */	
-
     //If json action table doesn't exist, create it
     if(localStorage.esCrave){
         setOptionsFromStorage();
@@ -1955,170 +1936,169 @@ function showActiveStatistics(){
 	//CRAVE BUTTON 					
 	//BOUGHT BUTTON		
 			
-			 $("#bought-button,	#crave-button, #use-button, #goal-button").click(function(){
-              
-                //Detect section
-                var timerSection;
-				var timestampSeconds = Math.round(new Date()/1000);
-				
-				
-					if(this.id == "crave-button"){
-						//timerSection = "#use-content";
-						
-						//don't allow clicks more recent than 10 seconds
-						if(timestampSeconds - json.statistics.use.lastClickStampCrave > 10){
-
-							//update relevant statistics
-								json.statistics.use.craveCounter++;
-								$("#crave-total").html(json.statistics.use.craveCounter);
-								updateActionTable(timestampSeconds, "craved");
-
-								//add record into log
-								placeActionIntoLog(timestampSeconds, "craved", null, false);
-								
-								var currCravingsPerSmokes = Math.round(json.statistics.use.craveCounter / json.statistics.use.clickCounter *10)/10;
-								$("#avgDidntPerDid").html(currCravingsPerSmokes);
-								
-								json.statistics.use.cravingsInARow++;
-								$("#cravingsResistedInARow").html(json.statistics.use.cravingsInARow);
-								
-								//keep lastClickStamp up to date while using app
-									json.statistics.use.lastClickStampCrave = timestampSeconds;
-
-
-								showActiveStatistics();
-								hideInactiveStatistics();
-						}else{
-							alert("You just clicked this button! Wait a bit longer before clicking it again");
-						}
-
-						
-					}else if(this.id == "use-button"){
-						//update relevant statistics
-							updateActionTable(timestampSeconds, "used");
-						
-							//add record into log
-							placeActionIntoLog(timestampSeconds, "used", null, false);
-						
-							//fake firstStampUses in json obj
-							if(json.statistics.use.clickCounter == 0){
-								json.statistics.use.firstClickStamp = json.statistics.use.firstClickStamp + timestampSeconds;
-								
-							}else if (json.statistics.use.clickCounter == 1){
-								json.statistics.use.averageBetweenClicks = timestampSeconds - json.statistics.use.firstClickStamp;
-								
-							}
-
-							json.statistics.use.clickCounter++;
-							$("#use-total").html(json.statistics.use.clickCounter);
-						
-							var currCravingsPerSmokes = Math.round(json.statistics.use.craveCounter / json.statistics.use.clickCounter *10)/10;
-							$("#avgDidntPerDid").html(currCravingsPerSmokes);
-					
-							json.statistics.use.cravingsInARow = 0;
-							$("#cravingsResistedInARow").html(json.statistics.use.cravingsInARow);
-						
-							
-
-							//start timer
-							initiateSmokeTimer();	
-
-							adjustFibonacciTimerToBoxes("smoke-timer");
-							showActiveStatistics();
-							hideInactiveStatistics();
-
-							//there is an active bought related goal
-							if(json.statistics.goal.activeGoalUse !== 0 || json.statistics.goal.activeGoalBoth !==0){
-								if(json.statistics.goal.activeGoalUse !== 0){
-									var goalType = "use";
-									var message = 'Your goal just ended early! ' +
-												'But don\'t worry, Escrave will keep track of how long you waited anyways!';
-									
-									json.statistics.goal.activeGoalUse = 0;
-								
-								}else if(json.statistics.goal.activeGoalBoth !==0){
-									var goalType = "both";
-									var message = 'Your goal just ended early! ' +
-												'But don\'t worry, you still get a percentage of points!';
-
-									json.statistics.goal.activeGoalBoth = 0;
-								
-								}
-
-								changeGoalStatus(2, goalType, timestampSeconds);
-								createNotification(message);
-								clearInterval(goalTimer);
-								
-								$("#goal-content .timer-recepticle").hide();
-								hideInactiveStatistics();
-
-								//place a goal into the goal log
-								var startStamp = json.statistics.goal.lastClickStamp;
-								var actualEnd = timestampSeconds;
-								placeGoalIntoLog(startStamp, actualEnd, goalType, false);
-
-								//if longest goal just happened
-								if((actualEnd - startStamp) > json.statistics.goal.bestTimeSeconds){
-									//update json
-									json.statistics.goal.bestTimeSeconds = (actualEnd - startStamp);
-									//insert onto page
-									var newLongestGoal = convertSecondsToDateFormat(json.statistics.goal.bestTimeSeconds);
-									$("#longestGoalCompleted").html(newLongestGoal);
-
-								}
-								//update number of goals
-								json.statistics.goal.completedGoals++;
-								$("#numberOfGoalsCompleted").html(json.statistics.goal.completedGoals);
-
-								showActiveStatistics();
-
-							}
-							//keep lastClickStamp up to date while using app
-							json.statistics.use.lastClickStamp = timestampSeconds;
-
-							
-							
-					}else if(this.id == "bought-button"){
-						openClickDialog(".cost");    
-						
-					}else if(this.id == "goal-button"){
-						
-						openClickDialog(".goal");   
-
-							
-						//set time default to curr time
-							//get hour and minutes value from date object
-							var date = new Date();
-
-							var	currHours = date.getHours(),
-								currMintues = date.getMinutes();
-
-							if(currHours >= 12){
-								$(".goal.log-more-info-div .time-picker-am-pm").val("PM");
-								currHours=currHours % 12;
-							}
-							$(".goal.log-more-info-div .time-picker-hour").val(currHours);
-
-							//set minutes to 0, 15, 30, or 45
-							var currMintuesRounded = 0;
-							if(currMintues > 8){
-								currMintuesRounded = 15;
-							}
-							if(currMintues > 23){
-								currMintuesRounded = 30;
-							}
-							if(currMintues > 38){
-								currMintuesRounded = 45;
-							}
-							$(".goal.log-more-info-div .time-picker-minute").val(currMintuesRounded);
-						
-					}
-            }); //end bought-button click handler
+        $("#bought-button,	#crave-button, #use-button, #goal-button").click(function(){
             
-			
-			
-		
-			
+            //Detect section
+            var timerSection;
+            var timestampSeconds = Math.round(new Date()/1000);
+            
+        
+            if(this.id == "crave-button"){
+                //timerSection = "#use-content";
+                
+                //don't allow clicks more recent than 10 seconds
+                if(timestampSeconds - json.statistics.use.lastClickStampCrave > 10){
+
+                    //update relevant statistics
+                        json.statistics.use.craveCounter++;
+                        $("#crave-total").html(json.statistics.use.craveCounter);
+                        updateActionTable(timestampSeconds, "craved");
+
+                        //add record into log
+                        placeActionIntoLog(timestampSeconds, "craved", null, false);
+                        
+                        var currCravingsPerSmokes = Math.round(json.statistics.use.craveCounter / json.statistics.use.clickCounter *10)/10;
+                        $("#avgDidntPerDid").html(currCravingsPerSmokes);
+                        
+                        json.statistics.use.cravingsInARow++;
+                        $("#cravingsResistedInARow").html(json.statistics.use.cravingsInARow);
+                        
+                        //keep lastClickStamp up to date while using app
+                            json.statistics.use.lastClickStampCrave = timestampSeconds;
+
+
+                        showActiveStatistics();
+                        hideInactiveStatistics();
+                }else{
+                    alert("You just clicked this button! Wait a bit longer before clicking it again");
+                }
+
+                
+            }else if(this.id == "use-button"){
+                //update relevant statistics
+                    updateActionTable(timestampSeconds, "used");
+                
+                    //add record into log
+                    placeActionIntoLog(timestampSeconds, "used", null, false);
+                
+                    //fake firstStampUses in json obj
+                    if(json.statistics.use.clickCounter == 0){
+                        json.statistics.use.firstClickStamp = json.statistics.use.firstClickStamp + timestampSeconds;
+                        
+                    }else if (json.statistics.use.clickCounter == 1){
+                        json.statistics.use.averageBetweenClicks = timestampSeconds - json.statistics.use.firstClickStamp;
+                        
+                    }
+
+                    json.statistics.use.clickCounter++;
+                    $("#use-total").html(json.statistics.use.clickCounter);
+                
+                    var currCravingsPerSmokes = Math.round(json.statistics.use.craveCounter / json.statistics.use.clickCounter *10)/10;
+                    $("#avgDidntPerDid").html(currCravingsPerSmokes);
+            
+                    json.statistics.use.cravingsInARow = 0;
+                    $("#cravingsResistedInARow").html(json.statistics.use.cravingsInARow);
+                
+                    
+
+                    //start timer
+                    initiateSmokeTimer();	
+
+                    adjustFibonacciTimerToBoxes("smoke-timer");
+                    showActiveStatistics();
+                    hideInactiveStatistics();
+
+                    //there is an active bought related goal
+                    if(json.statistics.goal.activeGoalUse !== 0 || json.statistics.goal.activeGoalBoth !==0){
+                        if(json.statistics.goal.activeGoalUse !== 0){
+                            var goalType = "use";
+                            var message = 'Your goal just ended early! ' +
+                                        'But don\'t worry, Escrave will keep track of how long you waited anyways!';
+                            
+                            json.statistics.goal.activeGoalUse = 0;
+                        
+                        }else if(json.statistics.goal.activeGoalBoth !==0){
+                            var goalType = "both";
+                            var message = 'Your goal just ended early, ' +
+                                        'but don\'t worry, it is still added to your habit log.' +
+                                        'Be proud, any progress is good progress!';
+
+                            json.statistics.goal.activeGoalBoth = 0;
+                        
+                        }
+
+                        changeGoalStatus(2, goalType, timestampSeconds);
+                        createNotification(message);
+                        clearInterval(goalTimer);
+                        
+                        $("#goal-content .timer-recepticle").hide();
+                        hideInactiveStatistics();
+
+                        //place a goal into the goal log
+                        var startStamp = json.statistics.goal.lastClickStamp;
+                        var actualEnd = timestampSeconds;
+                        placeGoalIntoLog(startStamp, actualEnd, goalType, false);
+
+                        //if longest goal just happened
+                        if((actualEnd - startStamp) > json.statistics.goal.bestTimeSeconds){
+                            //update json
+                            json.statistics.goal.bestTimeSeconds = (actualEnd - startStamp);
+                            //insert onto page
+                            var newLongestGoal = convertSecondsToDateFormat(json.statistics.goal.bestTimeSeconds);
+                            $("#longestGoalCompleted").html(newLongestGoal);
+
+                        }
+                        //update number of goals
+                        json.statistics.goal.completedGoals++;
+                        $("#numberOfGoalsCompleted").html(json.statistics.goal.completedGoals);
+
+                        showActiveStatistics();
+
+                    }
+                    //keep lastClickStamp up to date while using app
+                    json.statistics.use.lastClickStamp = timestampSeconds;
+
+                    
+                    
+            }else if(this.id == "bought-button"){
+                openClickDialog(".cost");    
+                
+            }else if(this.id == "goal-button"){
+                
+                openClickDialog(".goal");   
+
+                    
+                //set time default to curr time
+                    //get hour and minutes value from date object
+                    var date = new Date();
+
+                    var	currHours = date.getHours(),
+                        currMintues = date.getMinutes();
+
+                    if(currHours >= 12){
+                        $(".goal.log-more-info-div .time-picker-am-pm").val("PM");
+                        currHours=currHours % 12;
+                    }
+                    $(".goal.log-more-info-div .time-picker-hour").val(currHours);
+
+                    //set minutes to 0, 15, 30, or 45
+                    var currMintuesRounded = 0;
+                    if(currMintues > 8){
+                        currMintuesRounded = 15;
+                    }
+                    if(currMintues > 23){
+                        currMintuesRounded = 30;
+                    }
+                    if(currMintues > 38){
+                        currMintuesRounded = 45;
+                    }
+                    $(".goal.log-more-info-div .time-picker-minute").val(currMintuesRounded);
+                
+            }
+        }); //end bought-button click handler
+    
+
+	//START USED TIMER		
 	function initiateSmokeTimer(){
 		//USE TIMER
 			clearInterval(smokeTimer);
@@ -2640,10 +2620,7 @@ function showActiveStatistics(){
                
                 $("#goal-button").addClass("counting");		
 	}
-	
-
-			
-			
+		
 			
 		//COST DIALOG CLICK
 		
@@ -2796,6 +2773,11 @@ function showActiveStatistics(){
 		}	
 
 
+		//Restrict possible dates chosen in goal tab datepicker
+		//restrictGoalRange();
+		    $( "#goalEndPicker" ).datepicker({minDate: 0});
+		//INITIALIZE GOAL DATE TIME PICKER
+		    $( "#goalEndPicker" ).datepicker();
 
 		//GOAL DIALOG CLICK
 		
@@ -2865,26 +2847,20 @@ function showActiveStatistics(){
 			if(json.statistics.goal.activeGoalUse !== 0 || json.statistics.goal.activeGoalBought !== 0 || json.statistics.goal.activeGoalBoth !==0){
 				if(json.statistics.goal.activeGoalUse !== 0){
 					var goalType = "use";
-					var message = 'Your goal just ended early! ' +
-								'But don\'t worry, you still get a percentage of points!';
-								
-								json.statistics.goal.activeGoalUse = 0;
+					json.statistics.goal.activeGoalUse = 0;
 				
 				}else if(json.statistics.goal.activeGoalBought !== 0){
 					var goalType = "bought";
-					var message = 'Your goal just ended early! ' +
-								'But don\'t worry, you still get a percentage of points!';
-
-								json.statistics.goal.activeGoalBought = 0;
-				
+					json.statistics.goal.activeGoalBought = 0;
+			
 				}else if(json.statistics.goal.activeGoalBoth !==0){
 					var goalType = "both";
-					var message = 'Your goal just ended early! ' +
-								'But don\'t worry, you still get a percentage of points!';
-
-								json.statistics.goal.activeGoalBoth = 0;
+					json.statistics.goal.activeGoalBoth = 0;
 				
 				}
+                var message = 'Your goal just ended early, ' +
+                                'but don\'t worry, it is still added to your habit log.' +
+                                'Be proud, any progress is good progress!';
 
 				changeGoalStatus(2, goalType, timestampSeconds);
 				createNotification(message);
@@ -2951,5 +2927,46 @@ function showActiveStatistics(){
 				   " You should update your browser or try Chrome, or Firefox!");
         }  
 
+//refreshes the page automatically, upon user action,
+//to refresh timers from local storage timestamp
+var userIsActive = true;
+(function manageInactivity(){
+	var idleTime = 0;
+		//Increment the idle time counter every minute.
+		var idleInterval = setInterval(timerIncrement, 60000); // 1 minute
+
+		//Zero the idle timer on mouse movement.
+		$(this).mousemove(function (e) {
+			idleTime = 0;
+		});
+		$(this).keypress(function (e) {
+			idleTime = 0;
+		});
+	
+
+	function timerIncrement() {
+		idleTime = idleTime + 1;
+		if (idleTime >= 5) { // 5 minutes
+			
+			userIsActive = false;
+			$(this).mousemove(function (e) {
+				if(!userIsActive){
+					window.location.reload();
+				}
+				userIsActive = true;
+			});
+			$(this).keypress(function (e) {
+				if(!userIsActive){
+					window.location.reload();
+				}
+				userIsActive = true;
+				
+			});
+			
+		}
+	}
+
+
+})();
 
     });

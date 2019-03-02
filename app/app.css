@@ -70,18 +70,17 @@ h4{
 .header-logo{
 	display:inline-block;
 	padding:13px 5px;
-	max-height:70px;
+	max-height:85px;
 }
 
 
 .logo-and-tagline{
 	display: inline-block;
-	width: calc(100% - 70px);
-	max-height:70px;
+	max-height:85px;
 }
 .logo-and-tagline img{
 	display:inline-block;
-	max-height:70px;
+	max-height:85px;
 	padding-bottom:10px;
 	padding-top:5px;
 }
@@ -91,30 +90,9 @@ h4{
   font-size: 2.2rem;
 }
 
-
-.hamburger{
-	float: right;
-	width: 70px;
-}
 .logo-and-tagline p{
 	color:white;
 	font-size:18px;
-}
-
-
-
-/* Options hamburger and menu */
-.hamburger .navbar-toggler{
-	background: white;
-    width: 70px;
-	cursor: pointer;
-	margin-top:10px;
-}
-.hamburger button {
-    color: grey;
-}
-.hamburger button.active {
-	color:black;
 }
 
 
@@ -124,17 +102,17 @@ h4{
 .main-content{
     display:flex;
     align-items:flex-start;
+    min-height: 85vh;
 }
 
 .tab-content{
     width:calc(100% - 75px);
     
-
 }
 
 .tab-pane{
 	background: white;
-	padding: 15px;
+	padding: 15px 7px;
 
      -moz-border-radius: 5px;
     -webkit-border-radius: 5px;
@@ -147,6 +125,33 @@ h4{
 	margin-bottom:20px;
 }
 
+/* tabs up top for page redirection */
+.navbar-header{
+    display: inline-flex;
+    max-height:85px;
+    padding-top:15px;
+}
+.navbar-header .button-group {
+    display:inline-block;
+    background: black;
+    min-width:65px;
+    padding-top:10px;
+    border-top-left-radius: 7px;
+    border-top-right-radius: 7px;
+
+}
+.navbar-header .button-group .button-text{
+    font-size:.8rem;
+}
+
+.navbar-header .button-group a{
+    color: grey;
+}
+.navbar-header .button-group a.active{
+    color: white;
+}
+
+
 /* app main tab menu - Cost, Use, Goals */
 .button-bar{
     background: white;
@@ -158,6 +163,7 @@ h4{
     -khtml-border-radius: 5px;
     border-radius:5px;
 }
+
 .button-bar .button-group{
     width:100%;
     margin-bottom:13px;
@@ -253,29 +259,30 @@ h4{
 .timer-recepticle{
 	text-align:left;
 	margin-bottom:20px;
-	
+	display:flex;
+    align-items:center;
 }
 
 .statistic-recepticle span{
-
+    display: inline-block;
 	font-weight:600;
 	font-size:1.4rem;
+    flex-basis:57%;
+}
+.timer-recepticle .spacer{
+    
+    flex-basis:57%;
 }
 
 .statistic-recepticle p,
 .timer-recepticle p{
 	text-align: right;
-    width: 35%;
-    float: left;
-    clear: left;
 	margin: 0 auto;
-	padding-bottom: 3px;
-	margin-bottom: 13px;
     padding-right:5px;
     margin-right:5px;
     border-right: 1px solid grey;
 	color: #828282;
-
+    flex-basis:43%;
 }  
 
 .clickCounter{
@@ -285,6 +292,8 @@ h4{
 	position:absolute;
 	
 	padding: 0px 6px;
+    
+    margin-left: 3px;
 }
 
 /* log more info div */
@@ -377,10 +386,6 @@ h4{
 
 
 /*TIMER STYLES */
-	.timer-recepticle{
-		padding: 0px 5px;
-
-	}
 
 	.fibonacci-timer{
 		display:inline-block;

@@ -64,19 +64,57 @@
 
     <div class="container app-background">
         <div id="header">
-            <div class="hamburger">
-                <div class="navbar-header">
-                    <button id="settings-tab-toggler" class="navbar-toggler navbar-toggler-right"
-                        href="#settings-content" data-toggle="tab" aria-expanded="false">
-                        <i class="fas fa-cog fa-2x"></i>
-                    </button>
-                </div>
-            </div>
-            <div class="logo-and-tagline">
+             <div class="logo-and-tagline">
                 <img class="img-fluid" src="../images/escrave-logo-extended-inverse.png" />
                 <!--span class="tagline">esCrave</span-->
                 <!--p style="">Anonymous Habit Tracker</p -->
             </div>
+
+            <div class="navbar-header">
+                
+                <div class="button-group">
+
+                    <a id="statistics-tab-toggler" href="#statistics-content" data-toggle="tab">
+
+                        <div class="icon">
+                            <i class="fas fa-chart-bar fa-2x"></i>
+                        </div>
+                        <p class="button-text">
+                            Stats
+                        </p>
+
+
+                    </a>
+                </div>
+                   
+                <div class="button-group">
+
+                    <a id="reports-tab-toggler" href="#reports-content" data-toggle="tab">
+                        <div class="icon">
+                            <i class="fas fa-file-alt fa-2x"></i>
+                        </div>
+                        <p class="button-text">
+                            Reports
+                        </p>
+
+
+                    </a>
+                </div>
+                 <div class="button-group">
+                        <a id="settings-tab-toggler" href="#settings-content" data-toggle="tab">
+                        <div class="icon">
+                            <i class="fas fa-cog fa-2x"></i>
+                        </div>
+                        <p class="button-text">
+                            Settings
+                        </p>
+
+
+                    </a>
+                </div>
+
+            </div>
+           
         </div>
         <div id="notifications-container">
 
@@ -426,38 +464,42 @@
                         <div class="row">
                             <div class="col-12">
                                 <div class="timer-recepticle">
-                                    <div id="goal-timer" class="fibonacci-timer">
-                                        <div class="boxes">
-                                            <div>
-                                                <span class="timerSpan daysSinceLastClickSpan">0</span>
-                                                <span>Days</span>
-                                            </div>
+                                    
+                                    <p>Until goal ends</p>
+                                    <div class="spacer">
+                                        <div id="goal-timer" class="fibonacci-timer">
+                                            <div class="boxes">
+                                                <div>
+                                                    <span class="timerSpan daysSinceLastClickSpan">0</span>
+                                                    <span>Days</span>
+                                                </div>
 
-                                            <div>
-                                                <span class="timerSpan hoursSinceLastClickSpan">0</span>
-                                                <span>Hours</span>
-                                            </div>
+                                                <div>
+                                                    <span class="timerSpan hoursSinceLastClickSpan">0</span>
+                                                    <span>Hours</span>
+                                                </div>
 
-                                            <div>
-                                                <span class="timerSpan minutesSinceLastClickSpan">0</span>
-                                                <span>Mins</span>
-                                            </div>
+                                                <div>
+                                                    <span class="timerSpan minutesSinceLastClickSpan">0</span>
+                                                    <span>Mins</span>
+                                                </div>
 
-                                            <div>
-                                                <span class="timerSpan secondsSinceLastClickSpan">00</span>
-                                                <span>Secs</span>
+                                                <div>
+                                                    <span class="timerSpan secondsSinceLastClickSpan">00</span>
+                                                    <span>Secs</span>
+                                                </div>
                                             </div>
                                         </div>
                                     </div>
-                                    <p class="">Until goal ends</p>
                                 </div>
 
 
                                 <div class="statistic-recepticle">
+                                    
+                                    <p>Longest goal completed</p>
                                     <span id="longestGoalCompleted" class="statistic">
                                         test
                                     </span>
-                                    <p>Longest goal completed</p>
                                 </div>
 
                             </div>
@@ -473,47 +515,52 @@
 
                             <div class="col-12">
                                 <div class="timer-recepticle">
-                                    <div id="smoke-timer" class="fibonacci-timer">
-                                        <div class="boxes">
-                                            <div>
-                                                <span class="timerSpan daysSinceLastClickSpan">0</span>
-                                                <span>Days</span>
-                                            </div>
+                                     <p>Since you've done it</p>
+                                     <div class="spacer">
+                                        <div id="smoke-timer" class="fibonacci-timer">
+                                            <div class="boxes">
+                                                <div>
+                                                    <span class="timerSpan daysSinceLastClickSpan">0</span>
+                                                    <span>Days</span>
+                                                </div>
 
-                                            <div>
-                                                <span class="timerSpan hoursSinceLastClickSpan">0</span>
-                                                <span>Hours</span>
-                                            </div>
+                                                <div>
+                                                    <span class="timerSpan hoursSinceLastClickSpan">0</span>
+                                                    <span>Hours</span>
+                                                </div>
 
-                                            <div>
-                                                <span class="timerSpan minutesSinceLastClickSpan">0</span>
-                                                <span>Mins</span>
-                                            </div>
+                                                <div>
+                                                    <span class="timerSpan minutesSinceLastClickSpan">0</span>
+                                                    <span>Mins</span>
+                                                </div>
 
-                                            <div>
-                                                <span class="timerSpan secondsSinceLastClickSpan">00</span>
-                                                <span>Secs</span>
+                                                <div>
+                                                    <span class="timerSpan secondsSinceLastClickSpan">00</span>
+                                                    <span>Secs</span>
+                                                </div>
                                             </div>
                                         </div>
                                     </div>
-                                    <p>Since you've done it</p>
                                 </div>
                                 <div class="statistic-recepticle">
+                                      <p>Avg time between doing</p>
                                     <span id="averageTimeBetweenUses" class="statistic">
                                         test
                                     </span>
-                                    <p>Avg time between doing it</p>
+                                  
                                 </div>
 
                                 <div class="statistic-recepticle">
-                                    <span id="avgDidntPerDid" class="statistic"> test </span>
                                     <p>Didnts per dids ratio</p>
+                                    <span id="avgDidntPerDid" class="statistic"> test </span>
+                                    
                                 </div>
                                 <div class="statistic-recepticle">
+                                    
+                                    <p>Didnts in a row</p>
                                     <span id="cravingsResistedInARow" class="statistic">
                                         test
                                     </span>
-                                    <p>Didnts in a row</p>
                                 </div>
 
                             </div>
@@ -528,61 +575,65 @@
                         <div class="row">
                             <div class="col-12">
                                 <div class="timer-recepticle">
-                                    <div id="bought-timer" class="fibonacci-timer">
-                                        <div class="boxes">
-                                            <div>
-                                                <span class="timerSpan daysSinceLastClickSpan">0</span>
-                                                <span>Days</span>
-                                            </div>
+                                    <p>Since you've bought it</p>
+                                    <div class="spacer">
+                                        <div id="bought-timer" class="fibonacci-timer">
+                                            <div class="boxes">
+                                                <div>
+                                                    <span class="timerSpan daysSinceLastClickSpan">0</span>
+                                                    <span>Days</span>
+                                                </div>
 
-                                            <div>
-                                                <span class="timerSpan hoursSinceLastClickSpan">0</span>
-                                                <span>Hours</span>
-                                            </div>
+                                                <div>
+                                                    <span class="timerSpan hoursSinceLastClickSpan">0</span>
+                                                    <span>Hours</span>
+                                                </div>
 
-                                            <div>
-                                                <span class="timerSpan minutesSinceLastClickSpan">0</span>
-                                                <span>Mins</span>
-                                            </div>
+                                                <div>
+                                                    <span class="timerSpan minutesSinceLastClickSpan">0</span>
+                                                    <span>Mins</span>
+                                                </div>
 
-                                            <div>
-                                                <span class="timerSpan secondsSinceLastClickSpan">00</span>
-                                                <span>Secs</span>
+                                                <div>
+                                                    <span class="timerSpan secondsSinceLastClickSpan">00</span>
+                                                    <span>Secs</span>
+                                                </div>
                                             </div>
                                         </div>
                                     </div>
-                                    <p>Since you've bought it</p>
                                 </div>
                                 <div class="statistic-recepticle">
+                                    <p>Avg time between buying</p>
                                     <span id="averageTimeBetweenBoughts" class="statistic">
                                         test
                                     </span>
-                                    <p>Avg time between buying it</p>
+                                    
                                 </div>
 
                                 <div class="statistic-recepticle">
+                                    
+                                    <p>Total spent</p>
                                     <span id="totalAmountSpent" class="statistic">
                                         test
                                     </span>
-                                    <p>Total spent</p>
                                 </div>
 
                                 <div class="statistic-recepticle">
-                                    <span id="spentThisWeek" class="statistic"> test </span>
                                     <p>Spent this week</p>
+                                    <span id="spentThisWeek" class="statistic"> test </span>
+                                    
                                 </div>
 
                                 <div class="statistic-recepticle">        
-                                
+                                     <p>Spent this month</p>
                                     <span id="spentThisMonth" class="statistic">
                                         test
                                     </span>
-                                     <p>Spent this month</p>
                                 </div>
                                 
                                 <div class="statistic-recepticle">  
-                                    <span id="spentThisYear" class="statistic"> test </span>
                                     <p>Spent this Year</p>
+                                    <span id="spentThisYear" class="statistic"> test </span>
                                 </div>            
                                    
                             </div>
@@ -805,7 +856,6 @@
                         </div>
                         <div class="habit-log-display-options">
 
-
                             <h4>Habit Log Records</h4>
 
                                 <div class="form-check">
@@ -830,8 +880,8 @@
                                 </div>
 
                                 <div class="form-check">
-                                    <label class="form-check-label" for="spentRecordDisplayed">
-                                        <input class="form-check-input" type="checkbox" value="" id="spentRecordDisplayed" checked>
+                                    <label class="form-check-label" for="boughtRecordDisplayed">
+                                        <input class="form-check-input" type="checkbox" value="" id="boughtRecordDisplayed" checked>
                                         Spending on it
                                     </label>
                                 </div>
@@ -840,43 +890,43 @@
                             <h4>Weekly Reports</h4>
 
                                 <div class="form-check">
-                                    <label class="form-check-label" for="useChangeVsBaselineDisplay">
-                                        <input class="form-check-input" type="checkbox" value="" id="useChangeVsBaselineDisplay" checked>
+                                    <label class="form-check-label" for="useChangeVsBaselineDisplayed">
+                                        <input class="form-check-input" type="checkbox" value="" id="useChangeVsBaselineDisplayed" checked>
                                         % change: uses this week vs baseline
                                     </label>
                                 </div>
 
                                 <div class="form-check">
-                                    <label class="form-check-label" for="useChangeVsLastWeekDisplay">
-                                        <input class="form-check-input" type="checkbox" value="" id="useChangeVsLastWeekDisplay" checked>
+                                    <label class="form-check-label" for="useChangeVsLastWeekDisplayed">
+                                        <input class="form-check-input" type="checkbox" value="" id="useChangeVsLastWeekDisplayed" checked>
                                         % change: uses this week vs last
                                     </label>
                                 </div>
 
                                 <div class="form-check">
-                                    <label class="form-check-label" for="costChangeVsBaselineDisplay">
-                                        <input class="form-check-input" type="checkbox" value="" id="costChangeVsBaselineDisplay" checked>
+                                    <label class="form-check-label" for="costChangeVsBaselineDisplayed">
+                                        <input class="form-check-input" type="checkbox" value="" id="costChangeVsBaselineDisplayed" checked>
                                         % change: spent this week vs baseline
                                     </label>
                                 </div>
 
                                 <div class="form-check">
-                                    <label class="form-check-label" for="costChangeVsLastWeekDisplay">
-                                        <input class="form-check-input" type="checkbox" value="" id="costChangeVsLastWeekDisplay" checked>
+                                    <label class="form-check-label" for="costChangeVsLastWeekDisplayed">
+                                        <input class="form-check-input" type="checkbox" value="" id="costChangeVsLastWeekDisplayed" checked>
                                         % change: spent this week vs last
                                     </label>
                                 </div>
 
                                 <div class="form-check">
-                                    <label class="form-check-label" for="useGoalVsThisWeekDisplay">
-                                        <input class="form-check-input" type="checkbox" value="" id="useGoalVsThisWeekDisplay" checked>
+                                    <label class="form-check-label" for="useGoalVsThisWeekDisplayed">
+                                        <input class="form-check-input" type="checkbox" value="" id="useGoalVsThisWeekDisplayed" checked>
                                         Done this week vs. done/week Goal
                                     </label>
                                 </div>
 
                                 <div class="form-check">
-                                    <label class="form-check-label" for="costGoalVsThisWeekDisplay">
-                                        <input class="form-check-input" type="checkbox" value="" id="costGoalVsThisWeekDisplay" checked>
+                                    <label class="form-check-label" for="costGoalVsThisWeekDisplayed">
+                                        <input class="form-check-input" type="checkbox" value="" id="costGoalVsThisWeekDisplayed" checked>
                                         Spent this week vs. spent/week Goal
                                     </label>
                                 </div>
@@ -898,7 +948,7 @@
 
                             <h3>More</h3>
 
-                               <button class="btn btn-outline-info">
+                               <button href="../" class="btn btn-outline-info">
                                     <i class="fas fa-question"></i>
                                     &nbsp;About Escrave
                                 </button>
@@ -923,37 +973,7 @@
             <div class="button-bar">
 
                 <div class="nav nav-tabs">
-                    <div class="button-group">
-
-                        <a id="reports-tab-toggler" href="#reports-content" data-toggle="tab">
-                            <div class="icon">
-                                <i class="fas fa-file-alt fa-3x"></i>
-                            </div>
-                            <p class="button-text">
-                                Reports
-                            </p>
-
-
-                        </a>
-                    </div>
-                    <div class="button-group" style="margin-bottom:35px;">
-
-                        <a id="statistics-tab-toggler" href="#statistics-content" data-toggle="tab">
-
-                            <div class="icon">
-                                <i class="fas fa-chart-bar fa-3x"></i>
-                            </div>
-                            <p class="button-text">
-                                Stats
-                            </p>
-
-
-                        </a>
-                    </div>
-
-
-
-
+                    
                     <div class="button-group">
                         <div class="clickCounter"><span id="numberOfGoalsCompleted"></span> </div>
 

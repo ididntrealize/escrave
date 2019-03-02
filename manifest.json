@@ -1,11 +1,11 @@
 {
-    "short_name": "esCrave",
-    "name": "esCrave - Habit tracker",
+    "short_name": "Escrave",
+    "name": "Escrave - Habit tracker",
     "icons": [
       {
-        "src": "images/graph-logo-small-icon.png",
+        "src": "images/escrave-logo.png",
         "type": "image/png",
-        "sizes": "192x192"
+        "sizes": "183x183"
       },
       {
         "src": "images/graph-logo-large-icon.png",
