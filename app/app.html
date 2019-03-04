@@ -193,106 +193,43 @@
 
 
 
-
-
-
-
-                    <button href="#" class="btn btn-dark btn-md btn-block">
-                        Submit
-                    </button>
+                    <div class="row">
+                        <div class="col-6" style="padding-right:7px;">
+                            <button href="#" class="cancel btn btn-outline-dark btn-md btn-block">
+                                cancel
+                            </button>
+                        </div>
+                        <div class="col-6" style="padding-left:7px;">
+                            <button href="#" class="submit btn btn-dark btn-md btn-block">
+                                Submit
+                            </button>
+                        </div>
+                    </div>
                 </div>
 
                 <!-- spent - LOG MORE INFO DIV -->
                 <div class="cost log-more-info-div">
-                    <div>
-                        <h3 class="text-center">I spent:</h3>
-                        <label><input id="spentInput" type="number" /> $ </label>
-                    </div>
-                    <button href="#" class="btn btn-dark btn-md btn-block">
-                        Submit
-                    </button>
+                    <div class="row">
+                        <div class="input-area">
+                            <h3 class="text-center">I spent:</h3>
+                            <label><input id="spentInput" type="number" style="margin-left: 8px;" /> $ </label>
+                        </div>
+                        <div class="col-6" style="padding-right:7px;">
+                            <button href="#" class="cancel btn btn-outline-dark btn-md btn-block">
+                                cancel
+                            </button>
+                        </div>
+                        <div class="col-6" style="padding-left:7px;">
+                            <button href="#" class="submit btn btn-dark btn-md btn-block">
+                                Submit
+                            </button>
+                        </div>
+                     </div>
                 </div>
 
                 <!--start reports tab area-->
                 <div class="tab-pane" id="reports-content">
-                    <div class="baseline-questionnaire">
-                        <div class="row">
-                            <div class="col-12">
-
-                                <h2>Baseline Questionnaire</h2>
-
-                                <hr />
-
-                                <div class="question">
-                                    <label>Have you picked something specific to track?</label>
-                                    <div class="form-check">
-                                        <label class="form-check-label">
-                                            <input type="radio" class="serious-user form-check-input" name="optradio">&nbsp;Yes
-                                        </label>
-                                    </div>
-                                    <div class="form-check">
-                                        <label class="form-check-label">
-                                            <input type="radio" class="passerby-user form-check-input" name="optradio">&nbsp;No
-                                        </label>
-                                    </div>
-                                </div>
-
-                                <div class="follow-up-questions d-none">
-                                    <div class="question">
-                                        <label>How much do you currently spend on that thing per week?</label>
-                                        <div class="input-group">
-                                            <span class="input-group-addon">$</span>
-                                            <input type="number" min="0" max="500" class="form-control"
-                                                placeholder="Approximate amount">
-
-                                        </div>
-                                    </div>
-
-                                    <div class="question">
-                                        <label>How much would you prefer to spend on that thing per week?</label>
-
-                                        <div class="input-group">
-                                            <span class="input-group-addon">$</span>
-                                            <input type="number" min="0" max="500" class="form-control"
-                                                placeholder="Goal amount">
-
-                                        </div>
-                                    </div>
-
-                                    <div class="question">
-                                        <label>How many times do you currently do it per week?</label>
-                                        <div class="input-group">
-                                            <input type="number" min="0" max="500" class="form-control"
-                                                placeholder="Approximate amount">
-
-                                        </div>
-                                    </div>
-
-                                    <div class="question">
-                                        <label>How often would you prefer to do it per week?</label>
-                                        <div class="input-group">
-                                            <input type="number" min="0" max="500" class="form-control"
-                                                placeholder="Goal amount">
-
-                                        </div>
-                                    </div>
-
-
-                                    
-
-                                    <div class="text-xs-right">
-                                        <button class="btn btn-outline-success submit">Submit</button>
-                                    </div>
-
-                                </div>
-                            </div>
-                        </div>    
-
-
-
-
-                    </div>
-                    <div class="weekly-report-template d-none">
+                     <div class="weekly-report-template d-none">
                         <div class="row">
                             <div class="col-12">
 
@@ -420,8 +357,146 @@
 
                             </div>
                         </div>
+                        <hr/>
+                    </div>
+
+                    <div class="baseline-questionnaire">
+                        <div class="row">
+                            <div class="col-12">
+
+                                <h2>Baseline Questionnaire</h2>
+
+                                <hr />
+
+                                <div class="question">
+                                    <label>Have you picked something specific to track?</label>
+                                    <div class="form-check">
+                                        <label class="form-check-label">
+                                            <input type="radio" class="serious-user form-check-input" name="optradio">&nbsp;Yes
+                                        </label>
+                                    </div>
+                                    <div class="form-check">
+                                        <label class="form-check-label">
+                                            <input type="radio" class="passerby-user form-check-input" name="optradio">&nbsp;No
+                                        </label>
+                                    </div>
+                                </div>
+
+                                <div class="follow-up-questions d-none">
+                                    <div class="form-message">
+                                        <p class="success d-none">
+                                            Thank you! Your responses have saved.
+                                        </p>
+                                        <p class="failure d-none">
+                                            One or more of your responses is <b>not a number</b>. Please enter only numbers.
+
+                                        </p>
+                                    </div>
+
+                                    <div class="question">
+                                        <label>How much do you currently spend on that thing per week?</label>
+                                         <div class="row">
+                                            <div class="col-6">
+                                                <div class="input-group">
+                                                    <span class="input-group-addon">$</span>
+                                                    <input type="number" min="0" max="500" class="form-control amountSpentPerWeek"
+                                                        placeholder="current">
+
+                                                </div>
+                                            </div>
+                                            <div class="col-6">
+                                                <div class="input-group">
+                                                    <label class="form-check-label" for="amountSpentPerWeekNA" style="color:grey;padding-top:7px;">
+                                                        <input class="form-check-input stat-group-not-applicable" type="checkbox" value="" id="amountSpentPerWeekNA">
+                                                        Not Applicable
+                                                    </label>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <div class="question">
+                                        <label>How much would you prefer to spend on that thing per week?</label>
+
+                                        <div class="row">
+                                            <div class="col-6">
+                                                <div class="input-group">
+                                                    <span class="input-group-addon">$</span>
+                                                    <input type="number" min="0" max="500" class="form-control goalSpentPerWeek"
+                                                        placeholder="Goal">
+                                                </div>
+                                            </div>
+                                            <div class="col-6">
+                                                <div class="input-group">
+                                                    <label class="form-check-label" for="goalSpentPerWeekNA" style="color:grey;padding-top:7px;">
+                                                        <input class="form-check-input stat-group-not-applicable" type="checkbox" value="" id="goalSpentPerWeekNA">
+                                                        Not Applicable
+                                                    </label>
+                                                </div>
+                                            </div>
+                                        </div>
+
+                                    </div>
+
+                                    <div class="question">
+                                        <label>How many times do you currently do it per week?</label>
+                                        <div class="row">
+                                            <div class="col-6">
+                                                <div class="input-group">
+                                                    <input type="number" min="0" max="500" class="form-control amountDonePerWeek"
+                                                        placeholder="current">
+
+                                                 </div>
+                                            </div>
+                                            <div class="col-6">
+                                                <div class="input-group">
+                                                    <label class="form-check-label" for="amountDonePerWeekNA" style="color:grey;padding-top:7px;">
+                                                        <input class="form-check-input stat-group-not-applicable" type="checkbox" value="" id="amountDonePerWeekNA">
+                                                        Not Applicable
+                                                    </label>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <div class="question">
+                                        <label>How often would you prefer to do it per week?</label>
+                                       
+                                        <div class="row">
+                                            <div class="col-6">
+                                                <div class="input-group">
+                                                    <input type="number" min="0" max="500" class="form-control goalDonePerWeek"
+                                                        placeholder="Goal">
+
+                                                </div>
+                                            </div>
+                                            <div class="col-6">
+                                                <div class="input-group">
+                                                    <label class="form-check-label" for="goalDonePerWeekNA" style="color:grey;padding-top:7px;">
+                                                        <input class="form-check-input stat-group-not-applicable" type="checkbox" value="" id="goalDonePerWeekNA">
+                                                        Not Applicable
+                                                    </label>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+
+
+                                    
+
+                                    <div>
+                                        <button class="btn btn-lg btn-block btn-outline-success submit" style="margin-bottom:0px;">Submit</button>
+                                    </div>
+
+                                </div>
+                            </div>
+                        </div>    
+
+
+
 
                     </div>
+                   
 
                 </div>
 

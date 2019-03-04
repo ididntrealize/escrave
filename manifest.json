@@ -1,6 +1,6 @@
 {
     "short_name": "Escrave",
-    "name": "Escrave - Habit tracker",
+    "name": "Escrave - Anonymous Habit tracker",
     "icons": [
       {
         "src": "images/escrave-logo.png",
@@ -8,13 +8,13 @@
         "sizes": "183x183"
       },
       {
-        "src": "images/graph-logo-large-icon.png",
+        "src": "images/escrave-logo-large.png",
         "type": "image/png",
         "sizes": "512x512"
       }
     ],
     "start_url": "app/app.html",
-    "background_color": "#efefef",
+    "background_color": "#E5E5E5",
     "display": "standalone",
     "scope": "/",
     "theme_color": "#6B334E"

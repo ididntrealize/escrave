@@ -133,7 +133,6 @@ h4{
 }
 .navbar-header .button-group {
     display:inline-block;
-    background: black;
     min-width:65px;
     padding-top:10px;
     border-top-left-radius: 7px;
@@ -197,14 +196,28 @@ h4{
 	}
 	*/
 	.baseline-questionnaire div.question{
-		margin: 30px 0px;
+		margin: 40px 0px;
 	}
 	.baseline-questionnaire div.question > label{
 		font-weight:550;
 	}
-	
-	
-
+  
+	.baseline-questionnaire .form-message .success,
+    .baseline-questionnaire .form-message .failure{
+        color:white;
+        border-radius: 5px;
+        margin:10px;
+        padding:5px;
+        
+    }
+    .baseline-questionnaire .form-message .success{
+        background: #218838;
+        
+    }
+    .baseline-questionnaire .form-message .failure{
+        background: #c82333;
+        
+    }
 
 /* REPORTS */
 
@@ -310,14 +323,15 @@ h4{
 }
 
 
-	.cost.log-more-info-div div{
+	.cost.log-more-info-div div.input-area{
 		margin: 0px auto;
 		display: block;
 		max-width: 220px;
+        padding-bottom: 20px;
 	}
 	.cost.log-more-info-div h3{
 		display: inline-block;
-		padding-right:20px;
+		padding-left:20px;
 	}
 	.cost.log-more-info-div input{
 		color:grey;

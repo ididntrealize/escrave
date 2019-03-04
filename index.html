@@ -156,7 +156,7 @@
           <div class="col-lg-4 mb-4">
             <div class="card-icon"><i class="fas fa-7x fa-eye-slash"></i></div>
             <div class="card">
-              <h4 class="card-header">It's discrete</h4>
+              <h4 class="card-header">It's discreet</h4>
               <div class="card-body">
                 <p class="card-text">
                   You don’t have to specify what habit you’re tracking, and
@@ -377,7 +377,7 @@
             
           <div class="row horizontal-align-into-section">
               <div class="col-12" style="margin-bottom:25px;">
-                  <h3 class="text-center">Nobodies perfect!</h3>
+                  <h3 class="text-center">Nobody's perfect!</h3>
               </div>
             
               <div class="col-md-4 offset-md-1">
@@ -593,22 +593,7 @@
     <script type="text/javascript">
     $(document).ready(function(){
 
-      //make sure service worker exists
-        if('serviceWorker' in navigator){
-            //console.log('got a service worker supporting browser here');
-            window.addEventListener('load', function(){
-                navigator.serviceWorker
-                    .register('sw_cached_pages.js')
-                    .then(function(registered){
-                        //console.log('service worker reigistered: ' + registered);
-                    })
-                    .catch(function(err){
-                        //console.log('service worker error: ' + err);
-                    })
-            })
-        }
-
-
+      
       /* shrink menu on scroll */
       $(window).scroll(function() {
         if ($(document).scrollTop() > 50) {

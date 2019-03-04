@@ -124,7 +124,7 @@ $( document ).ready(function() {
 
                     "baseline":
                     {
-                        "specificSubject": 0,
+                        "specificSubject": false,
                         "amountDonePerWeek": 0,
                         "goalDonePerWeek": 0,
                         "amountSpentPerWeek": 0,
@@ -225,8 +225,15 @@ $( document ).ready(function() {
                         }
 
                 //baseline questionnaire
+                    json.baseline = jsonObject.baseline;
 
 
+                if(JSON.parse(json.baseline.specificSubject)){
+                    
+                    console.log(json.baseline.specificSubject);
+                    $(".baseline-questionnaire .follow-up-questions").removeClass("d-none");
+                     $($(".baseline-questionnaire .question")[0]).hide();
+                }
 
 
 			}
@@ -569,13 +576,7 @@ $( document ).ready(function() {
         //listen for baseline responses 
             (function updateBaselineResponses(){
 
-                //user declared they have chosen something to track
-                    //display further baseline questions
-                    $(".baseline-questionnaire .serious-user").on('change', function(){
-                        $(".baseline-questionnaire .follow-up-questions").removeClass("d-none");
-                    });
-                
-                //user doesn't know what to track, 
+                 //user doesn't know what to track, 
                     //send them to 'what to track' help docs
                     $(".baseline-questionnaire .passerby-user").on('change', function(){
                         $(".baseline-questionnaire .follow-up-questions").addClass("d-none");
@@ -585,20 +586,192 @@ $( document ).ready(function() {
                         createNotification(message, responseTools);
                     });
 
-                    //.follow-up-questions
-                    $(".baseline-questionnaire .submit").on("click", function(){
+                //user declared they have chosen something to track
+                    //display further baseline questions
+                    $(".baseline-questionnaire .serious-user").on('change', function(){
+                        $(".baseline-questionnaire .follow-up-questions").removeClass("d-none");
+
+                        //save user response
+                            //local
+                                json.baseline.specificSubject = true;
+                            //storage
+                                var jsonObject = retrieveStorageObject();
+                                jsonObject.baseline.specificSubject = true;
+                                setStorageObject(jsonObject);
+
+                    });
+                    //check both relevant N/A checkboxes when one is clicked 
+                    $(".baseline-questionnaire  input.stat-group-not-applicable").on('change', function(){
+                        //check if checkbox was checked
+                            if($(this).is(":checked")){
+                               
+                                //on either click of a spent related N/A click, select both
+                                   //console.log(this.id);
+                                    if(this.id == "amountSpentPerWeekNA" || this.id == "goalSpentPerWeekNA"){
+                                        //toggle both checkboxes
+                                        $("#amountSpentPerWeekNA").prop('checked', true);
+                                        $("#goalSpentPerWeekNA").prop('checked', true);
+                                        /*grey out input box
+                                        var relInput =  this.id;
+                                            relInput = relInput.replace("NA","");
+                                            $(relInput).attr("disabled");
+                                            */
+
+                                    }else if(this.id == "amountDonePerWeekNA" || this.id == "goalDonePerWeekNA"){
+                                        //toggle both checkboxes
+                                        $("#amountDonePerWeekNA").prop('checked', true);
+                                        $("#goalDonePerWeekNA").prop('checked', true);
+                                    }
+                            }
                         
-                        //if there's no reports made yet,
-                            //update json && localstorage obj with responses
-                                //baseline spent / week
-                                //goal spend / week
+                       
+
+                    });
+                
+               
+                    //.follow-up-questions submitted
+                    $(".baseline-questionnaire .submit").on("click", function(){
+                          
+                        //required to update loacal storage
+                        var jsonObject = retrieveStorageObject();
+
+
+                        if($("#amountSpentPerWeekNA").is(":checked") || $("#goalSpentPerWeekNA").is(":checked") ){
+
+                                //JSON
+                                    //baseline spent / week
+                                        json.baseline.amountSpentPerWeek = false;
+                                    //goal spend / week
+                                        json.baseline.goalSpentPerWeek = false;
+
+                                    //uncheck visibility of spent related stats
+                                        json.option.liveStatsToDisplay.sinceLastSpent = false;
+                                        json.option.liveStatsToDisplay.avgBetweenSpent = false;
+                                        json.option.liveStatsToDisplay.totalSpent = false;
+                                        json.option.liveStatsToDisplay.currWeekSpent = false;
+                                        json.option.liveStatsToDisplay.currMonthSpent = false;
+                                        json.option.liveStatsToDisplay.currYearSpent = false;
+                                        
+                                        json.option.logItemsToDisplay.bought = false;
+
+                                        json.option.reportItemsToDisplay.costChangeVsBaseline = false;
+                                        json.option.reportItemsToDisplay.costChangeVsLastWeek = false;
+                                        json.option.reportItemsToDisplay.costGoalVsThisWeek = false;
+                                        
+                                        
+
+                                //localstorage
+                                    //baseline spent / week
+                                        jsonObject.baseline.amountSpentPerWeek = false;
+                                    //goal spend / week
+                                        jsonObject.baseline.goalSpentPerWeek = false;
+
+                                    //uncheck visibility of spent related stats
+                                    
+                                        json.option.liveStatsToDisplay.spentButton = false;
+
+                                        jsonObject.option.liveStatsToDisplay.sinceLastSpent = false;
+                                        jsonObject.option.liveStatsToDisplay.avgBetweenSpent = false;
+                                        jsonObject.option.liveStatsToDisplay.totalSpent = false;
+                                        jsonObject.option.liveStatsToDisplay.currWeekSpent = false;
+                                        jsonObject.option.liveStatsToDisplay.currMonthSpent = false;
+                                        jsonObject.option.liveStatsToDisplay.currYearSpent = false;
+                                        
+                                        jsonObject.option.logItemsToDisplay.bought = false;
+
+                                        jsonObject.option.reportItemsToDisplay.costChangeVsBaseline = false;
+                                        jsonObject.option.reportItemsToDisplay.costChangeVsLastWeek = false;
+                                        jsonObject.option.reportItemsToDisplay.costGoalVsThisWeek = false;
+                                        
+                                //console.log("massive ops on spent stats");
+
+
+                        }else{
+                            //update json with responses
+
+                                //JSON
+                                    //baseline spent / week
+                                        json.baseline.amountSpentPerWeek = $("input.amountSpentPerWeek").val();
+                                    //goal spend / week
+                                        json.baseline.goalSpentPerWeek = $("input.goalSpentPerWeek").val();
+
+                                //localstorage
+                                    //baseline spent / week
+                                        jsonObject.baseline.amountSpentPerWeek = $("input.amountSpentPerWeek").val();
+                                    //goal spend / week
+                                        jsonObject.baseline.goalSpentPerWeek = $("input.goalSpentPerWeek").val();
+                                
+                        }
+                        
+                    //if baseline done == 0 && baseline done goal == 0
+                        if($("#amountDonePerWeekNA").is(":checked") || $("#goalDonePerWeekNA").is(":checked") ){
+                            //toggle spent statistics (likely they are not useful)
+                            //json 
                                 //baseline done / week
+                                    json.baseline.amountDonePerWeek = false;
                                 //goal done / week
+                                    json.baseline.goalDonePerWeek = false;
 
+                                    json.option.liveStatsToDisplay.usedButton = false;
+                                    json.option.liveStatsToDisplay.cravedButton = false;
+                                    
+                                    json.option.liveStatsToDisplay.sinceLastDone = false;
+                                    json.option.liveStatsToDisplay.avgBetweenDone = false;
+                                    json.option.liveStatsToDisplay.didntPerDid = false;
+                                    json.option.liveStatsToDisplay.resistedInARow = false;
 
-                            //if baseline spent == 0 && baseline goal == 0
-                                //trigger clicks to spent statistics (likely they are not useful)
+                                    json.option.logItemsToDisplay.used = false;
+                                    json.option.logItemsToDisplay.craved = false;
 
+                                    json.option.reportItemsToDisplay = useChangeVsBaseline = false;
+                                    json.option.reportItemsToDisplay = useChangeVsLastWeek = false;
+                                    json.option.reportItemsToDisplay = useGoalVsThisWeek = false;
+
+                            //LOCAL STORAGE
+                            //baseline done / week
+                                    jsonObject.baseline.amountDonePerWeek = false;
+                                //goal done / week
+                                    jsonObject.baseline.goalDonePerWeek = false;
+
+                                    jsonObject.option.liveStatsToDisplay.usedButton = false;
+                                    jsonObject.option.liveStatsToDisplay.cravedButton = false;
+                                    
+                                    jsonObject.option.liveStatsToDisplay.sinceLastDone = false;
+                                    jsonObject.option.liveStatsToDisplay.avgBetweenDone = false;
+                                    jsonObject.option.liveStatsToDisplay.didntPerDid = false;
+                                    jsonObject.option.liveStatsToDisplay.resistedInARow = false;
+
+                                    jsonObject.option.logItemsToDisplay.used = false;
+                                    jsonObject.option.logItemsToDisplay.craved = false;
+
+                                    jsonObject.option.reportItemsToDisplay = useChangeVsBaseline = false;
+                                    jsonObject.option.reportItemsToDisplay = useChangeVsLastWeek = false;
+                                    jsonObject.option.reportItemsToDisplay = useGoalVsThisWeek = false;
+
+                                    
+                                //console.log("massive ops on done stats");
+
+                        }else{
+                            //json
+                                //baseline done / week
+                                    json.baseline.amountDonePerWeek = $("input.amountDonePerWeek").val();
+                                //goal done / week
+                                    json.baseline.goalDonePerWeek = $("input.goalDonePerWeek").val();
+
+                            //LOCAL STORAGE
+                                //baseline done / week
+                                    jsonObject.baseline.amountDonePerWeek = $("input.amountDonePerWeek").val();
+                                //goal done / week
+                                    jsonObject.baseline.goalDonePerWeek = $("input.goalDonePerWeek").val();
+
+                        }
+                        
+                            
+                        setStorageObject(jsonObject);
+
+                        //console.log(json);
+                            
+                        $("#statistics-tab-toggler").click();
                     });
 
             })();
@@ -1325,7 +1498,7 @@ $( document ).ready(function() {
 //TOGGLE ANY STATS WHICH ARE NOT ZERO 
     function hideInactiveStatistics(){
             
-        //console.log("inside show inactive");
+       //console.log("inside show inactive");
 
         var statisticPresent = false;
         //bought page 
@@ -1522,7 +1695,7 @@ $( document ).ready(function() {
             if (json.statistics.cost.clickCounter !== 0){
                 $("#bought-total").show();
                 if(json.option.liveStatsToDisplay.sinceLastSpent == true){
-                    
+                    //console.log("about to show cost timer");
                     $("#cost-content .timer-recepticle").show();
                 }
 
@@ -1565,6 +1738,7 @@ $( document ).ready(function() {
                 $("#use-total").show();
                 if(json.option.liveStatsToDisplay.sinceLastDone == true){
                     $("#use-content .timer-recepticle").show();
+                   // console.log("about to show use timer");
                 }
             }
             
@@ -1598,6 +1772,7 @@ $( document ).ready(function() {
             if(json.statistics.goal.clickCounter !== 0){
                 if(json.option.liveStatsToDisplay.untilGoalEnd == true){
                     $("#goal-content .timer-recepticle").show();
+                    $("#goal-content .fibonacci-timer").show();
                 }
             }
 
@@ -1737,7 +1912,8 @@ $( document ).ready(function() {
 	
 	//readjust timer box to correct size
         function adjustFibonacciTimerToBoxes(timerId){
-            
+            //console.log("inside adjustFiboTimers, timerID = " + timerId);
+            /*
             var relevantPane = "";
             
             if(timerId == "smoke-timer"){
@@ -1755,6 +1931,10 @@ $( document ).ready(function() {
             if($("#" + relevantPane).css("display") == "block"){
                 relevantPaneIsActive = true;
             }
+            */
+
+            //came from putting all statistics onto one page
+            var relevantPaneIsActive = true;
 
         
             if(userIsActive && relevantPaneIsActive){
@@ -1865,16 +2045,20 @@ $( document ).ready(function() {
 		saveActiveTab();
 
 		//push adjusting fibo timer to end of stack, so it reads the number of needed boxes corectly
+            /*
+                showActiveStatistics();
+            
+            */
 			setTimeout(function(){
                 
-                showActiveStatistics();
                 hideInactiveStatistics();
-
+                
 				adjustFibonacciTimerToBoxes("goal-timer");
 				adjustFibonacciTimerToBoxes("smoke-timer");
 				adjustFibonacciTimerToBoxes("bought-timer");
 
 			},0);
+
 		$("#settings-tab-toggler").removeClass("active");
          $("#reports-tab-toggler").removeClass("active");
 
@@ -1920,11 +2104,13 @@ $( document ).ready(function() {
         //replace this with 
             //empty action table
             //basic stat display settings option table
-        var newJsonString = '{ "action":[], "option": { "activeTab" : "reports-content",' +
-                                                        '"liveStatsToDisplay" : {"untilGoalEnd": true, "longestGoal": true, "sinceLastDone": true, "avgBetweenDone": true, "didntPerDid": true, "resistedInARow": true, "sinceLastSpent": true,"avgBetweenSpent": true, "totalSpent": true, "currWeekSpent": true, "currMonthSpent": true, "currYearSpent": true},' + 
-                                                        '"logItemsToDisplay" : {"goal": true, "used": true, "craved": true,	"bought": true},' + 
-                                                        '"reportItemsToDisplay" : {	"useChangeVsBaseline": false, "useChangeVsLastWeek": true, "costChangeVsBaseline": false, "costChangeVsLastWeek": true, "useGoalVsThisWeek": false, "costGoalVsThisWeek": false}' + 
-                                                        '} }';
+        var newJsonString = '{ "action": [], ' +
+                            '  "baseline": {"specificSubject":"false", "amountDonePerWeek":"0","goalDonePerWeek":"0","amountSpentPerWeek":"0","goalSpentPerWeek":"0"},' + 
+                            '  "option": { "activeTab" : "reports-content",' +
+                                          '"liveStatsToDisplay" : {"untilGoalEnd": true, "longestGoal": true, "sinceLastDone": true, "avgBetweenDone": true, "didntPerDid": true, "resistedInARow": true, "sinceLastSpent": true,"avgBetweenSpent": true, "totalSpent": true, "currWeekSpent": true, "currMonthSpent": true, "currYearSpent": true},' + 
+                                          '"logItemsToDisplay" : {"goal": true, "used": true, "craved": true,	"bought": true},' + 
+                                          '"reportItemsToDisplay" : {	"useChangeVsBaseline": false, "useChangeVsLastWeek": true, "costChangeVsBaseline": false, "costChangeVsLastWeek": true, "useGoalVsThisWeek": false, "costGoalVsThisWeek": false}' + 
+                                        '} }';
             localStorage.setItem("esCrave", newJsonString);
 
             hideInactiveStatistics();
@@ -1949,6 +2135,10 @@ $( document ).ready(function() {
                 //don't allow clicks more recent than 10 seconds
                 if(timestampSeconds - json.statistics.use.lastClickStampCrave > 10){
 
+                    //return user to stats page
+                        $("#statistics-tab-toggler").click();
+
+
                     //update relevant statistics
                         json.statistics.use.craveCounter++;
                         $("#crave-total").html(json.statistics.use.craveCounter);
@@ -1966,15 +2156,17 @@ $( document ).ready(function() {
                         //keep lastClickStamp up to date while using app
                             json.statistics.use.lastClickStampCrave = timestampSeconds;
 
-
-                        showActiveStatistics();
-                        hideInactiveStatistics();
+                        
                 }else{
                     alert("You just clicked this button! Wait a bit longer before clicking it again");
                 }
 
                 
             }else if(this.id == "use-button"){
+
+                //return to relevant screen
+                      $("#statistics-tab-toggler").click();
+
                 //update relevant statistics
                     updateActionTable(timestampSeconds, "used");
                 
@@ -1999,28 +2191,25 @@ $( document ).ready(function() {
                     json.statistics.use.cravingsInARow = 0;
                     $("#cravingsResistedInARow").html(json.statistics.use.cravingsInARow);
                 
-                    
-
                     //start timer
                     initiateSmokeTimer();	
-
-                    adjustFibonacciTimerToBoxes("smoke-timer");
-                    showActiveStatistics();
-                    hideInactiveStatistics();
+                    
+                    
 
                     //there is an active bought related goal
                     if(json.statistics.goal.activeGoalUse !== 0 || json.statistics.goal.activeGoalBoth !==0){
                         if(json.statistics.goal.activeGoalUse !== 0){
                             var goalType = "use";
-                            var message = 'Your goal just ended early! ' +
-                                        'But don\'t worry, Escrave will keep track of how long you waited anyways!';
-                            
+                            var message = 'Your goal just ended early, ' +
+                                        'it has been added to your habit log. ' +
+                                        'Be proud, any progress is good progress!';
+
                             json.statistics.goal.activeGoalUse = 0;
                         
                         }else if(json.statistics.goal.activeGoalBoth !==0){
                             var goalType = "both";
                             var message = 'Your goal just ended early, ' +
-                                        'but don\'t worry, it is still added to your habit log.' +
+                                        'it has been added to your habit log. ' +
                                         'Be proud, any progress is good progress!';
 
                             json.statistics.goal.activeGoalBoth = 0;
@@ -2095,6 +2284,9 @@ $( document ).ready(function() {
                     $(".goal.log-more-info-div .time-picker-minute").val(currMintuesRounded);
                 
             }
+
+           
+
         }); //end bought-button click handler
     
 
@@ -2624,13 +2816,18 @@ $( document ).ready(function() {
 			
 		//COST DIALOG CLICK
 		
-		$(".cost.log-more-info-div button").click(function(){
+		$(".cost.log-more-info-div button.submit").click(function(){
 			var amountSpent = $("#spentInput").val();
 			
 				if(!$.isNumeric(amountSpent)){
 					alert("Please enter in a number!");
 					
 				}else{
+
+                    //return to relevant screen
+                      $("#statistics-tab-toggler").click();
+
+
 					var timestampSeconds = Math.round(new Date()/1000);
 					updateActionTable(timestampSeconds, "bought", amountSpent);
 
@@ -2674,15 +2871,17 @@ $( document ).ready(function() {
 					if(json.statistics.goal.activeGoalBought !== 0 || json.statistics.goal.activeGoalBoth !==0){
 						if(json.statistics.goal.activeGoalBought !== 0){
 							var goalType = "bought";
-							var message = 'Your goal just ended early! ' +
-										'But don\'t worry, you still get a percentage of points!';
+							var message = 'Your goal just ended early, ' +
+                                        'it has been added to your habit log. ' +
+                                        'Be proud, any progress is good progress!';
 							
 							json.statistics.goal.activeGoalBought = 0;
 						
 						}else if(json.statistics.goal.activeGoalBoth !==0){
 							var goalType = "both";
-							var message = 'Your goal just ended early! ' +
-										'But don\'t worry, you still get a percentage of points!';
+							var message = 'Your goal just ended early, ' +
+                                        'it has been added to your habit log. ' +
+                                        'Be proud, any progress is good progress!';
 							
 							json.statistics.goal.activeGoalBoth = 0;
 						
@@ -2723,6 +2922,10 @@ $( document ).ready(function() {
 				}
 			
 		});
+
+        $(".cost.log-more-info-div button.cancel").click(function(){
+				closeClickDialog(".cost");
+        });
 			
 		//calculate goal timer values
 		function loadGoalTimerValues(totalSecondsUntilGoalEnd){
@@ -2781,8 +2984,8 @@ $( document ).ready(function() {
 
 		//GOAL DIALOG CLICK
 		
-		$(".goal.log-more-info-div button").click(function(){
-		
+		$(".goal.log-more-info-div button.submit").click(function(){
+
 			var date = new Date();
 
 			var timestampSeconds = Math.round(date/1000);
@@ -2859,8 +3062,8 @@ $( document ).ready(function() {
 				
 				}
                 var message = 'Your goal just ended early, ' +
-                                'but don\'t worry, it is still added to your habit log.' +
-                                'Be proud, any progress is good progress!';
+                              'it has been added to your habit log. ' +
+                              'Be proud, any progress is good progress!';
 
 				changeGoalStatus(2, goalType, timestampSeconds);
 				createNotification(message);
@@ -2888,6 +3091,8 @@ $( document ).ready(function() {
 			//keep lastClickStamp up to date while using app
 			json.statistics.goal.lastClickStamp = timestampSeconds;
 
+                //return to relevant screen
+                $("#statistics-tab-toggler").click();
 
 
 				//set local json goal type which is active
@@ -2918,55 +3123,59 @@ $( document ).ready(function() {
 			
 		});
 		
+        $(".goal.log-more-info-div button.cancel").click(function(){
+				closeClickDialog(".goal");
+        });
 
         } else {
             //NO LOCAL STORAGE
 		   alert("This app uses your local storage to store your data." + 
-				   " That means we can honestly say we got nothing, if anyone ever demands to see your data." +
+				   " That means we DO NO STORE YOUR DATA. You store your data." +
 				   " BUT, your browser doesn't support local storage, so your data cannot be saved!" +
-				   " You should update your browser or try Chrome, or Firefox!");
+				   " Modern browsers support LocalStorage, so if you want to try Escrave, you should update your browser or try Chrome, Firefox, or safari!");
         }  
 
-//refreshes the page automatically, upon user action,
-//to refresh timers from local storage timestamp
-var userIsActive = true;
-(function manageInactivity(){
-	var idleTime = 0;
-		//Increment the idle time counter every minute.
-		var idleInterval = setInterval(timerIncrement, 60000); // 1 minute
 
-		//Zero the idle timer on mouse movement.
-		$(this).mousemove(function (e) {
-			idleTime = 0;
-		});
-		$(this).keypress(function (e) {
-			idleTime = 0;
-		});
-	
+    //refreshes the page automatically, upon user action,
+    //to refresh timers from local storage timestamp
+    var userIsActive = true;
+    (function manageInactivity(){
+        var idleTime = 0;
+            //Increment the idle time counter every minute.
+            var idleInterval = setInterval(timerIncrement, 60000); // 1 minute
 
-	function timerIncrement() {
-		idleTime = idleTime + 1;
-		if (idleTime >= 5) { // 5 minutes
-			
-			userIsActive = false;
-			$(this).mousemove(function (e) {
-				if(!userIsActive){
-					window.location.reload();
-				}
-				userIsActive = true;
-			});
-			$(this).keypress(function (e) {
-				if(!userIsActive){
-					window.location.reload();
-				}
-				userIsActive = true;
-				
-			});
-			
-		}
-	}
+            //Zero the idle timer on mouse movement.
+            $(this).mousemove(function (e) {
+                idleTime = 0;
+            });
+            $(this).keypress(function (e) {
+                idleTime = 0;
+            });
+        
+
+        function timerIncrement() {
+            idleTime = idleTime + 1;
+            if (idleTime >= 5) { // 5 minutes
+                
+                userIsActive = false;
+                $(this).mousemove(function (e) {
+                    if(!userIsActive){
+                        window.location.reload();
+                    }
+                    userIsActive = true;
+                });
+                $(this).keypress(function (e) {
+                    if(!userIsActive){
+                        window.location.reload();
+                    }
+                    userIsActive = true;
+                    
+                });
+                
+            }
+        }
 
 
-})();
+    })();
 
-    });
+});
