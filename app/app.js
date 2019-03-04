@@ -1209,6 +1209,16 @@ $( document ).ready(function() {
 
 	});
 
+    $('#notifications-container').on('click', '.extend-goal', function(event){
+        clearNotification.call(event, this); 
+		extendActiveGoal();
+	});
+
+    $('#notifications-container').on('click', '.end-goal', function(event){
+        clearNotification.call(event, this); 
+		endActiveGoal();
+	});
+
 
 /* GOAL LOG FUNCTION */
 	function placeGoalIntoLog(startStamp, endStamp, goalType, placeBelow){
@@ -1393,14 +1403,14 @@ $( document ).ready(function() {
 	}
 
 /* Goal completion management */
-	function changeGoalStatus(newGoalStatus, goalType, actualEnd){
+	function changeGoalStatus(newGoalStatus, goalType, actualEnd, goalExtendedTo){
 
 		//goal status
 			//1 == active goal
 			//2 == partially completed goal
 			//3 == completed goal
 
-		console.log("inside changeGoalStatus, newGoalStatus = " + newGoalStatus);
+		//console.log("inside changeGoalStatus, newGoalStatus = " + newGoalStatus);
 		//convert localStorage to json
 			var jsonObject = retrieveStorageObject();
 
@@ -1419,10 +1429,40 @@ $( document ).ready(function() {
 			mostRecentGoal.goalStopped = mostRecentGoal.goalStamp;
 		}
 
+
+        //user wants to extend current goal
+        if(goalExtendedTo){
+            console.log("changeGoalStatus param goalExtendedTo set");
+           if(mostRecentGoal.goalStamp < goalExtendedTo){
+                //goal was extended, not shortened
+                mostRecentGoal.goalStamp = goalExtendedTo;
+
+		        setStorageObject(jsonObject);
+
+                var date = new Date();
+			    var timestampSeconds = Math.round(date/1000);
+			    var totalSecondsUntilGoalEnd = Math.round(goalExtendedTo - timestampSeconds);
+                    
+                loadGoalTimerValues(totalSecondsUntilGoalEnd);
+                initiateGoalTimer();	
+
+           }else{
+               //requested was shorter than original goal!!
+               var message = "Your current goal was longer than the one you just requested. " +
+                             "Don't worry if you can't make it all the way, just try a more manageable goal next time!";
+               createNotification(message);
+
+           }
+          
+        }else{
+
+            
+	    	setStorageObject(jsonObject);
+        }
+
             console.log("at the end of change Goal Status, whole object being put in looks like: ");
             console.log(jsonObject);
 
-		setStorageObject(jsonObject);
 	}
 
 
@@ -3046,9 +3086,98 @@ $( document ).ready(function() {
 					}
 				}
 
-			//there is an active goal
-			if(json.statistics.goal.activeGoalUse !== 0 || json.statistics.goal.activeGoalBought !== 0 || json.statistics.goal.activeGoalBoth !==0){
-				if(json.statistics.goal.activeGoalUse !== 0){
+                //there is an active goal
+                if(json.statistics.goal.activeGoalUse !== 0 || json.statistics.goal.activeGoalBought !== 0 || json.statistics.goal.activeGoalBoth !==0){
+                    
+                    //ask if if user wants to extend goal
+                    var message = "You already have an active goal, would you like to extend it?";
+                    var responseTools = 
+                        '<button class="notification-response-tool extend-goal" href="#" >' + 
+                        'Yes</button>' + 
+                        '<button class="notification-response-tool end-goal" href="#">' + 
+                        'No</button>';
+                        
+                        
+                    createNotification(message, responseTools);
+
+            
+                
+                }else{
+                    //keep lastClickStamp up to date while using app
+                     json.statistics.goal.lastClickStamp = timestampSeconds;
+
+                    //return to relevant screen
+                    $("#statistics-tab-toggler").click();
+
+
+                    //set local json goal type which is active
+                    var jsonHandle = "activeGoal" + goalType.charAt(0).toUpperCase() + goalType.slice(1);
+                    json.statistics.goal[jsonHandle] = 1;
+                    
+
+                    updateActionTable(timestampSeconds, "goal", "", goalStampSeconds, goalType);
+                    
+                    
+                    
+                    //convert goalend to days hours minutes seconds
+                    var totalSecondsUntilGoalEnd = Math.round(goalStampSeconds - timestampSeconds);
+                    
+                    loadGoalTimerValues(totalSecondsUntilGoalEnd);
+                    initiateGoalTimer();	
+
+                    showActiveStatistics();
+                    adjustFibonacciTimerToBoxes("goal-timer");
+
+
+                }
+
+                
+                    closeClickDialog(".goal");
+			
+
+
+			}else{
+				/* user selected a time on today (equal to or) prior to current time */
+				alert("Please choose a time later than right now!");
+			}
+			
+		});
+		
+        $(".goal.log-more-info-div button.cancel").click(function(){
+				closeClickDialog(".goal");
+        });
+    
+        function extendActiveGoal(){
+            console.log("extend that goal");
+
+            if(json.statistics.goal.activeGoalUse !== 0){
+                var goalType = "use";
+            
+            }else if(json.statistics.goal.activeGoalBought !== 0){
+                var goalType = "bought";
+        
+            }else if(json.statistics.goal.activeGoalBoth !==0){
+                var goalType = "both";
+            
+            }
+
+             var requestedGoalEnd = $('#goalEndPicker').datepicker({
+                    dateFormat: 'yy-mm-dd'
+                }).val();
+                
+            var goalStampSeconds = Math.round(new Date(requestedGoalEnd).getTime() / 1000);
+
+            changeGoalStatus(1, goalType, false, goalStampSeconds);
+
+        }
+
+        function endActiveGoal(){
+             console.log("end that goal - start a new one");
+
+                var date = new Date();
+			    var timestampSeconds = Math.round(date/1000);
+
+                if(json.statistics.goal.activeGoalUse !== 0){
 					var goalType = "use";
 					json.statistics.goal.activeGoalUse = 0;
 				
@@ -3087,45 +3216,42 @@ $( document ).ready(function() {
 				$("#numberOfGoalsCompleted").html(json.statistics.goal.completedGoals);
 				showActiveStatistics();
 				
-			}
-			//keep lastClickStamp up to date while using app
-			json.statistics.goal.lastClickStamp = timestampSeconds;
 
-                //return to relevant screen
-                $("#statistics-tab-toggler").click();
+                //copied from goal submit button there is an active goal case
+                //-->
+                var requestedGoalEnd = $('#goalEndPicker').datepicker({
+                    dateFormat: 'yy-mm-dd'
+                }).val();
+                
+                var goalStampSeconds = Math.round(new Date(requestedGoalEnd).getTime() / 1000);
 
 
-				//set local json goal type which is active
-				var jsonHandle = "activeGoal" + goalType.charAt(0).toUpperCase() + goalType.slice(1);
-				json.statistics.goal[jsonHandle] = 1;
-				
+                //-->
+                 //keep lastClickStamp up to date while using app
+                     json.statistics.goal.lastClickStamp = timestampSeconds;
 
-				updateActionTable(timestampSeconds, "goal", "", goalStampSeconds, goalType);
-				
-				closeClickDialog(".goal");
-				
-				
-				//convert goalend to days hours minutes seconds
-				var totalSecondsUntilGoalEnd = Math.round(goalStampSeconds - timestampSeconds);
-				
-				loadGoalTimerValues(totalSecondsUntilGoalEnd);
-								
-				initiateGoalTimer();	
+                    //return to relevant screen
+                    $("#statistics-tab-toggler").click();
 
-				showActiveStatistics();
 
-				adjustFibonacciTimerToBoxes("goal-timer");
+                    //set local json goal type which is active
+                    var jsonHandle = "activeGoal" + goalType.charAt(0).toUpperCase() + goalType.slice(1);
+                    json.statistics.goal[jsonHandle] = 1;
+                    
 
-			}else{
-				/* user selected a time on today (equal to or) prior to current time */
-				alert("Please choose a time later than right now!");
-			}
-			
-		});
-		
-        $(".goal.log-more-info-div button.cancel").click(function(){
-				closeClickDialog(".goal");
-        });
+                    updateActionTable(timestampSeconds, "goal", "", goalStampSeconds, goalType);
+                    
+                    //convert goalend to days hours minutes seconds
+                    var totalSecondsUntilGoalEnd = Math.round(goalStampSeconds - timestampSeconds);
+                    
+                    loadGoalTimerValues(totalSecondsUntilGoalEnd);
+                    initiateGoalTimer();	
+
+                    showActiveStatistics();
+                    adjustFibonacciTimerToBoxes("goal-timer");
+
+           
+            }
 
         } else {
             //NO LOCAL STORAGE
