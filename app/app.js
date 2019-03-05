@@ -227,10 +227,33 @@ $( document ).ready(function() {
                 //baseline questionnaire
                     json.baseline = jsonObject.baseline;
 
+                    //populate fields on form with existing values
+                    //make the form field disabled
+                        if($.isNumeric(json.baseline.amountSpentPerWeek) && json.baseline.amountSpentPerWeek != 0){
+                            //console.log("on start, amountSpent gets a value");
+                                $("input.amountSpentPerWeek").val(parseInt(json.baseline.amountSpentPerWeek, 10));
+                                $("input.amountSpentPerWeek").prop('disabled', true);
+                        }
+                        if($.isNumeric(json.baseline.goalSpentPerWeek) && json.baseline.goalSpentPerWeek != 0){
+                           // console.log("on start, goalSpent gets a value");
+                                $("input.goalSpentPerWeek").val(parseInt(json.baseline.goalSpentPerWeek, 10));
+                                $("input.goalSpentPerWeek").prop('disabled', true);
+                        }
+                        if($.isNumeric(json.baseline.amountDonePerWeek) && json.baseline.amountDonePerWeek != 0){
+                            //console.log("on start, amountDone gets a value");
+                                $("input.amountDonePerWeek").val(parseInt(json.baseline.amountDonePerWeek, 10));
+                                $("input.amountDonePerWeek").prop('disabled', true);
+                        }
+                        if($.isNumeric(json.baseline.goalDonePerWeek) && json.baseline.goalDonePerWeek != 0){
+                           //console.log("on start, goalDone gets a value");
+                                $("input.goalDonePerWeek").val(parseInt(json.baseline.goalDonePerWeek, 10));
+                                $("input.goalDonePerWeek").prop('disabled', true);
+                        }
+                                        
 
                 if(JSON.parse(json.baseline.specificSubject)){
                     
-                    console.log(json.baseline.specificSubject);
+                    //console.log(json.baseline.specificSubject);
                     $(".baseline-questionnaire .follow-up-questions").removeClass("d-none");
                      $($(".baseline-questionnaire .question")[0]).hide();
                 }
@@ -498,7 +521,8 @@ $( document ).ready(function() {
 
 
 					//NEEEWWWWW USERRR
-					if(useCount == 0 && craveCount == 0 && boughtCount == 0 && goalCount == 0){				
+					if((useCount == 0 && craveCount == 0 && boughtCount == 0 && goalCount == 0) &&
+                        (json.baseline.specificSubject == "false")){
 						var introMessage = "<b>Welcome to esCrave</b> - the anonymous habit tracking app that shows you statistics about any habit as you record data about it!";
 						createNotification(introMessage);
 					}else{
@@ -695,12 +719,20 @@ $( document ).ready(function() {
                                     //goal spend / week
                                         json.baseline.goalSpentPerWeek = $("input.goalSpentPerWeek").val();
 
+                                    //display stats which default false
+                                        json.option.reportItemsToDisplay.costChangeVsBaseline = true;
+                                        json.option.reportItemsToDisplay.costGoalVsThisWeek = true;
+
                                 //localstorage
                                     //baseline spent / week
                                         jsonObject.baseline.amountSpentPerWeek = $("input.amountSpentPerWeek").val();
                                     //goal spend / week
                                         jsonObject.baseline.goalSpentPerWeek = $("input.goalSpentPerWeek").val();
-                                
+                                    //display stats which default false
+                                        jsonObject.option.reportItemsToDisplay.costChangeVsBaseline = true;
+                                        jsonObject.option.reportItemsToDisplay.costGoalVsThisWeek = true;
+
+
                         }
                         
                     //if baseline done == 0 && baseline done goal == 0
@@ -758,11 +790,20 @@ $( document ).ready(function() {
                                 //goal done / week
                                     json.baseline.goalDonePerWeek = $("input.goalDonePerWeek").val();
 
+                                //display stats which default false
+                                    json.option.reportItemsToDisplay.useChangeVsBaseline = true;
+                                    json.option.reportItemsToDisplay.useGoalVsThisWeek = true;
+
+
                             //LOCAL STORAGE
                                 //baseline done / week
                                     jsonObject.baseline.amountDonePerWeek = $("input.amountDonePerWeek").val();
                                 //goal done / week
                                     jsonObject.baseline.goalDonePerWeek = $("input.goalDonePerWeek").val();
+
+                                //display stats which default false
+                                    jsonObject.option.reportItemsToDisplay.useChangeVsBaseline = true;
+                                    jsonObject.option.reportItemsToDisplay.useGoalVsThisWeek = true;
 
                         }
                         
@@ -772,6 +813,10 @@ $( document ).ready(function() {
                         //console.log(json);
                             
                         $("#statistics-tab-toggler").click();
+
+                        var message = "Thank you for answering those questions! " + 
+                                      "You will now be able to see your progress easier.";
+                        createNotification(message);
                     });
 
             })();
@@ -999,19 +1044,82 @@ $( document ).ready(function() {
 
 /* NOTIFICATION CREATION AND RESPONSES */
 
-	var clearNotification = function(event){
+	var clearNotification = function(event, swipeDirection){
 
 		//when user clicks X on a notification, slide it off the screen.
 		var currNotification = $(event).parent().parent();
 		//var notificationWidth = currNotification.css("width");
 		//	notificationWidth = -1 * parseInt(notificationWidth);
-		var animateLeft = -1*(6400);
-			currNotification.animate(
-				{left: animateLeft}, 600, 
-				function(){
-					currNotification.css("display", "none");
-				});	
-	}
+        var animateLeft = 0;
+        if(swipeDirection == "right"){
+            animateLeft = (6400);
+               
+        }else{
+            animateLeft = -1*(6400);
+               
+        }
+            currNotification.animate(
+                    {left: animateLeft}, 600, 
+                    function(){
+                        currNotification.css("display", "none");
+                    });	
+    }
+
+    function swipeNotification(){   
+            document.addEventListener('touchstart', handleTouchStart, false);        
+            document.addEventListener('touchmove', handleTouchMove, false);
+
+            var xDown = null;                                                        
+            var yDown = null;
+
+            function getTouches(evt) {
+            return evt.touches ||             // browser API
+                    evt.originalEvent.touches; // jQuery
+            };                                            
+
+            function handleTouchStart(evt) {
+                const firstTouch = getTouches(evt)[0];                                      
+                xDown = firstTouch.clientX;                                      
+                yDown = firstTouch.clientY;                                      
+            };                                                
+
+            function handleTouchMove(evt) {
+                if ( ! xDown || ! yDown ) {
+                    return;
+                }
+
+                var xUp = evt.touches[0].clientX;                                    
+                var yUp = evt.touches[0].clientY;
+
+                var xDiff = xDown - xUp;
+                var yDiff = yDown - yUp;
+
+                if ( Math.abs( xDiff ) > Math.abs( yDiff ) ) {/*most significant*/
+                    if ( xDiff > 0 ) {
+                        /* left swipe */ 
+                        var selectedElem = document.elementFromPoint(xUp, yUp);
+                        if($(selectedElem).parents('.notification').length){
+                            console.log("got class");
+                            clearNotification.call(event, selectedElem, "left"); 
+                        }
+
+                    } else {
+                        /* right swipe */
+                        var selectedElem = document.elementFromPoint(xUp, yUp);
+                        if($(selectedElem).parents('.notification').length){
+                            console.log("got class");
+                            clearNotification.call(event, selectedElem, "right"); 
+                        }
+                    }                       
+                } 
+
+                /* reset values */
+                xDown = null;
+                yDown = null;                                             
+            }; 
+
+    }
+    swipeNotification();
 
 	function createNotification(message, responseTools){
 		var template =  '<div class="notification" style="left:600px;">' + 
@@ -1111,6 +1219,8 @@ $( document ).ready(function() {
 		//your last goal has finished, was it successful?
 			//yes
 			if($(this).hasClass("goal-ended-on-time")){
+                        
+                        //this is to just shoot the goal straight through the pipeline
 							clearNotification.call(event, this); 
 
 							placeGoalIntoLog(startStamp, endStamp, goalType, false);
@@ -1120,7 +1230,21 @@ $( document ).ready(function() {
 							createNotification(message);
 							
 							changeGoalStatus(3, goalType);
+                       
+                    /*
+                        //this is to prompt the goal to extend! ask if if user wants to extend goal
+                        clearNotification.call(event, this); 
 
+                        var message = "Congrats on completing your goal! Would you like to extend it?";
+                        var responseTools = 
+                            '<button class="notification-response-tool extend-goal" href="#" >' + 
+                            'Yes</button>' + 
+                            '<button class="notification-response-tool end-goal" href="#">' + 
+                            'No</button>';
+                            
+                            
+                        createNotification(message, responseTools);
+                    */
 			//no
 			}else if($(this).hasClass("goal-ended-early")){
 							clearNotification.call(event, this); 
@@ -1147,7 +1271,7 @@ $( document ).ready(function() {
                                 console.log("minFormatted = " + minFormatted + "\nmaxFormatted = " + maxFormatted);
 								
 								
-							var message = "You can still get a percentage of points for how long you waited. " + 
+							var message = "Even though you didn't make it until the end, you still get credit for how long you waited. " + 
 									"Around when do you think you broke your goal?";
 				
 							var responseTools = '<!-- custom Time picker-->' +
@@ -1218,6 +1342,112 @@ $( document ).ready(function() {
         clearNotification.call(event, this); 
 		endActiveGoal();
 	});
+
+    function extendActiveGoal(){
+       // console.log("extend that goal");
+
+        if(json.statistics.goal.activeGoalUse !== 0){
+            var goalType = "use";
+        
+        }else if(json.statistics.goal.activeGoalBought !== 0){
+            var goalType = "bought";
+    
+        }else if(json.statistics.goal.activeGoalBoth !==0){
+            var goalType = "both";
+        
+        }
+
+            var requestedGoalEnd = $('#goalEndPicker').datepicker({
+                dateFormat: 'yy-mm-dd'
+            }).val();
+            
+        var goalStampSeconds = Math.round(new Date(requestedGoalEnd).getTime() / 1000);
+
+        changeGoalStatus(1, goalType, false, goalStampSeconds);
+
+    }
+
+    function endActiveGoal(){
+            //console.log("end that goal - start a new one");
+
+            var date = new Date();
+            var timestampSeconds = Math.round(date/1000);
+
+            if(json.statistics.goal.activeGoalUse !== 0){
+                var goalType = "use";
+                json.statistics.goal.activeGoalUse = 0;
+            
+            }else if(json.statistics.goal.activeGoalBought !== 0){
+                var goalType = "bought";
+                json.statistics.goal.activeGoalBought = 0;
+        
+            }else if(json.statistics.goal.activeGoalBoth !==0){
+                var goalType = "both";
+                json.statistics.goal.activeGoalBoth = 0;
+            
+            }
+            var message = 'Your goal just ended early, ' +
+                            'it has been added to your habit log. ' +
+                            'Be proud, any progress is good progress!';
+
+            changeGoalStatus(2, goalType, timestampSeconds);
+            createNotification(message);
+
+            //place a goal into the goal log
+            var startStamp = json.statistics.goal.lastClickStamp;
+            var actualEnd = timestampSeconds;
+            placeGoalIntoLog(startStamp, actualEnd, goalType, false);
+
+            //if longest goal just happened
+            if((actualEnd - startStamp) > json.statistics.goal.bestTimeSeconds){
+                //update json
+                json.statistics.goal.bestTimeSeconds = (actualEnd - startStamp);
+                //insert onto page
+                var newLongestGoal = convertSecondsToDateFormat(json.statistics.goal.bestTimeSeconds);
+                $("#longestGoalCompleted").html(newLongestGoal);
+                
+            }
+            //update number of goals
+            json.statistics.goal.completedGoals++;
+            $("#numberOfGoalsCompleted").html(json.statistics.goal.completedGoals);
+            showActiveStatistics();
+            
+
+            //copied from goal submit button there is an active goal case
+            //-->
+            var requestedGoalEnd = $('#goalEndPicker').datepicker({
+                dateFormat: 'yy-mm-dd'
+            }).val();
+            
+            var goalStampSeconds = Math.round(new Date(requestedGoalEnd).getTime() / 1000);
+
+
+            //-->
+                //keep lastClickStamp up to date while using app
+                    json.statistics.goal.lastClickStamp = timestampSeconds;
+
+                //return to relevant screen
+                $("#statistics-tab-toggler").click();
+
+
+                //set local json goal type which is active
+                var jsonHandle = "activeGoal" + goalType.charAt(0).toUpperCase() + goalType.slice(1);
+                json.statistics.goal[jsonHandle] = 1;
+                
+
+                updateActionTable(timestampSeconds, "goal", "", goalStampSeconds, goalType);
+                
+                //convert goalend to days hours minutes seconds
+                var totalSecondsUntilGoalEnd = Math.round(goalStampSeconds - timestampSeconds);
+                
+                loadGoalTimerValues(totalSecondsUntilGoalEnd);
+                initiateGoalTimer();	
+
+                showActiveStatistics();
+                adjustFibonacciTimerToBoxes("goal-timer");
+
+        
+    }
 
 
 /* GOAL LOG FUNCTION */
@@ -1318,7 +1548,7 @@ $( document ).ready(function() {
             //target = "#use-log";
 
         }else if(clickType == "craved"){
-            titleHTML = '<i class="fas fa-ban"></i>&nbsp;' + "You didn\'t do it at <b>" + shortHandTime + "</b>.";
+            titleHTML = '<i class="fas fa-ban"></i>&nbsp;' + "You resisted it at <b>" + shortHandTime + "</b>.";
             //target = "#use-log";
 
         }
@@ -1444,7 +1674,9 @@ $( document ).ready(function() {
 			    var totalSecondsUntilGoalEnd = Math.round(goalExtendedTo - timestampSeconds);
                     
                 loadGoalTimerValues(totalSecondsUntilGoalEnd);
-                initiateGoalTimer();	
+                initiateGoalTimer();
+                showActiveStatistics();
+                adjustFibonacciTimerToBoxes("goal-timer");
 
            }else{
                //requested was shorter than original goal!!
@@ -1464,7 +1696,6 @@ $( document ).ready(function() {
             console.log(jsonObject);
 
 	}
-
 
 
 /* CONVERT JSON TO LIVE STATS */
@@ -2062,6 +2293,8 @@ $( document ).ready(function() {
 			
 			$(clickDialogTarget + ".log-more-info-div").slideToggle("fast");
 		}
+
+
 		
 	
      //SMOKE BUTTONS - START TIMER
@@ -2079,16 +2312,23 @@ $( document ).ready(function() {
 
         //insert code here to generate most recent report
 
+        //close dropdown nav
+        if($("#options-collapse-menu").hasClass("show")){
+            
+          $(".navbar-toggler").click();
+
+        }
+
 	});
 	$(document).delegate("#statistics-tab-toggler", 'click', function(e){
 		
 		saveActiveTab();
 
 		//push adjusting fibo timer to end of stack, so it reads the number of needed boxes corectly
-            /*
-                showActiveStatistics();
             
-            */
+                //showActiveStatistics();
+            
+            
 			setTimeout(function(){
                 
                 hideInactiveStatistics();
@@ -2104,6 +2344,13 @@ $( document ).ready(function() {
 
 		//console.log('statistics tab clicked');
 
+       //close dropdown nav
+        if($("#options-collapse-menu").hasClass("show")){
+            
+          $(".navbar-toggler").click();
+
+        }
+
 	});
 	$(document).delegate("#settings-tab-toggler", 'click', function(e){
 		
@@ -2112,6 +2359,13 @@ $( document ).ready(function() {
          $("#statistics-tab-toggler").removeClass("active");
 
 	    //console.log('settings tab clicked');
+
+        //close dropdown nav
+        if($("#options-collapse-menu").hasClass("show")){
+            
+          $(".navbar-toggler").click();
+
+        }
 	});
 	
 	
@@ -2162,7 +2416,7 @@ $( document ).ready(function() {
 	//CRAVE BUTTON 					
 	//BOUGHT BUTTON		
 			
-        $("#bought-button,	#crave-button, #use-button, #goal-button").click(function(){
+        $("#bought-button, #crave-button, #use-button, #goal-button").click(function(){
             
             //Detect section
             var timerSection;
@@ -2203,7 +2457,6 @@ $( document ).ready(function() {
 
                 
             }else if(this.id == "use-button"){
-
                 //return to relevant screen
                       $("#statistics-tab-toggler").click();
 
@@ -2903,9 +3156,10 @@ $( document ).ready(function() {
 					
 					initiateBoughtTimer();	
 					
-					adjustFibonacciTimerToBoxes("bought-timer");
 					showActiveStatistics();
 					hideInactiveStatistics();
+                    
+					adjustFibonacciTimerToBoxes("bought-timer");
 
 					//there is an active bought related goal
 					if(json.statistics.goal.activeGoalBought !== 0 || json.statistics.goal.activeGoalBoth !==0){
@@ -3147,111 +3401,7 @@ $( document ).ready(function() {
 				closeClickDialog(".goal");
         });
     
-        function extendActiveGoal(){
-            console.log("extend that goal");
 
-            if(json.statistics.goal.activeGoalUse !== 0){
-                var goalType = "use";
-            
-            }else if(json.statistics.goal.activeGoalBought !== 0){
-                var goalType = "bought";
-        
-            }else if(json.statistics.goal.activeGoalBoth !==0){
-                var goalType = "both";
-            
-            }
-
-             var requestedGoalEnd = $('#goalEndPicker').datepicker({
-                    dateFormat: 'yy-mm-dd'
-                }).val();
-                
-            var goalStampSeconds = Math.round(new Date(requestedGoalEnd).getTime() / 1000);
-
-            changeGoalStatus(1, goalType, false, goalStampSeconds);
-
-        }
-
-        function endActiveGoal(){
-             console.log("end that goal - start a new one");
-
-                var date = new Date();
-			    var timestampSeconds = Math.round(date/1000);
-
-                if(json.statistics.goal.activeGoalUse !== 0){
-					var goalType = "use";
-					json.statistics.goal.activeGoalUse = 0;
-				
-				}else if(json.statistics.goal.activeGoalBought !== 0){
-					var goalType = "bought";
-					json.statistics.goal.activeGoalBought = 0;
-			
-				}else if(json.statistics.goal.activeGoalBoth !==0){
-					var goalType = "both";
-					json.statistics.goal.activeGoalBoth = 0;
-				
-				}
-                var message = 'Your goal just ended early, ' +
-                              'it has been added to your habit log. ' +
-                              'Be proud, any progress is good progress!';
-
-				changeGoalStatus(2, goalType, timestampSeconds);
-				createNotification(message);
-
-				//place a goal into the goal log
-				var startStamp = json.statistics.goal.lastClickStamp;
-				var actualEnd = timestampSeconds;
-				placeGoalIntoLog(startStamp, actualEnd, goalType, false);
-
-				//if longest goal just happened
-				if((actualEnd - startStamp) > json.statistics.goal.bestTimeSeconds){
-					//update json
-					json.statistics.goal.bestTimeSeconds = (actualEnd - startStamp);
-					//insert onto page
-					var newLongestGoal = convertSecondsToDateFormat(json.statistics.goal.bestTimeSeconds);
-					$("#longestGoalCompleted").html(newLongestGoal);
-					
-				}
-				//update number of goals
-				json.statistics.goal.completedGoals++;
-				$("#numberOfGoalsCompleted").html(json.statistics.goal.completedGoals);
-				showActiveStatistics();
-				
-
-                //copied from goal submit button there is an active goal case
-                //-->
-                var requestedGoalEnd = $('#goalEndPicker').datepicker({
-                    dateFormat: 'yy-mm-dd'
-                }).val();
-                
-                var goalStampSeconds = Math.round(new Date(requestedGoalEnd).getTime() / 1000);
-
-
-                //-->
-                 //keep lastClickStamp up to date while using app
-                     json.statistics.goal.lastClickStamp = timestampSeconds;
-
-                    //return to relevant screen
-                    $("#statistics-tab-toggler").click();
-
-
-                    //set local json goal type which is active
-                    var jsonHandle = "activeGoal" + goalType.charAt(0).toUpperCase() + goalType.slice(1);
-                    json.statistics.goal[jsonHandle] = 1;
-                    
-
-                    updateActionTable(timestampSeconds, "goal", "", goalStampSeconds, goalType);
-                    
-                    //convert goalend to days hours minutes seconds
-                    var totalSecondsUntilGoalEnd = Math.round(goalStampSeconds - timestampSeconds);
-                    
-                    loadGoalTimerValues(totalSecondsUntilGoalEnd);
-                    initiateGoalTimer();	
-
-                    showActiveStatistics();
-                    adjustFibonacciTimerToBoxes("goal-timer");
-
-           
-            }
 
         } else {
             //NO LOCAL STORAGE

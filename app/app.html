@@ -64,13 +64,58 @@
 
     <div class="container app-background">
         <div id="header">
+            <div class="hamburger">
+                <div class="navbar-header">
+                <nav class="navbar navbar-toggleable-md navbar-light bg-faded">
+                    <button
+                    class="navbar-toggler navbar-toggler-right"
+                    type="button"
+                    data-toggle="collapse"
+                    data-target="#options-collapse-menu"
+                    aria-controls="options-collapse-menu"
+                    aria-expanded="false"
+                    aria-label="Toggle navigation"
+                    >
+                    <span class="navbar-toggler-icon"></span>
+                    </button>
+                </nav>
+                </div>
+            </div>
              <div class="logo-and-tagline">
                 <img class="img-fluid" src="../images/escrave-logo-extended-inverse.png" />
                 <!--span class="tagline">esCrave</span-->
                 <!--p style="">Anonymous Habit Tracker</p -->
             </div>
 
-            <div class="navbar-header">
+             <nav id="options-navbar" class="navbar collapse navbar-collapse" role="navigation" >
+                <div class="container">
+                <!-- Collect the nav links, forms, and other content for toggling -->
+                    <div class="collapse navbar-collapse" id="options-collapse-menu">
+                    
+                        <ul class="nav navbar-nav" class="text-center">
+                        
+                            <li><a id="statistics-tab-toggler" href="#statistics-content" data-toggle="tab">
+                            <i class="fas fa-chart-bar"></i> Statistics
+                            </a></li>
+
+                            <div class="dropdown-divider"></div>
+
+                            <li><a id="reports-tab-toggler" href="#reports-content" data-toggle="tab">
+                                <i class="fas fa-file-alt"></i> Reports
+                            </a></li>
+                            
+                            <div class="dropdown-divider"></div>
+
+                            <li><a id="settings-tab-toggler" href="#settings-content" data-toggle="tab">
+                                <i class="fas fa-cog"></i> Settings
+                            </a></li>
+
+                        </ul>
+                    </div>
+                </div>
+            </nav>
+
+            <!--div class="navbar-header">
                 
                 <div class="button-group">
 
@@ -115,6 +160,7 @@
 
             </div>
            
+        </div-->
         </div>
         <div id="notifications-container">
 
@@ -265,7 +311,7 @@
                                         <div class="percent-changed down">
                                             <i class="fas fa-caret-down"></i> 15%
                                         </div>
-                                        <label>Uses VS. last week:</label>
+                                        <label>Uses Vs. last week:</label>
 
                                     </div>
                                     <div class="statistic">
@@ -274,7 +320,7 @@
                                         <div class="percent-changed down">
                                             <i class="fas fa-caret-down"></i> 50%
                                         </div>
-                                        <label>Uses VS. baseline:</label>
+                                        <label>Uses Vs. baseline:</label>
 
                                     </div>
                                      
@@ -284,7 +330,7 @@
                                             <i class="fas fa-caret-up"></i>&nbsp;&nbsp; 5%
                                         </div>
 
-                                        <label>Amount spent VS. last week:</label>
+                                        <label>Amount spent Vs. last week:</label>
 
                                     </div>
                                     <div class="statistic">
@@ -293,7 +339,7 @@
                                             <i class="fas fa-caret-down"></i>&nbsp;&nbsp; 7%
                                         </div>
 
-                                        <label>Amount spent VS. baseline:</label>
+                                        <label>Amount spent Vs. baseline:</label>
 
                                     </div>
 
@@ -508,22 +554,9 @@
                     <div class="initial-instructions">
                         <p>
                             This area will become populated with statistics as you interact more with the app's action
-                            buttons, such as:
+                            buttons, located in the side bar to the right.
                         </p>
-                        <ul>
-                            <li>
-                                Set goal
-                            </li>
-                            <li>
-                                Did it
-                            </li>
-                            <li>
-                                Didn't
-                            </li>
-                            <li>
-                                spent
-                            </li>
-                        </ul>
+                     
 
                     </div>
 
@@ -626,13 +659,13 @@
                                 </div>
 
                                 <div class="statistic-recepticle">
-                                    <p>Didnts per dids ratio</p>
+                                    <p>Resist / done</p>
                                     <span id="avgDidntPerDid" class="statistic"> test </span>
                                     
                                 </div>
                                 <div class="statistic-recepticle">
                                     
-                                    <p>Didnts in a row</p>
+                                    <p>Resists in a row</p>
                                     <span id="cravingsResistedInARow" class="statistic">
                                         test
                                     </span>
@@ -843,7 +876,7 @@
                                     <div class="form-check">
                                         <label class="form-check-label" for="cravedButtonDisplayed">
                                             <input class="form-check-input" type="checkbox" value="" id="cravedButtonDisplayed" checked>
-                                            'Didnt' Button
+                                            'Resisted' Button
                                         </label>
                                     </div>
                                     <div class="form-check">
@@ -865,14 +898,14 @@
                                     <div class="form-check">
                                         <label class="form-check-label" for="didntPerDidDisplayed">
                                             <input class="form-check-input" type="checkbox" value="" id="didntPerDidDisplayed" checked>
-                                            Ratio of times you've resisted doing it to times you've done it
+                                            Ratio of times you've resisted Vs. times you've done it
                                         </label>
                                     </div>
 
                                     <div class="form-check">
                                         <label class="form-check-label" for="resistedInARowDisplayed">
                                             <input class="form-check-input" type="checkbox" value="" id="resistedInARowDisplayed" checked>
-                                            Number of times you've resisted doing it in a row
+                                            Number of times you've resisted it in a row
                                         </label>
                                     </div>
 
@@ -967,42 +1000,42 @@
                                 <div class="form-check">
                                     <label class="form-check-label" for="useChangeVsBaselineDisplayed">
                                         <input class="form-check-input" type="checkbox" value="" id="useChangeVsBaselineDisplayed" checked>
-                                        % change: uses this week vs baseline
+                                        Usage change Vs. baseline
                                     </label>
                                 </div>
 
                                 <div class="form-check">
                                     <label class="form-check-label" for="useChangeVsLastWeekDisplayed">
                                         <input class="form-check-input" type="checkbox" value="" id="useChangeVsLastWeekDisplayed" checked>
-                                        % change: uses this week vs last
+                                        Usage change: Vs. last week
                                     </label>
                                 </div>
 
                                 <div class="form-check">
                                     <label class="form-check-label" for="costChangeVsBaselineDisplayed">
                                         <input class="form-check-input" type="checkbox" value="" id="costChangeVsBaselineDisplayed" checked>
-                                        % change: spent this week vs baseline
+                                        Cost change: Vs. baseline
                                     </label>
                                 </div>
 
                                 <div class="form-check">
                                     <label class="form-check-label" for="costChangeVsLastWeekDisplayed">
                                         <input class="form-check-input" type="checkbox" value="" id="costChangeVsLastWeekDisplayed" checked>
-                                        % change: spent this week vs last
+                                        Cost change: Vs. last week
                                     </label>
                                 </div>
 
                                 <div class="form-check">
                                     <label class="form-check-label" for="useGoalVsThisWeekDisplayed">
                                         <input class="form-check-input" type="checkbox" value="" id="useGoalVsThisWeekDisplayed" checked>
-                                        Done this week vs. done/week Goal
+                                        Usage this week Vs. Goal
                                     </label>
                                 </div>
 
                                 <div class="form-check">
                                     <label class="form-check-label" for="costGoalVsThisWeekDisplayed">
                                         <input class="form-check-input" type="checkbox" value="" id="costGoalVsThisWeekDisplayed" checked>
-                                        Spent this week vs. spent/week Goal
+                                        Spent this week Vs. Goal
                                     </label>
                                 </div>
 
@@ -1090,7 +1123,7 @@
                                 <i class="fas fa-ban fa-3x"></i>
                             </div>
                             <p class="button-text">
-                                Didn't
+                                Resisted
                             </p>
 
 

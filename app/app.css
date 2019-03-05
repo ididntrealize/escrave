@@ -80,8 +80,7 @@ h4{
 }
 .logo-and-tagline img{
 	display:inline-block;
-	max-height:85px;
-	padding-bottom:10px;
+	max-height:75px;
 	padding-top:5px;
 }
 .tagline{
@@ -95,6 +94,48 @@ h4{
 	font-size:18px;
 }
 
+/* Options hamburger and menu */
+
+.hamburger{
+	float: right;
+	width: 85px;
+}
+
+.hamburger .navbar-toggler{
+	background: white;
+	cursor: pointer;
+	margin-top:5px;
+    width: 70px;
+    height: 50px;
+}
+.navbar{
+    padding: .5rem 1rem 0rem 1rem;
+}
+#options-navbar{
+    width: 100%;
+	z-index: 1000;
+	padding: 5px 0px; 
+    border-radius:5px;
+}
+#options-navbar .container{
+	background: white;
+
+}
+#options-collapse-menu{
+	padding:7px;
+	padding-top:.5rem;
+}
+#options-collapse-menu {
+	margin-top:0px;
+}
+#options-collapse-menu a{
+    text-align: center;
+    display: inherit;
+    color: grey;
+}
+#options-collapse-menu a.active{
+    color: black;
+}
 
 
 /* app main area */
@@ -129,7 +170,7 @@ h4{
 .navbar-header{
     display: inline-flex;
     max-height:85px;
-    padding-top:15px;
+    padding-top:10px;
 }
 .navbar-header .button-group {
     display:inline-block;
