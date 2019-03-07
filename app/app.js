@@ -123,51 +123,57 @@ $( document ).ready(function() {
 					},
 
                     "baseline":
-                    {
-                        "specificSubject": false,
-                        "amountDonePerWeek": 0,
-                        "goalDonePerWeek": 0,
-                        "amountSpentPerWeek": 0,
-                        "goalSpentPerWeek": 0
-                    },
+                        {
+                            "specificSubject": false,
+                            "amountDonePerWeek": 0,
+                            "goalDonePerWeek": 0,
+                            "amountSpentPerWeek": 0,
+                            "goalSpentPerWeek": 0
+                        },
 
 					"option":
-					{
-						"activeTab": "reports-content",
-                        "liveStatsToDisplay":{
-                                    "goalButton": true,
-									"untilGoalEnd": true,
-									"longestGoal": true,
-                                    "usedButton": true,
-                                    "cravedButton": true,
-									"sinceLastDone": true,
-									"avgBetweenDone": true,
-									"didntPerDid": true,
-									"resistedInARow": true,
-                                    "spentButton": true,
-									"sinceLastSpent": true,
-									"avgBetweenSpent": true,
-									"totalSpent": true,
-									"currWeekSpent": true,
-									"currMonthSpent": true,
-									"currYearSpent": true
-                                 },
+                        {
+                            "activeTab": "reports-content",
+                            "liveStatsToDisplay":{
+                                        "goalButton": true,
+                                        "untilGoalEnd": true,
+                                        "longestGoal": true,
+                                        "usedButton": true,
+                                        "cravedButton": true,
+                                        "sinceLastDone": true,
+                                        "avgBetweenDone": true,
+                                        "didntPerDid": true,
+                                        "resistedInARow": true,
+                                        "spentButton": true,
+                                        "sinceLastSpent": true,
+                                        "avgBetweenSpent": true,
+                                        "totalSpent": true,
+                                        "currWeekSpent": true,
+                                        "currMonthSpent": true,
+                                        "currYearSpent": true
+                                    },
 
-                        "logItemsToDisplay":{
-									"goal": true,
-									"used": true,
-									"craved": true,
-									"bought": true
-                                },
-                        "reportItemsToDisplay":{
-									"useChangeVsBaseline": false,
-									"useChangeVsLastWeek": true,
-									"costChangeVsBaseline": false,
-									"costChangeVsLastWeek": true,
-                                    "useGoalVsThisWeek": false,
-									"costGoalVsThisWeek": false
-							     }
-					}
+                            "logItemsToDisplay":{
+                                        "goal": true,
+                                        "used": true,
+                                        "craved": true,
+                                        "bought": true
+                                    },
+                            "reportItemsToDisplay":{
+                                        "useChangeVsBaseline": false,
+                                        "useChangeVsLastWeek": true,
+                                        "costChangeVsBaseline": false,
+                                        "costChangeVsLastWeek": true,
+                                        "useGoalVsThisWeek": false,
+                                        "costGoalVsThisWeek": false
+                                    }
+                        },
+                    "report":
+                        {
+                            "minEndStamp" : 0,
+                            "activeEndStamp" : 0,
+                            "maxEndStamp" : 0
+                        }
 
 				};
 
@@ -235,7 +241,7 @@ $( document ).ready(function() {
                                 $("input.amountSpentPerWeek").prop('disabled', true);
                         }
                         if($.isNumeric(json.baseline.goalSpentPerWeek) && json.baseline.goalSpentPerWeek != 0){
-                           // console.log("on start, goalSpent gets a value");
+                           //console.log("on start, goalSpent gets a value");
                                 $("input.goalSpentPerWeek").val(parseInt(json.baseline.goalSpentPerWeek, 10));
                                 $("input.goalSpentPerWeek").prop('disabled', true);
                         }
@@ -536,7 +542,7 @@ $( document ).ready(function() {
                                               (e.clickType == "goal" && (e.status == 2 || e.status == 3));
 									});
                             //console.log("allActions = ");
-                           // console.log(allActions);
+                           //console.log(allActions);
                             /* only display a certain number of actions per page */
                             var actionsToAddMax = allActions.length - 1,
                                 actionsToAddMin = allActions.length - 10;
@@ -590,11 +596,424 @@ $( document ).ready(function() {
                             }
                             addMoreIntoHabitLog();		
 
-                   
                     
                     }
+
+                    
 							
 			}
+         //create object of weeks values from the end date timestamp
+        function calculateReportValues(reportEndStamp){
+            
+            var valuesObject = {
+                                    "reportStart": -1,
+                                    "reportEnd": -1, 
+                                    "usesWeek": [0, 0, 0, 0, 0, 0, 0],
+                                    "cravesWeek": [0, 0, 0, 0, 0, 0, 0],
+                                    "spentWeek": [0, 0, 0, 0, 0, 0, 0],
+                                    "usesLastWeek" : 0,
+                                    "CostLastWeek" : 0
+                                }
+
+            var jsonObject = retrieveStorageObject();
+
+            //start one week prior to end stamp
+                var reportStartStamp = reportEndStamp - (60*60*24*7);
+
+            //update report valuesObject
+                valuesObject.reportStart = reportStartStamp;
+                valuesObject.reportEnd = reportEndStamp;
+
+            //keep json obj up to date
+            //to make the "previous report" arrow button workable
+                json.report.activeEndStamp = reportEndStamp;
+
+            //query action table within acquired report range
+
+                var useActionsInRange = jsonObject.action.filter(function(e){
+                                            return e.clickType == "used" && 
+                                                   e.timestamp >= reportStartStamp &&
+                                                   e.timestamp <= reportEndStamp
+                                        });
+
+                    for(i = 0; i <= useActionsInRange.length - 1; i++){
+                        for(j = 0; j < 7; j++){
+                            //increment the number in the array of any record happened on each of 7 days in a timespan week
+                            if(
+                                useActionsInRange[i].timestamp <= (reportStartStamp + (60*60*24) * (j + 1)) &&
+                                useActionsInRange[i].timestamp >= (reportStartStamp + (60*60*24) * (j))
+                              ){
+                                //console.log("on day = " + (j + 1));
+                                valuesObject.usesWeek[j]++;
+                            }
+                        }
+                    }
+
+
+                var craveActionsInRange = jsonObject.action.filter(function(e){
+                                            return e.clickType == "craved" && 
+                                                   e.timestamp >= reportStartStamp &&
+                                                   e.timestamp <= reportEndStamp
+                                        });
+
+
+                    for(i = 0; i <= craveActionsInRange.length - 1; i++){
+                        for(j = 0; j < 7; j++){
+                            //increment the number in the array of any record happened on each of 7 days in a timespan week
+                            if(
+                                craveActionsInRange[i].timestamp <= (reportStartStamp + (60*60*24) * (j + 1)) &&
+                                craveActionsInRange[i].timestamp >= (reportStartStamp + (60*60*24) * (j))
+                              ){
+                                valuesObject.cravesWeek[j]++;
+                            }
+                        }
+                    }
+
+                var spentActionsInRange = jsonObject.action.filter(function(e){
+                                            return e.clickType == "bought" && 
+                                                   e.timestamp >= reportStartStamp &&
+                                                   e.timestamp <= reportEndStamp
+                                        });
+							
+                    for(i = 0; i <= spentActionsInRange.length - 1; i++){
+                        for(j = 0; j < 7; j++){
+                            //increment the number in the array of any record happened on each of 7 days in a timespan week
+                            if(
+                                spentActionsInRange[i].timestamp <= (reportStartStamp + (60*60*24) * (j + 1)) &&
+                                spentActionsInRange[i].timestamp >= (reportStartStamp + (60*60*24) * (j))
+                              ){
+                                valuesObject.spentWeek[j] = valuesObject.spentWeek[j] + parseInt(spentActionsInRange[i].spent);
+                            }
+                        }
+                    }
+
+                //console.log(useActionsInRange);
+                //console.log(craveActionsInRange);
+                //console.log(spentActionsInRange);
+
+                //total uses last week
+                     var useActionsLastWeek = jsonObject.action.filter(function(e){
+                                            return e.clickType == "used" && 
+                                                   e.timestamp >= (reportStartStamp - (60*60*24*7)) &&
+                                                   e.timestamp < (reportEndStamp - (60*60*24*7))
+                                        });
+                    //console.log(useActionsLastWeek.length);
+                    valuesObject.usesLastWeek = useActionsLastWeek.length;
+
+
+                //total amount spent last week
+                    var costActionsLastWeek = jsonObject.action.filter(function(e){
+                                            return e.clickType == "bought" && 
+                                                   e.timestamp >= (reportStartStamp - (60*60*24*7)) &&
+                                                   e.timestamp <= (reportEndStamp - (60*60*24*7))
+                                        });
+
+                    if(costActionsLastWeek.length){
+                        var totalCostLastWeek = 0;
+                        for(i = 0; i <= costActionsLastWeek.length -1; i++){
+                            totalCostLastWeek = totalCostLastWeek + parseInt(costActionsLastWeek[i].spent);
+                        }
+                        valuesObject.CostLastWeek = totalCostLastWeek;
+                    }
+                   
+
+            return valuesObject;
+        }
+
+        function initiateReport(){
+                var jsonObject = retrieveStorageObject();
+				
+				//retrieve curr date for time relevant stats
+				var timeNow = Math.round(new Date()/1000);
+                    //REPORTS!!!
+                    //is there ANY data??
+                        if(jsonObject["action"].length){
+                            //is there at least a week of data? 
+                                    var firstStamp = jsonObject.action[0].timestamp;
+                            //console.log(firstStamp);
+                                
+                            if((timeNow - firstStamp) >= (60*60*24*7)){
+                                
+                                //calculate values for report
+                                    var reportEndStamp = firstStamp;
+                                //as long as latest endStamp is < a week before the most recent timestamp taken,
+                                //add a week - to find interval of 7 since FIRST stamp    
+                                    while(reportEndStamp <= (timeNow - (60*60*24*7))){
+                                        //add a week 
+                                        reportEndStamp = parseInt(reportEndStamp) + (60*60*24*7);
+                                    }
+
+                                //define parameters for report ranges
+                                    json.report.minEndStamp = parseInt(firstStamp) + (60*60*24*7);
+                                    json.report.maxEndStamp = parseInt(reportEndStamp) + (60*60*24*7);
+
+                                //show most recent report
+                                    createReport(calculateReportValues(reportEndStamp));
+
+                                //if (most recent report not viewed && action.timeStamp within report range)
+                                    //createNotification();
+
+                            }
+                        }
+        }
+
+
+        //report template
+        function createReport(reportValues){
+            //remove d-none from report template
+                if($($(".weekly-report-template")[0]).hasClass("d-none")){
+                    $($(".weekly-report-template")[0]).removeClass("d-none");
+                }
+        
+            //split object passed in to individual values
+            var reportStart = reportValues.reportStart, 
+                reportEnd = reportValues.reportEnd, 
+                usesWeek = reportValues.usesWeek, 
+                cravesWeek = reportValues.cravesWeek, 
+                spentWeek = reportValues.spentWeek, 
+                usesLastWeek = reportValues.usesLastWeek, 
+                costLastWeek = reportValues.CostLastWeek;
+
+            //console.log(reportStart, reportEnd, usesWeek, cravesWeek, spentWeek, usesLastWeek, costLastWeek);
+
+            var totalUsesThisWeek = usesWeek.reduce(function(a, b){ return a + b; });
+            var totalCostThisWeek = spentWeek.reduce(function(a, b){ return a + b; });
+
+            //set start date
+                $("#reportStartDate").html(timestampToShortHandDate(reportStart, true));
+
+            //set end date
+                $("#reportEndDate").html(timestampToShortHandDate(reportEnd, true));
+
+            //set bar chart values
+                var dayLabels = [];
+                for(i = 0; i <= 7; i++){
+                    dayLabels.push(timestampToShortHandDate((reportStart + (60*60*24*i)), false));
+                }
+                   
+            //initialize bar chart
+            var data = {
+                    labels: dayLabels,
+                    series: [
+                        usesWeek,
+                        cravesWeek
+                    ]
+                };
+
+                var options = {
+                     seriesBarDistance: 10
+                };
+
+                var responsiveOptions = [
+                    ['screen and (max-width: 640px)', {
+                        seriesBarDistance: 10,
+                        /*
+                        axisX: {
+                            labelInterpolationFnc: function (value) {
+                                return value[0];
+                            }
+                        }
+                        */
+                    }]
+                ];
+
+                new Chartist.Bar('.ct-chart', data, options, responsiveOptions);
+
+
+            //set uses vs last week
+                        if(json.option.reportItemsToDisplay.useChangeVsLastWeek){
+                            var percentChanged = percentChangedBetween(totalUsesThisWeek, usesLastWeek);
+                            var finishedStat = formatPercentChangedStat($("#useChangeVsLastWeek") , percentChanged);
+
+                            $("#useChangeVsLastWeek").html(finishedStat);
+
+                        }else{
+                            $("#useChangeVsLastWeek").parent().parent().hide();
+                        }
+
+            //set uses vs baseline
+                        if(json.option.reportItemsToDisplay.useChangeVsBaseline){
+                            var percentChanged = percentChangedBetween(totalUsesThisWeek, json.baseline.amountDonePerWeek);
+                            var finishedStat = formatPercentChangedStat($("#useChangeVsBaseline") , percentChanged);
+
+                            $("#useChangeVsBaseline").html(finishedStat);
+
+                        }else{
+                            $("#useChangeVsBaseline").parent().parent().hide();
+                        }
+                        
+
+            //set spent vs last week
+                        if(json.option.reportItemsToDisplay.costChangeVsLastWeek){
+                            var percentChanged = percentChangedBetween(totalCostThisWeek, costLastWeek);
+                            var finishedStat = formatPercentChangedStat($("#costChangeVsLastWeek") , percentChanged);
+
+                            $("#costChangeVsLastWeek").html(finishedStat);
+
+                        }else{
+                            $("#costChangeVsLastWeek").parent().parent().hide();
+                        }
+
+            //set spent vs baseline
+                        if(json.option.reportItemsToDisplay.costChangeVsBaseline){
+                            var percentChanged = percentChangedBetween(totalCostThisWeek, json.baseline.amountSpentPerWeek);
+                            var finishedStat = formatPercentChangedStat($("#costChangeVsBaseline") , percentChanged);
+
+                            $("#costChangeVsBaseline").html(finishedStat);
+
+                        }else{
+                            $("#costChangeVsBaseline").parent().parent().hide();
+                        }
+
+
+            //set goal done / week
+                        if(json.option.reportItemsToDisplay.useGoalVsThisWeek){
+                            $("#goalDonePerWeek").html(json.baseline.goalDonePerWeek);
+                        }else{
+                            $("#goalDonePerWeek").parent().parent().hide();
+                        }
+
+            //set done this week
+                        if(json.option.reportItemsToDisplay.useGoalVsThisWeek){
+                            $("#actualDoneThisWeek").html(totalUsesThisWeek);
+                            //higher or lower than goal?
+                                if(totalUsesThisWeek < json.baseline.goalDonePerWeek){
+                                    $("#actualDoneThisWeek").addClass("down");
+                                    $("#actualDoneThisWeek").removeClass("up");
+                                }else if(totalUsesThisWeek >= json.baseline.goalDonePerWeek){
+                                    $("#actualDoneThisWeek").addClass("up");
+                                    $("#actualDoneThisWeek").removeClass("down");
+                                }
+                        }else{
+                            $("#goalDonePerWeek").parent().parent().hide();
+                        }
+
+            //set goal spent / week
+                        if(json.option.reportItemsToDisplay.costGoalVsThisWeek){
+                            $("#goalSpentPerWeek").html(json.baseline.goalSpentPerWeek + "$");
+                        }else{
+                            $("#goalSpentPerWeek").parent().parent().hide();
+                        }
+
+            //set spent this week
+                        if(json.option.reportItemsToDisplay.costGoalVsThisWeek){
+                            $("#actualSpentThisWeek").html(totalCostThisWeek + "$");
+                            //higher or lower than goal?
+                                if(totalCostThisWeek < json.baseline.goalSpentPerWeek){
+                                    $("#actualSpentThisWeek").addClass("down");
+                                    $("#actualSpentThisWeek").removeClass("up");
+                                }else if(totalCostThisWeek >= json.baseline.goalSpentPerWeek){
+                                    $("#actualSpentThisWeek").addClass("up");
+                                    $("#actualSpentThisWeek").removeClass("down");
+                                }
+                    }else{
+                            $("#goalSpentPerWeek").parent().parent().hide();
+                        }
+
+
+        }
+
+        function percentChangedBetween(first, second){
+            
+            var percentChanged = -1;
+
+            if(!(first === 0 && second === 0)){
+                 //handle normal cases
+                percentChanged = Math.round(((first - second) / first)*100);
+               
+            }
+            if(first === 0 && second === 0){
+                 //hand NaN case
+                //no change
+                percentChanged = 0;
+               
+            }
+            if(first === 0){
+                //handle -infinity cases
+                percentChanged = -100;
+            }
+
+            
+            /*
+                console.log("first number = " + first +
+                        "\nsecond number = " + second + 
+                        "\npercentChanged = " + percentChanged);
+            */
+            return percentChanged;
+        }
+
+        function formatPercentChangedStat(statTarget, percentChanged){
+            
+            //assign correct colors and caret if percent change is neg/pos
+                if(percentChanged >= 0){
+                    //color
+                        statTarget.parent().removeClass("down");
+                        statTarget.parent().addClass("up");
+                    //icon
+                        statTarget.parent().find("i.fas").remove();
+                        statTarget.parent().prepend('<i class="fas fa-caret-up"></i>');
+                }else{
+                    //color
+                        statTarget.parent().removeClass("up");
+                        statTarget.parent().addClass("down");
+                    //icon
+                        statTarget.parent().find("i.fas").remove();
+                        statTarget.parent().prepend('<i class="fas fa-caret-down"></i>');
+                    
+                    //remove minus sign
+                        percentChanged*= -1;
+
+                }
+            //format string
+                if(percentChanged.toString().length == 1){
+                    percentChanged = "&nbsp;&nbsp;&nbsp;&nbsp;" + percentChanged + "%";
+                }else if(percentChanged.toString().length == 2){
+                    percentChanged = "&nbsp;&nbsp;" + percentChanged + "%";
+                }else{
+                    percentChanged = percentChanged + "%";
+                }
+                
+
+                return percentChanged;
+        }
+
+        function timestampToShortHandDate(timestamp, includeYear){
+              
+                var endDateObj = new Date(parseInt(timestamp + "000"));
+                var	shortHandDate = (endDateObj.getMonth() + 1) + "/" + 
+                                    endDateObj.getDate();
+                if(includeYear){
+                    shortHandDate = shortHandDate + "/" + (endDateObj.getFullYear());
+                }
+                                    
+
+
+                return shortHandDate;
+
+        }
+
+       $(".previous-report").on("click", function(){
+           if(json.report.activeEndStamp - (60*60*24*7) >= json.report.minEndStamp){
+                var reportEndStamp = json.report.activeEndStamp - (60*60*24*7);
+                createReport(calculateReportValues(reportEndStamp));
+
+           }else{
+                createNotification("Looks like there isn't enough data to make that report!");
+           }
+                
+       });
+
+       $(".next-report").on("click", function(){
+           if(json.report.activeEndStamp + (60*60*24*7) <= json.report.maxEndStamp){
+                var reportEndStamp = json.report.activeEndStamp + (60*60*24*7);
+                createReport(calculateReportValues(reportEndStamp));
+            }else{
+                createNotification("The next report is for a week that has not happened yet!");
+
+            }
+
+
+       });
 
 
         //listen for baseline responses 
@@ -815,7 +1234,7 @@ $( document ).ready(function() {
                         $("#statistics-tab-toggler").click();
 
                         var message = "Thank you for answering those questions! " + 
-                                      "You will now be able to see your progress easier.";
+                                      "You will now be able to see your progress easier in reports.";
                         createNotification(message);
                     });
 
@@ -1033,7 +1452,7 @@ $( document ).ready(function() {
                     }
 
                     if(json.statistics.goal.untilTimerEnd.totalSeconds == 0){
-                    $("#goal-content .fibonacci-timer").toggle();
+                         $("#goal-content .fibonacci-timer").toggle();
 
                     }else{
                         //start timer from json values
@@ -1099,7 +1518,7 @@ $( document ).ready(function() {
                         /* left swipe */ 
                         var selectedElem = document.elementFromPoint(xUp, yUp);
                         if($(selectedElem).parents('.notification').length){
-                            console.log("got class");
+                            //console.log("got class");
                             clearNotification.call(event, selectedElem, "left"); 
                         }
 
@@ -1107,7 +1526,7 @@ $( document ).ready(function() {
                         /* right swipe */
                         var selectedElem = document.elementFromPoint(xUp, yUp);
                         if($(selectedElem).parents('.notification').length){
-                            console.log("got class");
+                            //console.log("got class");
                             clearNotification.call(event, selectedElem, "right"); 
                         }
                     }                       
@@ -1268,7 +1687,7 @@ $( document ).ready(function() {
 								}else{
                                     maxFormatted = (maxFormatted * -1);
                                 }
-                                console.log("minFormatted = " + minFormatted + "\nmaxFormatted = " + maxFormatted);
+                                //console.log("minFormatted = " + minFormatted + "\nmaxFormatted = " + maxFormatted);
 								
 								
 							var message = "Even though you didn't make it until the end, you still get credit for how long you waited. " + 
@@ -1317,7 +1736,7 @@ $( document ).ready(function() {
 
 
 							var tempEndStamp = convertDateTimeToTimestamp('#datepicker-notification', '#goalEndTimePicker' ); 
-                            console.log(tempEndStamp);
+                            //console.log(tempEndStamp);
 								if(tempEndStamp - startStamp  > 0 || endStamp  - tempEndStamp < 0){
 									changeGoalStatus(2, goalType, tempEndStamp);
 									placeGoalIntoLog(startStamp, tempEndStamp, goalType, false); 
@@ -1344,7 +1763,7 @@ $( document ).ready(function() {
 	});
 
     function extendActiveGoal(){
-       // console.log("extend that goal");
+       //console.log("extend that goal");
 
         if(json.statistics.goal.activeGoalUse !== 0){
             var goalType = "use";
@@ -1502,7 +1921,7 @@ $( document ).ready(function() {
                 $("#habit-log-heading").show();
 
             }else{
-               // console.log("create log entry of type: '" + "goal" + "' did not display.");
+               //console.log("create log entry of type: '" + "goal" + "' did not display.");
             }
 	}
 
@@ -1570,11 +1989,11 @@ $( document ).ready(function() {
             }else{
                 $(target).prepend(template);
             }	
-        // console.log(json.option.logItemsToDisplay[clickType]);
+        //console.log(json.option.logItemsToDisplay[clickType]);
             //and make sure the heading exists too
             $(target + "-heading").show();
         }else{
-        //  console.log("create log entry of type: '" + clickType + "' did not display.");
+        // console.log("create log entry of type: '" + clickType + "' did not display.");
         }
     }
 
@@ -1662,7 +2081,7 @@ $( document ).ready(function() {
 
         //user wants to extend current goal
         if(goalExtendedTo){
-            console.log("changeGoalStatus param goalExtendedTo set");
+            //console.log("changeGoalStatus param goalExtendedTo set");
            if(mostRecentGoal.goalStamp < goalExtendedTo){
                 //goal was extended, not shortened
                 mostRecentGoal.goalStamp = goalExtendedTo;
@@ -1692,8 +2111,8 @@ $( document ).ready(function() {
 	    	setStorageObject(jsonObject);
         }
 
-            console.log("at the end of change Goal Status, whole object being put in looks like: ");
-            console.log(jsonObject);
+            //console.log("at the end of change Goal Status, whole object being put in looks like: ");
+            //console.log(jsonObject);
 
 	}
 
@@ -1874,7 +2293,7 @@ $( document ).ready(function() {
             //}
                 if(statisticPresent){
                     //hide instructions
-                // console.log("a statistic is present, hide instructions");
+                //console.log("a statistic is present, hide instructions");
                     $("#statistics-content .initial-instructions").hide();
                 }
 
@@ -1886,6 +2305,7 @@ $( document ).ready(function() {
 
                 if(json.option.liveStatsToDisplay.sinceLastSpent == false){
                     $("#cost-content .timer-recepticle").hide();
+                    //console.log("hide timer sinceLastSpent");
                 }
 
                 if(json.option.liveStatsToDisplay.avgBetweenSpent == false){
@@ -1917,6 +2337,7 @@ $( document ).ready(function() {
                 }
                 if(json.option.liveStatsToDisplay.sinceLastDone == false){
                     $("#use-content .timer-recepticle").hide();
+                    //console.log("hide timer - use - if turned off");
                 }
 
                 if(json.option.liveStatsToDisplay.avgBetweenDone == false){
@@ -1968,6 +2389,7 @@ $( document ).ready(function() {
                 if(json.option.liveStatsToDisplay.sinceLastSpent == true){
                     //console.log("about to show cost timer");
                     $("#cost-content .timer-recepticle").show();
+                    $("#cost-content .fibonacci-timer").show();
                 }
 
             }
@@ -2009,7 +2431,8 @@ $( document ).ready(function() {
                 $("#use-total").show();
                 if(json.option.liveStatsToDisplay.sinceLastDone == true){
                     $("#use-content .timer-recepticle").show();
-                   // console.log("about to show use timer");
+                    $("#use-content .fibonacci-timer").show();
+                   //console.log("about to show use timer");
                 }
             }
             
@@ -2075,7 +2498,7 @@ $( document ).ready(function() {
                 
                 //check what the record to be removed - clicktype is
                     var undoneActionClickType = jsonObject["action"][jsonObject["action"].length - 1].clickType;
-                    console.log("undone actions clickType = " + undoneActionClickType);
+                    //console.log("undone actions clickType = " + undoneActionClickType);
 
                  //remove most recent (last) record
 			    	jsonObject["action"].pop();
@@ -2094,7 +2517,7 @@ $( document ).ready(function() {
                             if(currRecord.clickType == "goal" && (currRecord.goalType == "both" || currRecord.goalType == undoneActionClickType)){
                                     //if this first finds a goal which would have been broken by undoneActionClickType, 
                                         //change this.status to active, exit loop 
-                                    console.log("effected goal detected on cycle = " + i);
+                                    //console.log("effected goal detected on cycle = " + i);
                                     changeGoalStatus(1, currRecord.goalType, -1);
                                     break;    
                                 
@@ -2295,8 +2718,6 @@ $( document ).ready(function() {
 		}
 
 
-		
-	
      //SMOKE BUTTONS - START TIMER
             var smokeTimer;
             var boughtTimer;
@@ -2318,6 +2739,8 @@ $( document ).ready(function() {
           $(".navbar-toggler").click();
 
         }
+        initiateReport();
+
 
 	});
 	$(document).delegate("#statistics-tab-toggler", 'click', function(e){
@@ -2366,6 +2789,7 @@ $( document ).ready(function() {
           $(".navbar-toggler").click();
 
         }
+
 	});
 	
 	
@@ -2534,9 +2958,12 @@ $( document ).ready(function() {
                         json.statistics.goal.completedGoals++;
                         $("#numberOfGoalsCompleted").html(json.statistics.goal.completedGoals);
 
-                        showActiveStatistics();
 
                     }
+
+                    
+                    showActiveStatistics();
+
                     //keep lastClickStamp up to date while using app
                     json.statistics.use.lastClickStamp = timestampSeconds;
 
@@ -2772,7 +3199,7 @@ $( document ).ready(function() {
         }, 1000); //end setInterval
             
 		 $("#smoke-timer").addClass("counting");
-		
+         
 	}
 
 	//START BOUGHT TIMER
@@ -2920,6 +3347,7 @@ $( document ).ready(function() {
             
             }, 1000); //end setInterval
      		$("#bought-timer").addClass("counting");
+             $("#bought-timer").show();
 	}
 			
 	//GOAL TIMER	
@@ -2952,7 +3380,8 @@ $( document ).ready(function() {
 						var currTimerSpanValue = $("#"+ timerSection + " .boxes div .timerSpan")[i];
 						if(currTimerSpanValue.innerHTML == "0"){
 							$(currTimerSpanValue).parent().hide();
-							//console.log("dive to hide: " + $(currTimerSpanValue).parent());
+							//console.log("dive to hide: ");
+                            //console.log($(currTimerSpanValue).parent());
 						}else{
 							//console.log("got to " + i + ". now bouta break;");
 							break;
@@ -3354,8 +3783,6 @@ $( document ).ready(function() {
                         
                     createNotification(message, responseTools);
 
-            
-                
                 }else{
                     //keep lastClickStamp up to date while using app
                      json.statistics.goal.lastClickStamp = timestampSeconds;
@@ -3363,15 +3790,11 @@ $( document ).ready(function() {
                     //return to relevant screen
                     $("#statistics-tab-toggler").click();
 
-
                     //set local json goal type which is active
                     var jsonHandle = "activeGoal" + goalType.charAt(0).toUpperCase() + goalType.slice(1);
                     json.statistics.goal[jsonHandle] = 1;
                     
-
                     updateActionTable(timestampSeconds, "goal", "", goalStampSeconds, goalType);
-                    
-                    
                     
                     //convert goalend to days hours minutes seconds
                     var totalSecondsUntilGoalEnd = Math.round(goalStampSeconds - timestampSeconds);
@@ -3382,13 +3805,10 @@ $( document ).ready(function() {
                     showActiveStatistics();
                     adjustFibonacciTimerToBoxes("goal-timer");
 
-
                 }
 
-                
                     closeClickDialog(".goal");
 			
-
 
 			}else{
 				/* user selected a time on today (equal to or) prior to current time */

@@ -51,8 +51,10 @@
   -->
     <link href="../fontawesome/css/all.css" rel="stylesheet" />
 
-
-
+    <!-- CHARTIST 
+      <link rel="stylesheet" href="//cdn.jsdelivr.net/chartist.js/latest/chartist.min.css">
+    -->
+    <link rel="stylesheet" href="../css/chartist.min.css">
 
     <!-- Custom styles for this template -->
     <link href="app.css" rel="stylesheet" />
@@ -279,67 +281,91 @@
                         <div class="row">
                             <div class="col-12">
 
-                                <h2>Weekly Reports</h2>
+                                <h2>Weekly Report</h2>
 
                                 <hr />
 
                                 <div class="week-range">
                                     <!-- Icon left (previous) selector-->
-                                    <button class="btn btn-outline-info">
+                                    <button class="previous-report btn btn-outline-info">
                                         <i class="fas fa-caret-left"></i>
                                     </button>
 
                                     <!-- Current week selected -->
                                     <div class="current-week">
-                                        <div class="start">2/14/2019</div>
-                                        <div class="seperator">&nbsp;-&nbsp;</div>
-                                        <div class="end">2/21/2019</div>
+                                        <div class="start">
+                                            <span id="reportStartDate">2/14/2019</span>
+                                        </div>
+                                        <div class="seperator">&nbsp;&nbsp;-&nbsp;&nbsp;</div>
+                                        <div class="end">
+                                            <span id="reportEndDate">2/21/2019</span>
+                                        </div>
                                     </div>
 
                                     <!-- Icon right (next) selector-->
-                                    <button class="btn btn-outline-info">
+                                    <button class="next-report btn btn-outline-info">
                                         <i class="fas fa-caret-right"></i>
                                     </button>
 
-                                    <!-- Uses and resists PER day - one week-->
+                                    
+                                </div>
+
+                                <div class="bar-chart">
+                                <!-- Uses and resists PER day - one week-->
+                                    <div class="legend">
+                                        <div class="color-descriptor">
+                                            <div class="color primary"></div>
+                                            <label>Uses</label>
+                                        </div>
+                                        <div class="color-descriptor">
+                                            <div class="color secondary"></div>
+                                            <label>Resists</label>
+                                        </div>
+                                    </div> 
+                                    <!-- the bar chart to be called in js-->
                                     <div class="ct-chart"></div>
                                 </div>
+
                                 <div class="report-statistics">
                                     <div class="statistic">
 
 
                                         <div class="percent-changed down">
-                                            <i class="fas fa-caret-down"></i> 15%
+                                            <i class="fas fa-caret-down"></i>
+                                            <span id="useChangeVsLastWeek">&nbsp;&nbsp;15%</span>
                                         </div>
-                                        <label>Uses Vs. last week:</label>
+                                        <label>Done Vs. last week:</label>
 
                                     </div>
                                     <div class="statistic">
 
 
                                         <div class="percent-changed down">
-                                            <i class="fas fa-caret-down"></i> 50%
+                                            <i class="fas fa-caret-down"></i>
+                                            <span id="useChangeVsBaseline">&nbsp;&nbsp;50%</span>
                                         </div>
-                                        <label>Uses Vs. baseline:</label>
+                                        <label>Done Vs. baseline:</label>
 
                                     </div>
                                      
                                     <div class="statistic">
 
                                         <div class="percent-changed up">
-                                            <i class="fas fa-caret-up"></i>&nbsp;&nbsp; 5%
+                                            <i class="fas fa-caret-up"></i>
+                                            <span id="costChangeVsLastWeek">&nbsp;&nbsp;&nbsp;&nbsp;5%</span>
                                         </div>
 
-                                        <label>Amount spent Vs. last week:</label>
+                                        <label>Spent Vs. last week:</label>
 
                                     </div>
                                     <div class="statistic">
 
                                         <div class="percent-changed down">
-                                            <i class="fas fa-caret-down"></i>&nbsp;&nbsp; 7%
+                                            <i class="fas fa-caret-down"></i>
+                                            <span id="costChangeVsBaseline">&nbsp;&nbsp;&nbsp;&nbsp;7%</span>
                                         </div>
 
-                                        <label>Amount spent Vs. baseline:</label>
+                                        <label>Spent Vs. baseline:</label>
 
                                     </div>
 
@@ -347,56 +373,47 @@
 
                                 </div>
                                 <div class="goal-report">
-                                  
-                                    <div class="row">
-                                        <div class="col-6">
-                                          <div class="statistic">
-                                              <label>Uses this week:</label>
-                                          
-                                               <div class="percent-changed up">
-                                                    14
-                                              </div>
-                                            </div>
-                                        </div>
-                                        <div class="col-6">
-                                          <div class="statistic">
-                                              <label>Goal Usage / week:</label>
-                                          
-                                               <div class="percent-changed">
-                                                    5
-                                              </div>
-                                            </div>
-                                        </div>
-
-                                     
-
-                                    </div>
-                                    <div class="row">
-                                        <div class="col-6">
-                                          <div class="statistic">
-                                              <label>Spent this week:</label>
-                                          
-                                               <div class="percent-changed up">
-                                                    10$
-                                              </div>
-                                            </div>
-                                        </div>
-                                        <div class="col-6">
-                                          <div class="statistic">
-                                              <label>Goal Usage / week:</label>
-                                          
-                                               <div class="percent-changed">
-                                                    0$
-                                              </div>
-                                            </div>
-                                        </div>
-
-                                     
-
-                                    </div>
-
-
-
+                                    <table class="table">
+                                        <thead>
+                                            <tr>
+                                                <th scope="col"></th>
+                                                <th scope="col">Goal / Week</th>
+                                                <th scope="col">This Week</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            <tr>
+                                                <th scope="row">Done</th>
+                                                <td>
+                                                    
+                                                    <span id="goalDonePerWeek" class="amount-changed goal">
+                                                        5
+                                                    </span>
+                                                </td>
+                                                <td>
+                                                    <span id="actualDoneThisWeek" class="amount-changed up">
+                                                            14
+                                                    </span>
+                                                </td>
+                                            </tr>
+                                            <tr>
+                                                <th scope="row">Spent</th>
+                                                <td>
+                                                    <span id="goalSpentPerWeek" class="amount-changed goal">
+                                                        0$
+                                                    </span>
+                                                </td>
+                                                <td>
+                                                    
+                                                    <span id="actualSpentThisWeek" class="amount-changed up">
+                                                        10$
+                                                    </span>
+                                                </td>
+                                            </tr>
+                                            
+                                        </tbody>
+                                    </table>
+                                   
                                 </div>
 
 
@@ -1195,6 +1212,11 @@
     ></script>
     -->
         <script src="../js/bootstrap.min.js"></script>
+
+    <!-- CHARTIST 
+        <script src="//cdn.jsdelivr.net/chartist.js/latest/chartist.min.js"></script>
+    -->
+        <script src="../js/chartist.min.js"></script>
 
 
         <script type="application/javascript" src="app.js"></script>

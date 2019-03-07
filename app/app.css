@@ -19,6 +19,7 @@ a:hover, a:focus{
 }
 h2{
 		font-size: 2rem;
+        text-align: center;
 }
 
 h3{
@@ -98,7 +99,7 @@ h4{
 
 .hamburger{
 	float: right;
-	width: 85px;
+	width: 70px;
 }
 
 .hamburger .navbar-toggler{
@@ -109,7 +110,8 @@ h4{
     height: 50px;
 }
 .navbar{
-    padding: .5rem 1rem 0rem 1rem;
+    padding: 0px;
+    padding-top:5px;
 }
 #options-navbar{
     width: 100%;
@@ -170,7 +172,7 @@ h4{
 .navbar-header{
     display: inline-flex;
     max-height:85px;
-    padding-top:10px;
+    padding-top:5px;
 }
 .navbar-header .button-group {
     display:inline-block;
@@ -262,12 +264,17 @@ h4{
 
 /* REPORTS */
 
+
+
     .weekly-report-template .week-range{
 		display:flex;
 		align-items:center;
-		justify-content:space-between;
+		justify-content:space-evenly;
 		margin-top:25px;
 		margin-bottom:25px;
+	}
+    .weekly-report-template .week-range .btn{
+		margin-bottom:0px;
 	}
 	
 	.weekly-report-template .week-range button,
@@ -277,35 +284,101 @@ h4{
 	.weekly-report-template .week-range .current-week > div{
 		display:inline-block
 	}
-	
-	
-	.report-statistics .statistic{
-		margin-top:15px;
-		margin-bottom:15px;
-	}
-	
-	.report-statistics .statistic label,
-	.report-statistics .statistic .percent-changed{
-		float:right;
-	}
-	
-	.report-statistics .statistic label{
-		color: #D6D6D6;
-		padding-right:15px;
-	
-	}
-	.report-statistics .statistic .percent-changed{
-		
-		clear:right;
-	}
-	.weekly-report-template .statistic .percent-changed.down{
-		color: #28a745;
-	}
-	.weekly-report-template .statistic .percent-changed.up{
-		color: #dc3545;
-	}
-	
 
+    /* BAR CHART */
+
+        .bar-chart .legend{
+            display: flex;
+            justify-content: center;
+        }
+
+        .bar-chart .legend .color-descriptor{
+            padding:0px 10px;
+        }
+
+        .bar-chart .legend .color-descriptor label{
+            display:inline-block;
+            margin-bottom: 0px;
+        }
+
+        .bar-chart .legend .color{
+            height:15px;
+            width:15px;
+            display: inline-block;
+            
+        }
+        .bar-chart .legend .color.primary{
+            background:#d70206;
+
+        }
+        .bar-chart .legend .color.secondary{
+            background: #f05b4f;
+        }
+
+
+    /* bottom statistics */
+        .report-statistics{
+            display: inline-block;
+            width: 100%;
+            padding-right: 25px;
+        }
+        
+        .report-statistics .statistic{
+            margin-top:15px;
+            margin-bottom:15px;
+        }
+        
+        .report-statistics .statistic label,
+        .report-statistics .statistic .percent-changed{
+            float:right;
+        }
+        
+        .report-statistics .statistic label{
+            color: grey;
+            padding-right:15px;
+        
+        }
+        .report-statistics .statistic .percent-changed{
+            
+            clear:right;
+        }
+        .weekly-report-template .statistic .percent-changed.down{
+            color: #28a745;
+        }
+        .weekly-report-template .statistic .percent-changed.up{
+            color: #dc3545;
+        }
+        
+        .weekly-report-template .goal-report{
+            margin-top: 20px;
+            clear:both;
+        }
+        .weekly-report-template .goal-report .row{
+            padding: 20px 0px;
+        }
+        .weekly-report-template .goal-report .amount-changed{
+            font-weight: 600;
+        } 
+        .weekly-report-template .goal-report .amount-changed.down{
+            color: #28a745;
+        }
+        .weekly-report-template .goal-report .amount-changed.up{
+            color: #dc3545;
+        }
+
+    /* goal report table */
+        .goal-report table{
+            padding-top:20px;
+        }
+
+        .goal-report th{
+            color:grey;
+            font-weight: 500;
+        }
+        .goal-report thead th,
+        .goal-report td{
+            text-align: center;
+        }
 
 
 /* STATISTICS */
