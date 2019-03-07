@@ -529,7 +529,7 @@ $( document ).ready(function() {
 					//NEEEWWWWW USERRR
 					if((useCount == 0 && craveCount == 0 && boughtCount == 0 && goalCount == 0) &&
                         (json.baseline.specificSubject == "false")){
-						var introMessage = "<b>Welcome to esCrave</b> - the anonymous habit tracking app that shows you statistics about any habit as you record data about it!";
+						var introMessage = "<b>Back again?</b> - Try clicking some stuff! You can undo anything from the settings page.";
 						createNotification(introMessage);
 					}else{
                         //populate habit log with all actions
@@ -2833,6 +2833,13 @@ $( document ).ready(function() {
 
             hideInactiveStatistics();
             //console.log("hiding inactive use");
+
+            //location.reload();
+            $("#reports-tab-toggler").click();
+            
+            //ABSOLUTE NEW USER
+            var introMessage = "<b>Welcome to esCrave</b> - the anonymous habit tracking app that shows you statistics about any habit as you record data about it!";
+			    createNotification(introMessage);
     }
 	
 		
