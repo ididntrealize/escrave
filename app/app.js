@@ -125,6 +125,8 @@ $( document ).ready(function() {
                     "baseline":
                         {
                             "specificSubject": false,
+                            "useStatsIrrelevant": false,
+                            "costStatsIrrelevant": false,
                             "amountDonePerWeek": 0,
                             "goalDonePerWeek": 0,
                             "amountSpentPerWeek": 0,
@@ -254,6 +256,17 @@ $( document ).ready(function() {
                            //console.log("on start, goalDone gets a value");
                                 $("input.goalDonePerWeek").val(parseInt(json.baseline.goalDonePerWeek, 10));
                                 $("input.goalDonePerWeek").prop('disabled', true);
+                        }
+
+                        //recheck Not Applicable boxes
+                        if(json.baseline.useStatsIrrelevant == true){
+                            $("#amountDonePerWeekNA").prop('checked', true);
+                            $("#goalDonePerWeekNA").prop('checked', true);
+                        }
+                        if(json.baseline.costStatsIrrelevant === true){
+                            $("#amountSpentPerWeekNA").prop('checked', true);
+                            $("#goalSpentPerWeekNA").prop('checked', true);
+                            
                         }
                                         
 
@@ -1082,6 +1095,7 @@ $( document ).ready(function() {
                         if($("#amountSpentPerWeekNA").is(":checked") || $("#goalSpentPerWeekNA").is(":checked") ){
 
                                 //JSON
+                                        json.baseline.costStatsIrrelevant = true;
                                     //baseline spent / week
                                         json.baseline.amountSpentPerWeek = false;
                                     //goal spend / week
@@ -1104,6 +1118,7 @@ $( document ).ready(function() {
                                         
 
                                 //localstorage
+                                        jsonObject.baseline.costStatsIrrelevant = true;
                                     //baseline spent / week
                                         jsonObject.baseline.amountSpentPerWeek = false;
                                     //goal spend / week
@@ -1158,6 +1173,7 @@ $( document ).ready(function() {
                         if($("#amountDonePerWeekNA").is(":checked") || $("#goalDonePerWeekNA").is(":checked") ){
                             //toggle spent statistics (likely they are not useful)
                             //json 
+                                    json.baseline.useStatsIrrelevant = true;
                                 //baseline done / week
                                     json.baseline.amountDonePerWeek = false;
                                 //goal done / week
@@ -1179,6 +1195,7 @@ $( document ).ready(function() {
                                     json.option.reportItemsToDisplay = useGoalVsThisWeek = false;
 
                             //LOCAL STORAGE
+                                    jsonObject.baseline.useStatsIrrelevant = true;
                             //baseline done / week
                                     jsonObject.baseline.amountDonePerWeek = false;
                                 //goal done / week
@@ -2725,10 +2742,30 @@ $( document ).ready(function() {
 
 
 	/*Actions on switch tab */
-	$(document).delegate("#reports-tab-toggler", 'click', function(e){
+    $(document).delegate("#baseline-tab-toggler", 'click', function(e){
 		saveActiveTab();
         $("#settings-tab-toggler").removeClass("active");
-         $("#statistics-tab-toggler").removeClass("active");
+        $("#statistics-tab-toggler").removeClass("active");
+        $("#reports-tab-toggler").removeClass("active");
+		//console.log('reports tab clicked - code to generate reports here');
+
+        //insert code here to generate most recent report
+
+        //close dropdown nav
+        if($("#options-collapse-menu").hasClass("show")){
+            
+          $(".navbar-toggler").click();
+
+        }
+        initiateReport();
+
+
+	});
+	$(document).delegate("#reports-tab-toggler", 'click', function(e){
+		saveActiveTab();
+        $("#baseline-tab-toggler").removeClass("active");
+        $("#settings-tab-toggler").removeClass("active");
+        $("#statistics-tab-toggler").removeClass("active");
 		//console.log('reports tab clicked - code to generate reports here');
 
         //insert code here to generate most recent report
@@ -2762,6 +2799,7 @@ $( document ).ready(function() {
 
 			},0);
 
+        $("#baseline-tab-toggler").removeClass("active");
 		$("#settings-tab-toggler").removeClass("active");
          $("#reports-tab-toggler").removeClass("active");
 
@@ -2778,6 +2816,8 @@ $( document ).ready(function() {
 	$(document).delegate("#settings-tab-toggler", 'click', function(e){
 		
 		saveActiveTab();
+        
+        $("#baseline-tab-toggler").removeClass("active");
          $("#reports-tab-toggler").removeClass("active");
          $("#statistics-tab-toggler").removeClass("active");
 
@@ -2801,6 +2841,25 @@ $( document ).ready(function() {
     //dump stats
     //console.log(json);
 
+    //detect if there are new jsonObject elements needed
+    /*overwrite options, baseline, report
+            var jsonObject = retrieveStorageObject();
+
+            var jsonObjectExtention = "";
+
+            if(jsonObject.hasOwnProperty("baseline")){
+                console.log("localstorage has baseline");
+
+            }else{
+
+            }
+
+            if(jsonObject.baseline.hasOwnProperty("useStatsIrrelevant")){
+                console.log("localstorage has useStatsIrrelevant");
+
+            }
+    */
+
     //set stats	
         //set total clicks for each button
         $("#use-total").html(json.statistics.use.clickCounter);
@@ -2823,8 +2882,8 @@ $( document ).ready(function() {
             //empty action table
             //basic stat display settings option table
         var newJsonString = '{ "action": [], ' +
-                            '  "baseline": {"specificSubject":"false", "amountDonePerWeek":"0","goalDonePerWeek":"0","amountSpentPerWeek":"0","goalSpentPerWeek":"0"},' + 
-                            '  "option": { "activeTab" : "reports-content",' +
+                            '  "baseline": {"specificSubject":"false", "useStatsIrrelevant": "false", "costStatsIrrelevant": "false", "amountDonePerWeek":"0","goalDonePerWeek":"0","amountSpentPerWeek":"0","goalSpentPerWeek":"0"},' + 
+                            '  "option": { "activeTab" : "baseline-content",' +
                                           '"liveStatsToDisplay" : {"untilGoalEnd": true, "longestGoal": true, "sinceLastDone": true, "avgBetweenDone": true, "didntPerDid": true, "resistedInARow": true, "sinceLastSpent": true,"avgBetweenSpent": true, "totalSpent": true, "currWeekSpent": true, "currMonthSpent": true, "currYearSpent": true},' + 
                                           '"logItemsToDisplay" : {"goal": true, "used": true, "craved": true,	"bought": true},' + 
                                           '"reportItemsToDisplay" : {	"useChangeVsBaseline": false, "useChangeVsLastWeek": true, "costChangeVsBaseline": false, "costChangeVsLastWeek": true, "useGoalVsThisWeek": false, "costGoalVsThisWeek": false}' + 
@@ -2838,7 +2897,7 @@ $( document ).ready(function() {
             $("#reports-tab-toggler").click();
             
             //ABSOLUTE NEW USER
-            var introMessage = "<b>Welcome to esCrave</b> - the anonymous habit tracking app that shows you statistics about any habit as you record data about it!";
+            var introMessage = "<b>Welcome to Escrave</b> - the anonymous habit tracking app that shows you statistics about any habit as you record data about it!";
 			    createNotification(introMessage);
     }
 	
@@ -3016,7 +3075,6 @@ $( document ).ready(function() {
 
         }); //end bought-button click handler
     
-
 	//START USED TIMER		
 	function initiateSmokeTimer(){
 		//USE TIMER
@@ -3205,8 +3263,9 @@ $( document ).ready(function() {
         
         }, 1000); //end setInterval
             
-		 $("#smoke-timer").addClass("counting");
-         
+		$("#smoke-timer").addClass("counting");
+        $("#smoke-timer").show();
+    
 	}
 
 	//START BOUGHT TIMER
@@ -3354,7 +3413,7 @@ $( document ).ready(function() {
             
             }, 1000); //end setInterval
      		$("#bought-timer").addClass("counting");
-             $("#bought-timer").show();
+            $("#bought-timer").show();
 	}
 			
 	//GOAL TIMER	
@@ -3704,7 +3763,6 @@ $( document ).ready(function() {
 			*/
 
 		}	
-
 
 		//Restrict possible dates chosen in goal tab datepicker
 		//restrictGoalRange();
