@@ -174,7 +174,7 @@ $( document ).ready(function() {
                         {
                             "minEndStamp" : 0,
                             "activeEndStamp" : 0,
-                            "maxEndStamp" : 0
+                            "maxEndStamp" : 0,
                         }
 
 				};
@@ -279,7 +279,6 @@ $( document ).ready(function() {
 
 
 			}
-
 
         //SET STATS FROM STORAGE
         //get data from storage and convert to working json object
@@ -542,8 +541,11 @@ $( document ).ready(function() {
 					//NEEEWWWWW USERRR
 					if((useCount == 0 && craveCount == 0 && boughtCount == 0 && goalCount == 0) &&
                         (json.baseline.specificSubject == "false")){
-						var introMessage = "<b>Back again?</b> - Try clicking some stuff! You can undo anything from the settings page.";
-						createNotification(introMessage);
+						var introMessage = "<b>Welcome back!</b> - Try clicking some stuff this time! You can undo anything in the settings:";
+						var responseTools = '<button class="btn btn-md btn-outline-info clear-notification" onClick="$(\'#settings-tab-toggler\').click();">' + 
+                                                                "App Settings</button>";
+                        
+                        createNotification(introMessage, responseTools);
 					}else{
                         //populate habit log with all actions
 
@@ -615,6 +617,7 @@ $( document ).ready(function() {
                     
 							
 			}
+
          //create object of weeks values from the end date timestamp
         function calculateReportValues(reportEndStamp){
             
@@ -734,40 +737,67 @@ $( document ).ready(function() {
         }
 
         function initiateReport(){
-                var jsonObject = retrieveStorageObject();
-				
-				//retrieve curr date for time relevant stats
-				var timeNow = Math.round(new Date()/1000);
-                    //REPORTS!!!
-                    //is there ANY data??
-                        if(jsonObject["action"].length){
-                            //is there at least a week of data? 
-                                    var firstStamp = jsonObject.action[0].timestamp;
-                            //console.log(firstStamp);
+            var jsonObject = retrieveStorageObject();
+            
+            //retrieve curr date for time relevant stats
+            var timeNow = Math.round(new Date()/1000);
+                //REPORTS!!!
+                //is there ANY data??
+                    if(jsonObject["action"].length){
+                        //is there at least a week of data? 
+                                var firstStamp = jsonObject.action[0].timestamp;
+                        //console.log(firstStamp);
+                            
+                        if((timeNow - firstStamp) >= (60*60*24*7)){
+                            
+                            //calculate values for report
+                                var reportEndStamp = firstStamp;
+                            //as long as latest endStamp is < a week before the most recent timestamp taken,
+                            //add a week - to find interval of 7 since FIRST stamp    
+                                while(reportEndStamp <= (timeNow - (60*60*24*7))){
+                                    //add a week 
+                                    reportEndStamp = parseInt(reportEndStamp) + (60*60*24*7);
+                                }
+
+                            //define parameters for report ranges
+                                json.report.minEndStamp = parseInt(firstStamp) + (60*60*24*7);
+                                json.report.maxEndStamp = parseInt(reportEndStamp) + (60*60*24*7);
+
+                            //show most recent report
+                                createReport(calculateReportValues(reportEndStamp));
+
+                            //hide report description
+                                $(".weekly-report-description").hide();
+
+                            /* Notify user of new report? */
+                                //find any data made in past report range
+                                    var reportRangeActions = jsonObject.action.filter(function(e){
+                                        return e.timestamp >= parseInt(reportEndStamp) - (60*60*24*7)
+                                            && e.timestamp <  parseInt(reportEndStamp)
+                                    });
+
+                                //find any action taken since report made possible
+                                    var actionsSinceReportEnd = jsonObject.action.filter(function(e){
+                                        return e.timestamp > parseInt(reportEndStamp)
+                                    });
+
                                 
-                            if((timeNow - firstStamp) >= (60*60*24*7)){
-                                
-                                //calculate values for report
-                                    var reportEndStamp = firstStamp;
-                                //as long as latest endStamp is < a week before the most recent timestamp taken,
-                                //add a week - to find interval of 7 since FIRST stamp    
-                                    while(reportEndStamp <= (timeNow - (60*60*24*7))){
-                                        //add a week 
-                                        reportEndStamp = parseInt(reportEndStamp) + (60*60*24*7);
+                                //if any action taken since report could be generated, 
+                                    //follows that the report end notification was seen.
+                                //and, only notify user if there was something in that report
+
+                                // console.log("reportRangeActions.length = " + reportRangeActions.length + "\nactionsSinceReportEnd.length = " + actionsSinceReportEnd.length);
+
+                                    if(!(actionsSinceReportEnd.length) && reportRangeActions.length ){
+                                        //createNotification();
+                                        var message = "A new report is available about the previous week's data about your habit!";
+                                        var responseTools = '<button class="btn btn-md btn-outline-info clear-notification" onClick="$(\'#reports-tab-toggler\').click();">' + 
+                                                                    "Review your progress</button>";
+
+                                        createNotification(message, responseTools);
                                     }
-
-                                //define parameters for report ranges
-                                    json.report.minEndStamp = parseInt(firstStamp) + (60*60*24*7);
-                                    json.report.maxEndStamp = parseInt(reportEndStamp) + (60*60*24*7);
-
-                                //show most recent report
-                                    createReport(calculateReportValues(reportEndStamp));
-
-                                //if (most recent report not viewed && action.timeStamp within report range)
-                                    //createNotification();
-
-                            }
                         }
+                    }
         }
 
 
@@ -921,6 +951,11 @@ $( document ).ready(function() {
                                 }
                     }else{
                             $("#goalSpentPerWeek").parent().parent().hide();
+                        }
+
+            //remove table headers given case of nothing to be displayed in table
+                        if(!(json.option.reportItemsToDisplay.useGoalVsThisWeek) && !(json.option.reportItemsToDisplay.costGoalVsThisWeek)){
+                            $(".goal-report thead").hide();
                         }
 
 
@@ -1501,61 +1536,61 @@ $( document ).ready(function() {
                     });	
     }
 
-    function swipeNotification(){   
-            document.addEventListener('touchstart', handleTouchStart, false);        
-            document.addEventListener('touchmove', handleTouchMove, false);
+        function swipeNotification(){   
+                document.addEventListener('touchstart', handleTouchStart, false);        
+                document.addEventListener('touchmove', handleTouchMove, false);
 
-            var xDown = null;                                                        
-            var yDown = null;
+                var xDown = null;                                                        
+                var yDown = null;
 
-            function getTouches(evt) {
-            return evt.touches ||             // browser API
-                    evt.originalEvent.touches; // jQuery
-            };                                            
+                function getTouches(evt) {
+                return evt.touches ||             // browser API
+                        evt.originalEvent.touches; // jQuery
+                };                                            
 
-            function handleTouchStart(evt) {
-                const firstTouch = getTouches(evt)[0];                                      
-                xDown = firstTouch.clientX;                                      
-                yDown = firstTouch.clientY;                                      
-            };                                                
+                function handleTouchStart(evt) {
+                    const firstTouch = getTouches(evt)[0];                                      
+                    xDown = firstTouch.clientX;                                      
+                    yDown = firstTouch.clientY;                                      
+                };                                                
 
-            function handleTouchMove(evt) {
-                if ( ! xDown || ! yDown ) {
-                    return;
-                }
+                function handleTouchMove(evt) {
+                    if ( ! xDown || ! yDown ) {
+                        return;
+                    }
 
-                var xUp = evt.touches[0].clientX;                                    
-                var yUp = evt.touches[0].clientY;
+                    var xUp = evt.touches[0].clientX;                                    
+                    var yUp = evt.touches[0].clientY;
 
-                var xDiff = xDown - xUp;
-                var yDiff = yDown - yUp;
+                    var xDiff = xDown - xUp;
+                    var yDiff = yDown - yUp;
 
-                if ( Math.abs( xDiff ) > Math.abs( yDiff ) ) {/*most significant*/
-                    if ( xDiff > 0 ) {
-                        /* left swipe */ 
-                        var selectedElem = document.elementFromPoint(xUp, yUp);
-                        if($(selectedElem).parents('.notification').length){
-                            //console.log("got class");
-                            clearNotification.call(event, selectedElem, "left"); 
-                        }
+                    if ( Math.abs( xDiff ) > Math.abs( yDiff ) ) {/*most significant*/
+                        if ( xDiff > 0 ) {
+                            /* left swipe */ 
+                            var selectedElem = document.elementFromPoint(xUp, yUp);
+                            if($(selectedElem).parents('.notification').length){
+                                //console.log("got class");
+                                clearNotification.call(event, selectedElem, "left"); 
+                            }
 
-                    } else {
-                        /* right swipe */
-                        var selectedElem = document.elementFromPoint(xUp, yUp);
-                        if($(selectedElem).parents('.notification').length){
-                            //console.log("got class");
-                            clearNotification.call(event, selectedElem, "right"); 
-                        }
-                    }                       
-                } 
+                        } else {
+                            /* right swipe */
+                            var selectedElem = document.elementFromPoint(xUp, yUp);
+                            if($(selectedElem).parents('.notification').length){
+                                //console.log("got class");
+                                clearNotification.call(event, selectedElem, "right"); 
+                            }
+                        }                       
+                    } 
 
-                /* reset values */
-                xDown = null;
-                yDown = null;                                             
-            }; 
+                    /* reset values */
+                    xDown = null;
+                    yDown = null;                                             
+                }; 
 
-    }
-    swipeNotification();
+        }
+        swipeNotification();
 
 	function createNotification(message, responseTools){
 		var template =  '<div class="notification" style="left:600px;">' + 
@@ -1578,312 +1613,322 @@ $( document ).ready(function() {
 
 	}
 
-	function highlightNotification(){
-		//find last notification appended to container
+        function highlightNotification(){
+            //find last notification appended to container
 
-			$($(".notification")[$(".notification").length - 1]).animate({
-						left: 0
-			},300);
+                $($(".notification")[$(".notification").length - 1]).animate({
+                            left: 0
+                },300);
 
-			setTimeout(function(){	
-				$($(".notification")[$(".notification").length - 1]).addClass("rotate-left");
-				
-				setTimeout(function(){
-					$($(".notification")[$(".notification").length - 1]).removeClass("rotate-left");
-					$($(".notification")[$(".notification").length - 1]).addClass("rotate-right");
-				
-					setTimeout(function(){
-						$($(".notification")[$(".notification").length - 1]).removeClass("rotate-right");
-			
-					}, 300);
-				}, 300);
-			}, 300);	
+                setTimeout(function(){	
+                    $($(".notification")[$(".notification").length - 1]).addClass("rotate-left");
+                    
+                    setTimeout(function(){
+                        $($(".notification")[$(".notification").length - 1]).removeClass("rotate-left");
+                        $($(".notification")[$(".notification").length - 1]).addClass("rotate-right");
+                    
+                        setTimeout(function(){
+                            $($(".notification")[$(".notification").length - 1]).removeClass("rotate-right");
+                
+                        }, 300);
+                    }, 300);
+                }, 300);	
 
-	}
-
-	function createGoalEndNotification(goalHandle){
-
-			var goalType = goalHandle.goalType,
-			goalTypeGerund= "";
-			if(goalType == "use"){
-				goalTypeGerund = "doing";
-				goalType = "did";
-			}else if (goalType == "bought"){
-				goalTypeGerund = "buying";
-			}else if (goalType == "both"){
-				goalTypeGerund = "buying and doing";
-			}
-
-		var message = 'Your most recent goal ended since your last visit. ' +
-						'Did you make it without ' + goalTypeGerund + ' it?';
-		var responseTools = 
-					'<button class="notification-response-tool goal-ended-on-time" href="#" >' + 
-					'Yes</button>' + 
-					'<button class="notification-response-tool goal-ended-early" href="#">' + 
-					'No</button>';
-		
-		createNotification(message, responseTools);
-
-	}
-
-
-/* Notification button events */
-
-	$('#notifications-container').on('click', '.notification-close', function(event){
-		clearNotification.call(event, this); 
-	});
-
-	$('#notifications-container').on('click', '.notification-response-tool', function(event){
-		
-		//need these variables: startStamp, endStamp, goalType
-			//convert localStorage to json
-			var currJsonString = localStorage.esCrave;
-			var jsonObject = JSON.parse(currJsonString);
-
-			//return active goal
-			var activeGoals = jsonObject.action.filter(function(e){ 
-				return e.clickType == "goal" && e.status == 1;
-			});	
-
-			var mostRecentGoal = activeGoals[activeGoals.length-1];
-
-			//grab relevant data from object
-			var startStamp = mostRecentGoal.timestamp,
-				endStamp = mostRecentGoal.goalStamp,
-				goalType = mostRecentGoal.goalType;
-
-		//your last goal has finished, was it successful?
-			//yes
-			if($(this).hasClass("goal-ended-on-time")){
-                        
-                        //this is to just shoot the goal straight through the pipeline
-							clearNotification.call(event, this); 
-
-							placeGoalIntoLog(startStamp, endStamp, goalType, false);
-							
-							var message = "Congrats on completing your goal! " + 
-									"It's been added to the your goal tab";
-							createNotification(message);
-							
-							changeGoalStatus(3, goalType);
-                       
-                    /*
-                        //this is to prompt the goal to extend! ask if if user wants to extend goal
-                        clearNotification.call(event, this); 
-
-                        var message = "Congrats on completing your goal! Would you like to extend it?";
-                        var responseTools = 
-                            '<button class="notification-response-tool extend-goal" href="#" >' + 
-                            'Yes</button>' + 
-                            '<button class="notification-response-tool end-goal" href="#">' + 
-                            'No</button>';
-                            
-                            
-                        createNotification(message, responseTools);
-                    */
-			//no
-			}else if($(this).hasClass("goal-ended-early")){
-							clearNotification.call(event, this); 
-						
-							var now = Math.round(new Date()/1000);
-
-							var min = new Date(parseInt(startStamp)).getTime();
-							var max = new Date(parseInt(endStamp)).getTime();
-
-							var	minFormatted = Math.floor((now - min) / 86400),
-								maxFormatted = Math.floor((now - max) / 86400);
-								
-								if(minFormatted == 0){
-									minFormatted = "-" + (minFormatted);
-								}else{
-                                   minFormatted = (minFormatted * -1);
-                                }
-
-								if(maxFormatted == 0){
-									maxFormatted = "-" + (maxFormatted);
-								}else{
-                                    maxFormatted = (maxFormatted * -1);
-                                }
-                                //console.log("minFormatted = " + minFormatted + "\nmaxFormatted = " + maxFormatted);
-								
-								
-							var message = "Even though you didn't make it until the end, you still get credit for how long you waited. " + 
-									"Around when do you think you broke your goal?";
-				
-							var responseTools = '<!-- custom Time picker-->' +
-									'<div id="goalEndTimePicker" class="time-picker-container">' +
-										'<select class="time-picker-hour" data-min="0" data-max="23" data-step="1">' +
-											'<option value="0">12</option>' +
-											'<option value="1">1</option>' +
-											'<option value="2">2</option>' +
-											'<option value="3">3</option>' +
-											'<option value="4">4</option>' +
-											'<option value="5">5</option>' +
-											'<option value="6">6</option>' +
-											'<option value="7">7</option>' +
-											'<option value="8">8</option>' +
-											'<option value="9">9</option>' +
-											'<option value="10">10</option>' +
-											'<option value="11">11</option>' +
-										'</select>' +
-										'<select class="time-picker-am-pm">' +
-												'<option value="AM">AM</option>' +
-												'<option value="PM">PM</option>' +
-										'</select>' +
-									'</div>' +
-								'<div id="datepicker-notification" style="display:inline-block;"></div>' +
-								'<script type="text/javascript">' + 
-									'$( "#datepicker-notification" ).datepicker({ minDate:' + minFormatted+ ', maxDate:' + maxFormatted + '});' +
-									'var currHours = new Date().getHours();' +
-									'$("#goalEndTimePicker .time-picker-hour").val(currHours%12);' +
-									'if(currHours>=12){ $("#goalEndTimePicker .time-picker-am-pm").val("PM"); }' +
-								'</script><br/>' +
-								'<button class="notification-response-tool submit-new-goal-time" href="#" >' + 
-										
-								'Submit</button>';
-							
-							createNotification(message, responseTools);
-
-
-			}
-
-		//if goal ended ahead of schedule, when did it end?
-			//submitted new date/time
-			if($(this).hasClass("submit-new-goal-time")){
-
-
-							var tempEndStamp = convertDateTimeToTimestamp('#datepicker-notification', '#goalEndTimePicker' ); 
-                            //console.log(tempEndStamp);
-								if(tempEndStamp - startStamp  > 0 || endStamp  - tempEndStamp < 0){
-									changeGoalStatus(2, goalType, tempEndStamp);
-									placeGoalIntoLog(startStamp, tempEndStamp, goalType, false); 
-									
-									clearNotification.call(event, this); 
-
-
-								}else{
-									alert('Please choose a time within your goal range!');
-								}
-			}
-
-
-	});
-
-    $('#notifications-container').on('click', '.extend-goal', function(event){
-        clearNotification.call(event, this); 
-		extendActiveGoal();
-	});
-
-    $('#notifications-container').on('click', '.end-goal', function(event){
-        clearNotification.call(event, this); 
-		endActiveGoal();
-	});
-
-    function extendActiveGoal(){
-       //console.log("extend that goal");
-
-        if(json.statistics.goal.activeGoalUse !== 0){
-            var goalType = "use";
-        
-        }else if(json.statistics.goal.activeGoalBought !== 0){
-            var goalType = "bought";
-    
-        }else if(json.statistics.goal.activeGoalBoth !==0){
-            var goalType = "both";
-        
         }
 
-            var requestedGoalEnd = $('#goalEndPicker').datepicker({
-                dateFormat: 'yy-mm-dd'
-            }).val();
+        function createGoalEndNotification(goalHandle){
+
+                var goalType = goalHandle.goalType,
+                goalTypeGerund= "";
+                if(goalType == "use"){
+                    goalTypeGerund = "doing";
+                    goalType = "did";
+                }else if (goalType == "bought"){
+                    goalTypeGerund = "buying";
+                }else if (goalType == "both"){
+                    goalTypeGerund = "buying and doing";
+                }
+
+            var message = 'Your most recent goal ended since your last visit. ' +
+                            'Did you make it without ' + goalTypeGerund + ' it?';
+            var responseTools = 
+                        '<button class="notification-response-tool goal-ended-on-time" href="#" >' + 
+                        'Yes</button>' + 
+                        '<button class="notification-response-tool goal-ended-early" href="#">' + 
+                        'No</button>';
             
-        var goalStampSeconds = Math.round(new Date(requestedGoalEnd).getTime() / 1000);
+            createNotification(message, responseTools);
 
-        changeGoalStatus(1, goalType, false, goalStampSeconds);
+        }
 
-    }
 
-    function endActiveGoal(){
-            //console.log("end that goal - start a new one");
+    /* Notification button events */
 
-            var date = new Date();
-            var timestampSeconds = Math.round(date/1000);
+        $('#notifications-container').on('click', '.notification-close, .clear-notification', function(event){
+            clearNotification.call(event, this); 
+        });
 
-            if(json.statistics.goal.activeGoalUse !== 0){
-                var goalType = "use";
-                json.statistics.goal.activeGoalUse = 0;
+        $('#notifications-container').on('click', '.notification-response-tool', function(event){
             
-            }else if(json.statistics.goal.activeGoalBought !== 0){
-                var goalType = "bought";
-                json.statistics.goal.activeGoalBought = 0;
-        
-            }else if(json.statistics.goal.activeGoalBoth !==0){
-                var goalType = "both";
-                json.statistics.goal.activeGoalBoth = 0;
+            //need these variables: startStamp, endStamp, goalType
+                //convert localStorage to json
+                var currJsonString = localStorage.esCrave;
+                var jsonObject = JSON.parse(currJsonString);
+
+                //return active goal
+                var activeGoals = jsonObject.action.filter(function(e){ 
+                    return e.clickType == "goal" && e.status == 1;
+                });	
+
+                var mostRecentGoal = activeGoals[activeGoals.length-1];
+
+                //grab relevant data from object
+                var startStamp = mostRecentGoal.timestamp,
+                    endStamp = mostRecentGoal.goalStamp,
+                    goalType = mostRecentGoal.goalType;
+
+            //your last goal has finished, was it successful?
+                //yes
+                if($(this).hasClass("goal-ended-on-time")){
+                            
+                            //this is to just shoot the goal straight through the pipeline
+                                clearNotification.call(event, this); 
+
+                                placeGoalIntoLog(startStamp, endStamp, goalType, false);
+                                
+                                var message = "Congrats on completing your goal! " + 
+                                        "It's been added to the your goal tab";
+                                createNotification(message);
+                                
+                                changeGoalStatus(3, goalType);
+
+                            //update json about if there's an active goal
+                                json.statistics.goal.activeGoalBoth = 0;
+                                json.statistics.goal.activeGoalUse = 0;
+                                json.statistics.goal.activeGoalBought = 0;
+                        
+                        /*
+                            //this is to prompt the goal to extend! ask if if user wants to extend goal
+                            clearNotification.call(event, this); 
+
+                            var message = "Congrats on completing your goal! Would you like to extend it?";
+                            var responseTools = 
+                                '<button class="notification-response-tool extend-goal" href="#" >' + 
+                                'Yes</button>' + 
+                                '<button class="notification-response-tool end-goal" href="#">' + 
+                                'No</button>';
+                                
+                                
+                            createNotification(message, responseTools);
+                        */
+                //no
+                }else if($(this).hasClass("goal-ended-early")){
+                                clearNotification.call(event, this); 
+                            
+                                var now = Math.round(new Date()/1000);
+
+                                var min = new Date(parseInt(startStamp)).getTime();
+                                var max = new Date(parseInt(endStamp)).getTime();
+
+                                var	minFormatted = Math.floor((now - min) / 86400),
+                                    maxFormatted = Math.floor((now - max) / 86400);
+                                    
+                                    if(minFormatted == 0){
+                                        minFormatted = "-" + (minFormatted);
+                                    }else{
+                                    minFormatted = (minFormatted * -1);
+                                    }
+
+                                    if(maxFormatted == 0){
+                                        maxFormatted = "-" + (maxFormatted);
+                                    }else{
+                                        maxFormatted = (maxFormatted * -1);
+                                    }
+                                    //console.log("minFormatted = " + minFormatted + "\nmaxFormatted = " + maxFormatted);
+                                    
+                                    
+                                var message = "Even though you didn't make it until the end, you still get credit for how long you waited. " + 
+                                        "Around when do you think you broke your goal?";
+                    
+                                var responseTools = '<!-- custom Time picker-->' +
+                                        '<div id="goalEndTimePicker" class="time-picker-container">' +
+                                            '<select class="time-picker-hour" data-min="0" data-max="23" data-step="1">' +
+                                                '<option value="0">12</option>' +
+                                                '<option value="1">1</option>' +
+                                                '<option value="2">2</option>' +
+                                                '<option value="3">3</option>' +
+                                                '<option value="4">4</option>' +
+                                                '<option value="5">5</option>' +
+                                                '<option value="6">6</option>' +
+                                                '<option value="7">7</option>' +
+                                                '<option value="8">8</option>' +
+                                                '<option value="9">9</option>' +
+                                                '<option value="10">10</option>' +
+                                                '<option value="11">11</option>' +
+                                            '</select>' +
+                                            '<select class="time-picker-am-pm">' +
+                                                    '<option value="AM">AM</option>' +
+                                                    '<option value="PM">PM</option>' +
+                                            '</select>' +
+                                        '</div>' +
+                                    '<div id="datepicker-notification" style="display:inline-block;"></div>' +
+                                    '<script type="text/javascript">' + 
+                                        '$( "#datepicker-notification" ).datepicker({ minDate:' + minFormatted+ ', maxDate:' + maxFormatted + '});' +
+                                        'var currHours = new Date().getHours();' +
+                                        '$("#goalEndTimePicker .time-picker-hour").val(currHours%12);' +
+                                        'if(currHours>=12){ $("#goalEndTimePicker .time-picker-am-pm").val("PM"); }' +
+                                    '</script><br/>' +
+                                    '<button class="notification-response-tool submit-new-goal-time" href="#" >' + 
+                                            
+                                    'Submit</button>';
+                                
+                                createNotification(message, responseTools);
+
+
+                }
+
+            //if goal ended ahead of schedule, when did it end?
+                //submitted new date/time
+                if($(this).hasClass("submit-new-goal-time")){
+
+
+                                var tempEndStamp = convertDateTimeToTimestamp('#datepicker-notification', '#goalEndTimePicker' ); 
+                                //console.log(tempEndStamp);
+                                    if(tempEndStamp - startStamp  > 0 || endStamp  - tempEndStamp < 0){
+                                        changeGoalStatus(2, goalType, tempEndStamp);
+                                        placeGoalIntoLog(startStamp, tempEndStamp, goalType, false); 
+                                        
+                                        clearNotification.call(event, this); 
+
+                                        //update json about if there's an active goal
+                                            json.statistics.goal.activeGoalBoth = 0;
+                                            json.statistics.goal.activeGoalUse = 0;
+                                            json.statistics.goal.activeGoalBought = 0;
+
+
+                                    }else{
+                                        alert('Please choose a time within your goal range!');
+                                    }
+                }
+
+
+        });
+
+        $('#notifications-container').on('click', '.extend-goal', function(event){
+            clearNotification.call(event, this); 
+            extendActiveGoal();
+        });
+
+        $('#notifications-container').on('click', '.end-goal', function(event){
+            clearNotification.call(event, this); 
+            endActiveGoal();
+        });
+
+            function extendActiveGoal(){
+            //console.log("extend that goal");
+
+                if(json.statistics.goal.activeGoalUse !== 0){
+                    var goalType = "use";
+                
+                }else if(json.statistics.goal.activeGoalBought !== 0){
+                    var goalType = "bought";
             
+                }else if(json.statistics.goal.activeGoalBoth !==0){
+                    var goalType = "both";
+                
+                }
+
+                    var requestedGoalEnd = $('#goalEndPicker').datepicker({
+                        dateFormat: 'yy-mm-dd'
+                    }).val();
+                    
+                var goalStampSeconds = Math.round(new Date(requestedGoalEnd).getTime() / 1000);
+
+                changeGoalStatus(1, goalType, false, goalStampSeconds);
+
             }
-            var message = 'Your goal just ended early, ' +
-                            'it has been added to your habit log. ' +
-                            'Be proud, any progress is good progress!';
 
-            changeGoalStatus(2, goalType, timestampSeconds);
-            createNotification(message);
+            function endActiveGoal(){
+                    //console.log("end that goal - start a new one");
 
-            //place a goal into the goal log
-            var startStamp = json.statistics.goal.lastClickStamp;
-            var actualEnd = timestampSeconds;
-            placeGoalIntoLog(startStamp, actualEnd, goalType, false);
+                    var date = new Date();
+                    var timestampSeconds = Math.round(date/1000);
 
-            //if longest goal just happened
-            if((actualEnd - startStamp) > json.statistics.goal.bestTimeSeconds){
-                //update json
-                json.statistics.goal.bestTimeSeconds = (actualEnd - startStamp);
-                //insert onto page
-                var newLongestGoal = convertSecondsToDateFormat(json.statistics.goal.bestTimeSeconds);
-                $("#longestGoalCompleted").html(newLongestGoal);
+                    if(json.statistics.goal.activeGoalUse !== 0){
+                        var goalType = "use";
+                        json.statistics.goal.activeGoalUse = 0;
+                    
+                    }else if(json.statistics.goal.activeGoalBought !== 0){
+                        var goalType = "bought";
+                        json.statistics.goal.activeGoalBought = 0;
+                
+                    }else if(json.statistics.goal.activeGoalBoth !==0){
+                        var goalType = "both";
+                        json.statistics.goal.activeGoalBoth = 0;
+                    
+                    }
+                    var message = 'Your goal just ended early, ' +
+                                    'it has been added to your habit log. ' +
+                                    'Be proud, any progress is good progress!';
+
+                    changeGoalStatus(2, goalType, timestampSeconds);
+                    createNotification(message);
+
+                    //place a goal into the goal log
+                    var startStamp = json.statistics.goal.lastClickStamp;
+                    var actualEnd = timestampSeconds;
+                    placeGoalIntoLog(startStamp, actualEnd, goalType, false);
+
+                    //if longest goal just happened
+                    if((actualEnd - startStamp) > json.statistics.goal.bestTimeSeconds){
+                        //update json
+                        json.statistics.goal.bestTimeSeconds = (actualEnd - startStamp);
+                        //insert onto page
+                        var newLongestGoal = convertSecondsToDateFormat(json.statistics.goal.bestTimeSeconds);
+                        $("#longestGoalCompleted").html(newLongestGoal);
+                        
+                    }
+                    //update number of goals
+                    json.statistics.goal.completedGoals++;
+                    $("#numberOfGoalsCompleted").html(json.statistics.goal.completedGoals);
+                    showActiveStatistics();
+                    
+
+                    //copied from goal submit button there is an active goal case
+                    //-->
+                    var requestedGoalEnd = $('#goalEndPicker').datepicker({
+                        dateFormat: 'yy-mm-dd'
+                    }).val();
+                    
+                    var goalStampSeconds = Math.round(new Date(requestedGoalEnd).getTime() / 1000);
+
+
+                    //-->
+                        //keep lastClickStamp up to date while using app
+                            json.statistics.goal.lastClickStamp = timestampSeconds;
+
+                        //return to relevant screen
+                        $("#statistics-tab-toggler").click();
+
+
+                        //set local json goal type which is active
+                        var jsonHandle = "activeGoal" + goalType.charAt(0).toUpperCase() + goalType.slice(1);
+                        json.statistics.goal[jsonHandle] = 1;
+                        
+
+                        updateActionTable(timestampSeconds, "goal", "", goalStampSeconds, goalType);
+                        
+                        //convert goalend to days hours minutes seconds
+                        var totalSecondsUntilGoalEnd = Math.round(goalStampSeconds - timestampSeconds);
+                        
+                        loadGoalTimerValues(totalSecondsUntilGoalEnd);
+                        initiateGoalTimer();	
+
+                        showActiveStatistics();
+                        adjustFibonacciTimerToBoxes("goal-timer");
+
                 
             }
-            //update number of goals
-            json.statistics.goal.completedGoals++;
-            $("#numberOfGoalsCompleted").html(json.statistics.goal.completedGoals);
-            showActiveStatistics();
-            
-
-            //copied from goal submit button there is an active goal case
-            //-->
-            var requestedGoalEnd = $('#goalEndPicker').datepicker({
-                dateFormat: 'yy-mm-dd'
-            }).val();
-            
-            var goalStampSeconds = Math.round(new Date(requestedGoalEnd).getTime() / 1000);
-
-
-            //-->
-                //keep lastClickStamp up to date while using app
-                    json.statistics.goal.lastClickStamp = timestampSeconds;
-
-                //return to relevant screen
-                $("#statistics-tab-toggler").click();
-
-
-                //set local json goal type which is active
-                var jsonHandle = "activeGoal" + goalType.charAt(0).toUpperCase() + goalType.slice(1);
-                json.statistics.goal[jsonHandle] = 1;
-                
-
-                updateActionTable(timestampSeconds, "goal", "", goalStampSeconds, goalType);
-                
-                //convert goalend to days hours minutes seconds
-                var totalSecondsUntilGoalEnd = Math.round(goalStampSeconds - timestampSeconds);
-                
-                loadGoalTimerValues(totalSecondsUntilGoalEnd);
-                initiateGoalTimer();	
-
-                showActiveStatistics();
-                adjustFibonacciTimerToBoxes("goal-timer");
-
-        
-    }
 
 
 /* GOAL LOG FUNCTION */
@@ -2014,825 +2059,824 @@ $( document ).ready(function() {
         }
     }
 
-/* Format entries into HABIT LOG */    
-	function convertSecondsToDateFormat(rangeInSeconds){
-				
-			//s
-			var currSeconds = rangeInSeconds % 60;
-			if(currSeconds<10)
-				{ currSeconds = "0" + currSeconds };
-			
-			var finalStringStatistic = currSeconds + "s";	
-				
-			//console.log(json.statistics.secondsBetweenUse);
-				
-				//s	//m
-				if (rangeInSeconds > (60)){
-					var currMintues = Math.floor(rangeInSeconds /(60))%60;
-					if(currMintues<10){ currMintues = "0" + currMintues };
-					
-					finalStringStatistic =  currMintues + "<span>m&nbsp;</span>" + finalStringStatistic;
-					
-				}
-					
-					//s //m //h
-				if (rangeInSeconds > (60*60)){
-					var currHours = Math.floor(rangeInSeconds /(60*60))%24;
-					if(currHours<10){ currHours = "0" + currHours };
-					
-					finalStringStatistic = currHours + "<span>h&nbsp;</span>" + finalStringStatistic;
-					//drop seconds
-					finalStringStatistic = finalStringStatistic.split("m")[0] + "m</span>";
-					
-				}	
-
-					//s //m //h //d
-				if (rangeInSeconds > (60*60*24)){
-                    var dayCount = Math.floor(rangeInSeconds /(60*60*24));
-                    var plural = "";
-                    if(dayCount > 1){
-                        plural = "s";
-                    }
-					finalStringStatistic = dayCount + "<span>&nbsp;day" + plural + "&nbsp;</span>" + finalStringStatistic;
-					//drop minutes
-					finalStringStatistic = finalStringStatistic.split("h")[0] + "h</span>";
-				}
-				
-
-			//remove very first 0 from string	
-			//console.log(finalStringStatistic);
-			if(finalStringStatistic.charAt(0) === "0")	
-				{ finalStringStatistic = finalStringStatistic.substr(1)}
-
-			return finalStringStatistic;
-			
-	}
-
-/* Goal completion management */
-	function changeGoalStatus(newGoalStatus, goalType, actualEnd, goalExtendedTo){
-
-		//goal status
-			//1 == active goal
-			//2 == partially completed goal
-			//3 == completed goal
-
-		//console.log("inside changeGoalStatus, newGoalStatus = " + newGoalStatus);
-		//convert localStorage to json
-			var jsonObject = retrieveStorageObject();
-
-		var goals = jsonObject.action.filter(function(e){
-			return e.clickType == 'goal' && e.goalType == goalType
-		});
-		var mostRecentGoal = goals[goals.length - 1];
-			mostRecentGoal.status = newGoalStatus;
-
-		//actual end was passed to function	
-		if(actualEnd){
-			//console.log("actualEnd returns true, and is = " + actualEnd)
-			mostRecentGoal.goalStopped = actualEnd;
-		}else{
-			//else set the actual end to end of goal endDate
-			mostRecentGoal.goalStopped = mostRecentGoal.goalStamp;
-		}
-
-
-        //user wants to extend current goal
-        if(goalExtendedTo){
-            //console.log("changeGoalStatus param goalExtendedTo set");
-           if(mostRecentGoal.goalStamp < goalExtendedTo){
-                //goal was extended, not shortened
-                mostRecentGoal.goalStamp = goalExtendedTo;
-
-		        setStorageObject(jsonObject);
-
-                var date = new Date();
-			    var timestampSeconds = Math.round(date/1000);
-			    var totalSecondsUntilGoalEnd = Math.round(goalExtendedTo - timestampSeconds);
+    /* Format entries into HABIT LOG */    
+        function convertSecondsToDateFormat(rangeInSeconds){
                     
-                loadGoalTimerValues(totalSecondsUntilGoalEnd);
-                initiateGoalTimer();
-                showActiveStatistics();
-                adjustFibonacciTimerToBoxes("goal-timer");
+                //s
+                var currSeconds = rangeInSeconds % 60;
+                if(currSeconds<10)
+                    { currSeconds = "0" + currSeconds };
+                
+                var finalStringStatistic = currSeconds + "s";	
+                    
+                //console.log(json.statistics.secondsBetweenUse);
+                    
+                    //s	//m
+                    if (rangeInSeconds > (60)){
+                        var currMintues = Math.floor(rangeInSeconds /(60))%60;
+                        if(currMintues<10){ currMintues = "0" + currMintues };
+                        
+                        finalStringStatistic =  currMintues + "<span>m&nbsp;</span>" + finalStringStatistic;
+                        
+                    }
+                        
+                        //s //m //h
+                    if (rangeInSeconds > (60*60)){
+                        var currHours = Math.floor(rangeInSeconds /(60*60))%24;
+                        if(currHours<10){ currHours = "0" + currHours };
+                        
+                        finalStringStatistic = currHours + "<span>h&nbsp;</span>" + finalStringStatistic;
+                        //drop seconds
+                        finalStringStatistic = finalStringStatistic.split("m")[0] + "m</span>";
+                        
+                    }	
 
-           }else{
-               //requested was shorter than original goal!!
-               var message = "Your current goal was longer than the one you just requested. " +
-                             "Don't worry if you can't make it all the way, just try a more manageable goal next time!";
-               createNotification(message);
+                        //s //m //h //d
+                    if (rangeInSeconds > (60*60*24)){
+                        var dayCount = Math.floor(rangeInSeconds /(60*60*24));
+                        var plural = "";
+                        if(dayCount > 1){
+                            plural = "s";
+                        }
+                        finalStringStatistic = dayCount + "<span>&nbsp;day" + plural + "&nbsp;</span>" + finalStringStatistic;
+                        //drop minutes
+                        finalStringStatistic = finalStringStatistic.split("h")[0] + "h</span>";
+                    }
+                    
 
-           }
-          
-        }else{
+                //remove very first 0 from string	
+                //console.log(finalStringStatistic);
+                if(finalStringStatistic.charAt(0) === "0")	
+                    { finalStringStatistic = finalStringStatistic.substr(1)}
 
-            
-	    	setStorageObject(jsonObject);
+                return finalStringStatistic;
+                
         }
 
-            //console.log("at the end of change Goal Status, whole object being put in looks like: ");
-            //console.log(jsonObject);
+    /* Goal completion management */
+        function changeGoalStatus(newGoalStatus, goalType, actualEnd, goalExtendedTo){
 
-	}
+            //goal status
+                //1 == active goal
+                //2 == partially completed goal
+                //3 == completed goal
 
+            //console.log("inside changeGoalStatus, newGoalStatus = " + newGoalStatus);
+            //convert localStorage to json
+                var jsonObject = retrieveStorageObject();
 
-/* CONVERT JSON TO LIVE STATS */
-	function convertDateTimeToTimestamp(datePickerTarget, timePickerTarget){
-		var tempEndStamp = $(datePickerTarget).datepicker({dateFormat: 'yy-mm-dd'}).val(); 
-			tempEndStamp = Math.round(new Date(tempEndStamp).getTime() / 1000);
-		
-			//console.log("tempEndStamp after pulled from datepicker = " + tempEndStamp);
-			//get time selection from form
-				var requestedTimeEndHours = parseInt($( timePickerTarget + " select.time-picker-hour").val());
-				
-				//12 am is actually the first hour in a day... goddamn them.
-				if(requestedTimeEndHours == 12){
-					requestedTimeEndHours = 0;
-				}	
-				//account for am vs pm from userfriendly version of time input
-				if($(timePickerTarget + " select.time-picker-am-pm").val() == "PM"){
-					requestedTimeEndHours = requestedTimeEndHours + 12;
+            var goals = jsonObject.action.filter(function(e){
+                return e.clickType == 'goal' && e.goalType == goalType
+            });
+            var mostRecentGoal = goals[goals.length - 1];
+                mostRecentGoal.status = newGoalStatus;
 
-				}
-
-				tempEndStamp += requestedTimeEndHours*(60*60);
-				//console.log("tempEndStamp after timepicker hours added = " + tempEndStamp);
-
-				
-				return tempEndStamp;
-
-				
-	}
-
-	function displayAverageTimeBetween(actionType){
-		//convert total seconds to ddhhmmss
-			var htmlDestination = "";
-
-				if(actionType == "use"){
-					htmlDestination = "#averageTimeBetweenUses";
-
-				}else if(actionType == "cost"){
-					htmlDestination = "#averageTimeBetweenBoughts";
-					
-				}
-				
-				var finalStringStatistic = convertSecondsToDateFormat(json.statistics[actionType].averageBetweenClicks);
-				
-					//insert HTML into span place holder
-				$(htmlDestination).html(finalStringStatistic);
-				
-	}
-
-	function calculateAverageTimeBetween(actionType){
-		//current timestamp
-			var currTimestamp = Math.round(new Date()/1000);
-
-		//set key to the correct calculation ((currTimestamp - firstTimestamp) / (totalClicks))
-		var totalTimeBetween = parseInt(currTimestamp) - parseInt(json.statistics[actionType].firstClickStamp),
-			totalClicks = parseInt(json.statistics[actionType].clickCounter);
-		json.statistics[actionType].averageBetweenClicks = Math.round(totalTimeBetween / totalClicks);
-		
-		//call function to display new stat
-		displayAverageTimeBetween(actionType);
-
-	}
-
-	function displayLongestGoal(){
-		var html = convertSecondsToDateFormat(json.statistics.goal.bestTimeSeconds);
-		$("#longestGoalCompleted").html(html);
-		
-	}
+            //actual end was passed to function	
+            if(actualEnd){
+                //console.log("actualEnd returns true, and is = " + actualEnd)
+                mostRecentGoal.goalStopped = actualEnd;
+            }else{
+                //else set the actual end to end of goal endDate
+                mostRecentGoal.goalStopped = mostRecentGoal.goalStamp;
+            }
 
 
-//TOGGLE ANY STATS WHICH ARE NOT ZERO 
-    function hideInactiveStatistics(){
+            //user wants to extend current goal
+            if(goalExtendedTo){
+                //console.log("changeGoalStatus param goalExtendedTo set");
+            if(mostRecentGoal.goalStamp < goalExtendedTo){
+                    //goal was extended, not shortened
+                    mostRecentGoal.goalStamp = goalExtendedTo;
+
+                    setStorageObject(jsonObject);
+
+                    var date = new Date();
+                    var timestampSeconds = Math.round(date/1000);
+                    var totalSecondsUntilGoalEnd = Math.round(goalExtendedTo - timestampSeconds);
+                        
+                    loadGoalTimerValues(totalSecondsUntilGoalEnd);
+                    initiateGoalTimer();
+                    showActiveStatistics();
+                    adjustFibonacciTimerToBoxes("goal-timer");
+
+            }else{
+                //requested was shorter than original goal!!
+                var message = "Your current goal was longer than the one you just requested. " +
+                                "Don't worry if you can't make it all the way, just try a more manageable goal next time!";
+                createNotification(message);
+
+            }
             
-       //console.log("inside show inactive");
+            }else{
 
-        var statisticPresent = false;
-        //bought page 
-        //if(relevantPane == "cost-content"){	
-        
-            /*HIDE UNAVAILABLE STATS */
-                if (json.statistics.cost.clickCounter === 0){
-                    $("#bought-total").hide();
-                    $("#cost-content .timer-recepticle").hide();
-
-                }else{
-                    statisticPresent = true;
-                }
-
-                if(json.statistics.cost.averageBetweenClicks === 0){
-                    $("#averageTimeBetweenBoughts").parent().hide();
-                    
-                }
-
-                if (json.statistics.cost.total === 0){
-                    //console.log("total spent is 0: " + json.statistics.totalSpent);
-                    //toggle all
-                    $("#cost-content .statistic-recepticle").hide();
-                    $("#totalAmountSpent").parent().hide();
-                    $("#spentThisWeek").parent().hide();
-                    $("#spentThisMonth").parent().hide();
-                    $("#spentThisYear").parent().hide();
-
-                }else if (json.statistics.cost.thisWeek == json.statistics.cost.total){
-                    //console.log("toggle all but total - spent this week equals total");
-                    //toggle year month week 
-                    $("#spentThisWeek").parent().hide();
-                    $("#spentThisMonth").parent().hide();
-                    $("#spentThisYear").parent().hide();
-                    
-
-                }else if (json.statistics.cost.thisMonth == json.statistics.cost.thisWeek){
-                    //console.log("toggle all but week - spent this month equals week");
-                    //toggle year and month
-                    $("#spentThisMonth").parent().hide();
-                    $("#spentThisYear").parent().hide();
-                    
-
-                }else if (json.statistics.cost.thisYear == json.statistics.cost.thisMonth){
-                    //console.log("toggle year - spent this year equals month");
-                    $("#spentThisYear").parent().hide();
-                    
                 
+                setStorageObject(jsonObject);
+            }
+
+                //console.log("at the end of change Goal Status, whole object being put in looks like: ");
+                //console.log(jsonObject);
+
+        }
+
+
+    /* CONVERT JSON TO LIVE STATS */
+        function convertDateTimeToTimestamp(datePickerTarget, timePickerTarget){
+            var tempEndStamp = $(datePickerTarget).datepicker({dateFormat: 'yy-mm-dd'}).val(); 
+                tempEndStamp = Math.round(new Date(tempEndStamp).getTime() / 1000);
+            
+                //console.log("tempEndStamp after pulled from datepicker = " + tempEndStamp);
+                //get time selection from form
+                    var requestedTimeEndHours = parseInt($( timePickerTarget + " select.time-picker-hour").val());
+                    
+                    //12 am is actually the first hour in a day... goddamn them.
+                    if(requestedTimeEndHours == 12){
+                        requestedTimeEndHours = 0;
+                    }	
+                    //account for am vs pm from userfriendly version of time input
+                    if($(timePickerTarget + " select.time-picker-am-pm").val() == "PM"){
+                        requestedTimeEndHours = requestedTimeEndHours + 12;
+
+                    }
+
+                    tempEndStamp += requestedTimeEndHours*(60*60);
+                    //console.log("tempEndStamp after timepicker hours added = " + tempEndStamp);
+
+                    
+                    return tempEndStamp;
+
+                    
+        }
+
+        function displayAverageTimeBetween(actionType){
+            //convert total seconds to ddhhmmss
+                var htmlDestination = "";
+
+                    if(actionType == "use"){
+                        htmlDestination = "#averageTimeBetweenUses";
+
+                    }else if(actionType == "cost"){
+                        htmlDestination = "#averageTimeBetweenBoughts";
+                        
+                    }
+                    
+                    var finalStringStatistic = convertSecondsToDateFormat(json.statistics[actionType].averageBetweenClicks);
+                    
+                        //insert HTML into span place holder
+                    $(htmlDestination).html(finalStringStatistic);
+                    
+        }
+
+        function calculateAverageTimeBetween(actionType){
+            //current timestamp
+                var currTimestamp = Math.round(new Date()/1000);
+
+            //set key to the correct calculation ((currTimestamp - firstTimestamp) / (totalClicks))
+            var totalTimeBetween = parseInt(currTimestamp) - parseInt(json.statistics[actionType].firstClickStamp),
+                totalClicks = parseInt(json.statistics[actionType].clickCounter);
+            json.statistics[actionType].averageBetweenClicks = Math.round(totalTimeBetween / totalClicks);
+            
+            //call function to display new stat
+            displayAverageTimeBetween(actionType);
+
+        }
+
+        function displayLongestGoal(){
+            var html = convertSecondsToDateFormat(json.statistics.goal.bestTimeSeconds);
+            $("#longestGoalCompleted").html(html);
+            
+        }
+
+
+    //TOGGLE ANY STATS WHICH ARE NOT ZERO 
+        function hideInactiveStatistics(){
+                
+        //console.log("inside show inactive");
+
+            var statisticPresent = false;
+            //bought page 
+            //if(relevantPane == "cost-content"){	
+            
+                /*HIDE UNAVAILABLE STATS */
+                    if (json.statistics.cost.clickCounter === 0){
+                        $("#bought-total").hide();
+                        $("#cost-content .timer-recepticle").hide();
+
+                    }else{
+                        statisticPresent = true;
+                    }
+
+                    if(json.statistics.cost.averageBetweenClicks === 0){
+                        $("#averageTimeBetweenBoughts").parent().hide();
+                        
+                    }
+
+                    if (json.statistics.cost.total === 0){
+                        //console.log("total spent is 0: " + json.statistics.totalSpent);
+                        //toggle all
+                        $("#cost-content .statistic-recepticle").hide();
+                        $("#totalAmountSpent").parent().hide();
+                        $("#spentThisWeek").parent().hide();
+                        $("#spentThisMonth").parent().hide();
+                        $("#spentThisYear").parent().hide();
+
+                    }else if (json.statistics.cost.thisWeek == json.statistics.cost.total){
+                        //console.log("toggle all but total - spent this week equals total");
+                        //toggle year month week 
+                        $("#spentThisWeek").parent().hide();
+                        $("#spentThisMonth").parent().hide();
+                        $("#spentThisYear").parent().hide();
+                        
+
+                    }else if (json.statistics.cost.thisMonth == json.statistics.cost.thisWeek){
+                        //console.log("toggle all but week - spent this month equals week");
+                        //toggle year and month
+                        $("#spentThisMonth").parent().hide();
+                        $("#spentThisYear").parent().hide();
+                        
+
+                    }else if (json.statistics.cost.thisYear == json.statistics.cost.thisMonth){
+                        //console.log("toggle year - spent this year equals month");
+                        $("#spentThisYear").parent().hide();
+                        
+                    
+                    }
+
+                //}else if(relevantPane == "use-content"){
+
+                    if (json.statistics.use.clickCounter === 0){
+                        $("#use-total").hide();
+                        $("#use-content .timer-recepticle").hide();
+
+                    }else{
+                        statisticPresent = true;
+                    }
+
+                    if(json.statistics.use.averageBetweenClicks === 0){
+                        $("#averageTimeBetweenUses").parent().hide();
+
+                    }
+
+                    if (json.statistics.use.craveCounter === 0){
+                        $("#crave-total").hide();
+
+                    }else{
+                        statisticPresent = true;
+                    }
+
+                    if(json.statistics.use.craveCounter === 0 || json.statistics.use.clickCounter === 0){
+                        $("#avgDidntPerDid").parent().hide();
+
+                    }
+
+                    if(json.statistics.use.cravingsInARow === 0 || json.statistics.use.cravingsInARow === 1){
+                        $("#cravingsResistedInARow").parent().hide();
+
+                    }
+
+                //}else if(relevantPane == "goal-content"){
+
+                    if(json.statistics.goal.clickCounter === 0){
+                        $("#goal-content .timer-recepticle").hide();
+                    }else{
+                        statisticPresent = true;
+                    }
+
+                    if(json.statistics.goal.bestTimeSeconds === 0){
+                        $("#longestGoalCompleted").parent().hide();
+                    }
+
+                    if(json.statistics.goal.completedGoals === 0){
+                        $("#numberOfGoalsCompleted").parent().hide();
+                        
+                    }
+
+                
+
+                //}
+                    if(statisticPresent){
+                        //hide instructions
+                    //console.log("a statistic is present, hide instructions");
+                        $("#statistics-content .initial-instructions").hide();
+                    }
+
+            /* HIDE UNWANTED STATISTICS */
+                //COST
+                    if(json.option.liveStatsToDisplay.spentButton == false){
+                        $("#bought-button").parent().hide();
+                    }
+
+                    if(json.option.liveStatsToDisplay.sinceLastSpent == false){
+                        $("#cost-content .timer-recepticle").hide();
+                        //console.log("hide timer sinceLastSpent");
+                    }
+
+                    if(json.option.liveStatsToDisplay.avgBetweenSpent == false){
+                        $("#averageTimeBetweenBoughts").parent().hide();
+                    }
+
+                    if(json.option.liveStatsToDisplay.totalSpent == false){
+                        $("#totalAmountSpent").parent().parent().hide();
+                    }
+                    
+                    if(json.option.liveStatsToDisplay.currWeekSpent == false){
+                        $("#spentThisWeek").parent().parent().hide();
+                    }
+
+                    if(json.option.liveStatsToDisplay.currMonthSpent == false){
+                        $("#spentThisMonth").parent().parent().hide();
+                    }
+
+                    if(json.option.liveStatsToDisplay.currYearSpent == false){
+                        $("#spentThisYear").parent().parent().hide();
+                    }
+                
+                //USE
+                    if(json.option.liveStatsToDisplay.usedButton == false){
+                        $("#use-button").parent().hide();
+                    }
+                    if(json.option.liveStatsToDisplay.cravedButton == false){
+                        $("#crave-button").parent().hide();
+                    }
+                    if(json.option.liveStatsToDisplay.sinceLastDone == false){
+                        $("#use-content .timer-recepticle").hide();
+                        //console.log("hide timer - use - if turned off");
+                    }
+
+                    if(json.option.liveStatsToDisplay.avgBetweenDone == false){
+                        $("#averageTimeBetweenUses").parent().hide();
+                    }
+
+                    if(json.option.liveStatsToDisplay.didntPerDid == false){
+                        $("#avgDidntPerDid").parent().hide();
+                    }
+
+                    if(json.option.liveStatsToDisplay.resistedInARow == false){
+                        $("#cravingsResistedInARow").parent().hide();
+                    }
+
+                //GOAL    
+                    if(json.option.liveStatsToDisplay.goalButton == false){
+                        $("#goal-button").parent().hide();
+                    }
+
+                if(json.option.liveStatsToDisplay.longestGoal === 0){
+                        $("#longestGoalCompleted").parent().hide();
+                    }
+
+        }
+
+        function showActiveStatistics(){
+
+            //console.log("inside show active");
+
+            //Show Buttons if requested
+                if(json.option.liveStatsToDisplay.spentButton == true){
+                    $("#bought-button").parent().show();
+                }
+                if(json.option.liveStatsToDisplay.usedButton == true){
+                    $("#use-button").parent().show();
+                }
+                if(json.option.liveStatsToDisplay.cravedButton == true){
+                    $("#crave-button").parent().show();
+                }
+                if(json.option.liveStatsToDisplay.goalButton == true){
+                    $("#goal-button").parent().show();
+                }
+
+
+            //bought page 
+            //if(relevantPane == "cost-content"){	
+                if (json.statistics.cost.clickCounter !== 0){
+                    $("#bought-total").show();
+                    if(json.option.liveStatsToDisplay.sinceLastSpent == true){
+                        //console.log("about to show cost timer");
+                        $("#cost-content .timer-recepticle").show();
+                        $("#cost-content .fibonacci-timer").show();
+                    }
+
+                }
+                if(json.statistics.cost.averageBetweenClicks !== 0){
+                    if(json.option.liveStatsToDisplay.avgBetweenSpent == true){
+                        $("#averageTimeBetweenBoughts").parent().show();
+                        calculateAverageTimeBetween("cost");
+                    }
+
+                }
+                if (json.statistics.cost.total !== 0){
+                        $("#cost-content .statistic-recepticle").show();
+
+                        if(json.option.liveStatsToDisplay.totalSpent == true){
+                            $("#totalAmountSpent").parent().show();
+                        }    
+
+                }
+                if (json.statistics.cost.thisWeek !== json.statistics.cost.total){
+                    if(json.option.liveStatsToDisplay.currWeekSpent == true){
+                        $("#spentThisWeek").parent().show();
+                    }
+                }
+                if (json.statistics.cost.thisMonth !== json.statistics.cost.thisWeek){
+                    if(json.option.liveStatsToDisplay.currMonthSpent == true){
+                        $("#spentThisMonth").parent().show();
+                    }
+
+                }
+                if (json.statistics.cost.thisYear !== json.statistics.cost.thisMonth){
+                    if(json.option.liveStatsToDisplay.currYearSpent == true){
+                        $("#spentThisYear").parent().show();
+                    }
                 }
 
             //}else if(relevantPane == "use-content"){
 
-                if (json.statistics.use.clickCounter === 0){
-                    $("#use-total").hide();
-                    $("#use-content .timer-recepticle").hide();
-
-                }else{
-                    statisticPresent = true;
+                if (json.statistics.use.clickCounter !== 0){
+                    $("#use-total").show();
+                    if(json.option.liveStatsToDisplay.sinceLastDone == true){
+                        $("#use-content .timer-recepticle").show();
+                        $("#use-content .fibonacci-timer").show();
+                    //console.log("about to show use timer");
+                    }
+                }
+                
+                if(json.statistics.use.averageBetweenClicks !== 0){
+                    if(json.option.liveStatsToDisplay.avgBetweenDone == true){
+                        $("#averageTimeBetweenUses").parent().show();
+                        //Average time between uses
+                        calculateAverageTimeBetween("use");	
+                    }
+                    
                 }
 
-                if(json.statistics.use.averageBetweenClicks === 0){
-                    $("#averageTimeBetweenUses").parent().hide();
+                if (json.statistics.use.craveCounter !== 0){
+                    $("#crave-total").show();
 
                 }
-
-                if (json.statistics.use.craveCounter === 0){
-                    $("#crave-total").hide();
-
-                }else{
-                    statisticPresent = true;
+                if(json.statistics.use.craveCounter !== 0 && json.statistics.use.clickCounter !== 0){
+                    if(json.option.liveStatsToDisplay.didntPerDid == true){
+                        $("#avgDidntPerDid").parent().show();
+                    }
+                }
+                if(json.statistics.use.cravingsInARow !== 0){
+                    if(json.option.liveStatsToDisplay.resistedInARow == true){
+                        $("#cravingsResistedInARow").parent().show();
+                    }
                 }
 
-                if(json.statistics.use.craveCounter === 0 || json.statistics.use.clickCounter === 0){
-                    $("#avgDidntPerDid").parent().hide();
-
-                }
-
-                if(json.statistics.use.cravingsInARow === 0 || json.statistics.use.cravingsInARow === 1){
-                    $("#cravingsResistedInARow").parent().hide();
-
-                }
 
             //}else if(relevantPane == "goal-content"){
-
-                if(json.statistics.goal.clickCounter === 0){
-                    $("#goal-content .timer-recepticle").hide();
-                }else{
-                    statisticPresent = true;
+                //console.log("show stats goal tab");
+                if(json.statistics.goal.clickCounter !== 0){
+                    if(json.option.liveStatsToDisplay.untilGoalEnd == true){
+                        $("#goal-content .timer-recepticle").show();
+                        $("#goal-content .fibonacci-timer").show();
+                    }
                 }
 
-                if(json.statistics.goal.bestTimeSeconds === 0){
-                    $("#longestGoalCompleted").parent().hide();
+                if(json.statistics.goal.bestTimeSeconds !== 0){
+                    if(json.option.liveStatsToDisplay.longestGoal == true){
+                        $("#longestGoalCompleted").parent().show();
+                    }
+                    //console.log("showing lng compl");
+                }
+                if(json.statistics.goal.completedGoals !== 0){
+                    $("#numberOfGoalsCompleted").parent().show();
                 }
 
-                if(json.statistics.goal.completedGoals === 0){
-                    $("#numberOfGoalsCompleted").parent().hide();
-                    
-                }
-
-            
+                
 
             //}
-                if(statisticPresent){
-                    //hide instructions
-                //console.log("a statistic is present, hide instructions");
-                    $("#statistics-content .initial-instructions").hide();
-                }
-
-        /* HIDE UNWANTED STATISTICS */
-            //COST
-                if(json.option.liveStatsToDisplay.spentButton == false){
-                    $("#bought-button").parent().hide();
-                }
-
-                if(json.option.liveStatsToDisplay.sinceLastSpent == false){
-                    $("#cost-content .timer-recepticle").hide();
-                    //console.log("hide timer sinceLastSpent");
-                }
-
-                if(json.option.liveStatsToDisplay.avgBetweenSpent == false){
-                    $("#averageTimeBetweenBoughts").parent().hide();
-                }
-
-                if(json.option.liveStatsToDisplay.totalSpent == false){
-                    $("#totalAmountSpent").parent().parent().hide();
-                }
-                
-                if(json.option.liveStatsToDisplay.currWeekSpent == false){
-                    $("#spentThisWeek").parent().parent().hide();
-                }
-
-                if(json.option.liveStatsToDisplay.currMonthSpent == false){
-                    $("#spentThisMonth").parent().parent().hide();
-                }
-
-                if(json.option.liveStatsToDisplay.currYearSpent == false){
-                    $("#spentThisYear").parent().parent().hide();
-                }
-            
-            //USE
-                if(json.option.liveStatsToDisplay.usedButton == false){
-                    $("#use-button").parent().hide();
-                }
-                if(json.option.liveStatsToDisplay.cravedButton == false){
-                    $("#crave-button").parent().hide();
-                }
-                if(json.option.liveStatsToDisplay.sinceLastDone == false){
-                    $("#use-content .timer-recepticle").hide();
-                    //console.log("hide timer - use - if turned off");
-                }
-
-                if(json.option.liveStatsToDisplay.avgBetweenDone == false){
-                    $("#averageTimeBetweenUses").parent().hide();
-                }
-
-                if(json.option.liveStatsToDisplay.didntPerDid == false){
-                    $("#avgDidntPerDid").parent().hide();
-                }
-
-                if(json.option.liveStatsToDisplay.resistedInARow == false){
-                    $("#cravingsResistedInARow").parent().hide();
-                }
-
-            //GOAL    
-                if(json.option.liveStatsToDisplay.goalButton == false){
-                    $("#goal-button").parent().hide();
-                }
-
-            if(json.option.liveStatsToDisplay.longestGoal === 0){
-                    $("#longestGoalCompleted").parent().hide();
-                }
-
-    }
-
-    function showActiveStatistics(){
-
-        //console.log("inside show active");
-
-        //Show Buttons if requested
-            if(json.option.liveStatsToDisplay.spentButton == true){
-                $("#bought-button").parent().show();
-            }
-            if(json.option.liveStatsToDisplay.usedButton == true){
-                $("#use-button").parent().show();
-            }
-            if(json.option.liveStatsToDisplay.cravedButton == true){
-                $("#crave-button").parent().show();
-            }
-            if(json.option.liveStatsToDisplay.goalButton == true){
-                $("#goal-button").parent().show();
-            }
-
-
-        //bought page 
-        //if(relevantPane == "cost-content"){	
-            if (json.statistics.cost.clickCounter !== 0){
-                $("#bought-total").show();
-                if(json.option.liveStatsToDisplay.sinceLastSpent == true){
-                    //console.log("about to show cost timer");
-                    $("#cost-content .timer-recepticle").show();
-                    $("#cost-content .fibonacci-timer").show();
-                }
-
-            }
-            if(json.statistics.cost.averageBetweenClicks !== 0){
-                if(json.option.liveStatsToDisplay.avgBetweenSpent == true){
-                    $("#averageTimeBetweenBoughts").parent().show();
-                    calculateAverageTimeBetween("cost");
-                }
-
-            }
-            if (json.statistics.cost.total !== 0){
-                    $("#cost-content .statistic-recepticle").show();
-
-                    if(json.option.liveStatsToDisplay.totalSpent == true){
-                        $("#totalAmountSpent").parent().show();
-                    }    
-
-            }
-            if (json.statistics.cost.thisWeek !== json.statistics.cost.total){
-                if(json.option.liveStatsToDisplay.currWeekSpent == true){
-                    $("#spentThisWeek").parent().show();
-                }
-            }
-            if (json.statistics.cost.thisMonth !== json.statistics.cost.thisWeek){
-                if(json.option.liveStatsToDisplay.currMonthSpent == true){
-                    $("#spentThisMonth").parent().show();
-                }
-
-            }
-            if (json.statistics.cost.thisYear !== json.statistics.cost.thisMonth){
-                if(json.option.liveStatsToDisplay.currYearSpent == true){
-                    $("#spentThisYear").parent().show();
-                }
-            }
-
-        //}else if(relevantPane == "use-content"){
-
-            if (json.statistics.use.clickCounter !== 0){
-                $("#use-total").show();
-                if(json.option.liveStatsToDisplay.sinceLastDone == true){
-                    $("#use-content .timer-recepticle").show();
-                    $("#use-content .fibonacci-timer").show();
-                   //console.log("about to show use timer");
-                }
-            }
-            
-            if(json.statistics.use.averageBetweenClicks !== 0){
-                if(json.option.liveStatsToDisplay.avgBetweenDone == true){
-                    $("#averageTimeBetweenUses").parent().show();
-                    //Average time between uses
-                    calculateAverageTimeBetween("use");	
-                }
-                
-            }
-
-            if (json.statistics.use.craveCounter !== 0){
-                $("#crave-total").show();
-
-            }
-            if(json.statistics.use.craveCounter !== 0 && json.statistics.use.clickCounter !== 0){
-                if(json.option.liveStatsToDisplay.didntPerDid == true){
-                    $("#avgDidntPerDid").parent().show();
-                }
-            }
-            if(json.statistics.use.cravingsInARow !== 0){
-                if(json.option.liveStatsToDisplay.resistedInARow == true){
-                    $("#cravingsResistedInARow").parent().show();
-                }
-            }
-
-
-        //}else if(relevantPane == "goal-content"){
-            //console.log("show stats goal tab");
-            if(json.statistics.goal.clickCounter !== 0){
-                if(json.option.liveStatsToDisplay.untilGoalEnd == true){
-                    $("#goal-content .timer-recepticle").show();
-                    $("#goal-content .fibonacci-timer").show();
-                }
-            }
-
-            if(json.statistics.goal.bestTimeSeconds !== 0){
-                if(json.option.liveStatsToDisplay.longestGoal == true){
-                    $("#longestGoalCompleted").parent().show();
-                }
-                //console.log("showing lng compl");
-            }
-            if(json.statistics.goal.completedGoals !== 0){
-                $("#numberOfGoalsCompleted").parent().show();
-            }
 
             
-
-        //}
-
-        
-    }	
+        }	
 	
-	/*SETTINGS MENU FUNCTIONS*/
+        /*SETTINGS MENU FUNCTIONS*/
 
-		//undo last click
-		function undoLastAction(){
-			
-			//console.log("undo last action - clicked");
-			var jsonObject = retrieveStorageObject();
-				//console.log(jsonObject);
+            //undo last click
+            function undoLastAction(){
                 
-                //check what the record to be removed - clicktype is
-                    var undoneActionClickType = jsonObject["action"][jsonObject["action"].length - 1].clickType;
-                    //console.log("undone actions clickType = " + undoneActionClickType);
-
-                 //remove most recent (last) record
-			    	jsonObject["action"].pop();
-
-                   
+                //console.log("undo last action - clicked");
+                var jsonObject = retrieveStorageObject();
                     //console.log(jsonObject);
-                setStorageObject(jsonObject);
+                    
+                    //check what the record to be removed - clicktype is
+                        var undoneActionClickType = jsonObject["action"][jsonObject["action"].length - 1].clickType;
+                        //console.log("undone actions clickType = " + undoneActionClickType);
 
-                //UNBREAK GOAL
-                //if action could have broken a goal
-                    if(undoneActionClickType == "used" || undoneActionClickType == "bought"){
-                        //cycle back through records until 
-                        for( var i = jsonObject["action"].length - 1; i >= 0; i--){
-                            var currRecord = jsonObject["action"][i];
-                            
-                            if(currRecord.clickType == "goal" && (currRecord.goalType == "both" || currRecord.goalType == undoneActionClickType)){
-                                    //if this first finds a goal which would have been broken by undoneActionClickType, 
-                                        //change this.status to active, exit loop 
-                                    //console.log("effected goal detected on cycle = " + i);
-                                    changeGoalStatus(1, currRecord.goalType, -1);
-                                    break;    
+                    //remove most recent (last) record
+                        jsonObject["action"].pop();
+
+                    
+                        //console.log(jsonObject);
+                    setStorageObject(jsonObject);
+
+                    //UNBREAK GOAL
+                    //if action could have broken a goal
+                        if(undoneActionClickType == "used" || undoneActionClickType == "bought"){
+                            //cycle back through records until 
+                            for( var i = jsonObject["action"].length - 1; i >= 0; i--){
+                                var currRecord = jsonObject["action"][i];
                                 
-                            }else if(currRecord.clickType == undoneActionClickType){
-                                //if this first finds an action.clickType == undoneActionClickType, 
-                                    //then a goal could not have been broken, so exit loop without changing goal status
-                            
-                                break;
+                                if(currRecord.clickType == "goal" && (currRecord.goalType == "both" || currRecord.goalType == undoneActionClickType)){
+                                        //if this first finds a goal which would have been broken by undoneActionClickType, 
+                                            //change this.status to active, exit loop 
+                                        //console.log("effected goal detected on cycle = " + i);
+                                        changeGoalStatus(1, currRecord.goalType, -1);
+                                        break;    
+                                    
+                                }else if(currRecord.clickType == undoneActionClickType){
+                                    //if this first finds an action.clickType == undoneActionClickType, 
+                                        //then a goal could not have been broken, so exit loop without changing goal status
+                                
+                                    break;
 
+                                }
+                            }  
+                        }
+
+                
+                    //reload the page refresh
+                window.location.reload();
+
+                
+
+            }
+
+            //reset all stats
+            function clearActions(){
+                window.localStorage.clear();
+                window.location.reload();
+            }
+
+            //share stats
+            function shareActions(){
+                //window.location("dataexport.html");
+                //window.open("dataexport.html", "_blank");
+            }
+            
+            /*SETTINGS MENU CLICK EVENTS */
+                $("#undoActionButton").click(function(event){
+                    event.preventDefault();
+                    undoLastAction();
+
+                });
+
+                $("#clearTablesButton").click(function(event){
+                    event.preventDefault();
+                    clearActions();
+                    //close dropdown
+                    $(".hamburger .navbar-toggler").click();
+
+                });
+
+                $("#shareStatsButton").click(function(event){
+                    event.preventDefault();
+                    shareActions();
+                    //close dropdown
+                    $(".hamburger .navbar-toggler").click();
+
+                });
+
+
+            /* CREATE NEW RECORD OF ACTION */
+                //timestamp, clicktype, spent, goalStamp, goalType
+                function updateActionTable(ts, ct, spt, gs, gt){
+                    var jsonObject = retrieveStorageObject();
+
+                        ts = ts.toString();
+                    
+                    var newRecord;
+                    
+                    if(ct == "used" || ct == "craved"){
+                        newRecord = { timestamp: ts, clickType: ct };
+                        
+                    }else if(ct == "bought"){
+                        spt = spt.toString();
+                        newRecord = { timestamp: ts, clickType: ct, spent: spt};
+
+                    }else if (ct == "goal"){
+                        gs = gs.toString();
+                        var st = 1;
+                        var goalStopped = -1;
+                        newRecord = { timestamp: ts, clickType: ct, goalStamp: gs, goalType: gt, status: st, goalStopped: goalStopped};
+                    }	
+
+                        jsonObject["action"].push(newRecord);
+                        
+                        setStorageObject(jsonObject);
+                    
+                }
+            
+            //readjust timer box to correct size
+                function adjustFibonacciTimerToBoxes(timerId){
+                    //console.log("inside adjustFiboTimers, timerID = " + timerId);
+                    /*
+                    var relevantPane = "";
+                    
+                    if(timerId == "smoke-timer"){
+                        relevantPane = "use-content";
+                    
+                    }else if(timerId == "bought-timer"){
+                        relevantPane = "cost-content";
+                        
+                    }else if(timerId == "goal-timer"){
+                        relevantPane = "goal-content";
+                        
+                    }
+                    //console.log(relevantPane);
+                    var relevantPaneIsActive = false;
+                    if($("#" + relevantPane).css("display") == "block"){
+                        relevantPaneIsActive = true;
+                    }
+                    */
+
+                    //came from putting all statistics onto one page
+                    var relevantPaneIsActive = true;
+
+                
+                    if(userIsActive && relevantPaneIsActive){
+                        
+                        //console.log("fibbo timer readjust fired with timerId = " + timerId);
+                        var visibleBoxes = $("#" + timerId + " .boxes div:visible"),
+                            timerElement = document.getElementById(timerId);
+                        //console.log("visibile boxes equals: " + visibleBoxes.length)
+
+
+                        if(visibleBoxes.length == 1){
+                            //adjust .fibonacci-timer to timer height
+                                timerElement.style.width = "3.3rem";
+                                timerElement.style.height = "3.3rem";	
+                        
+                                    
+                        }else if(visibleBoxes.length == 2){
+                            //adjust .fibonacci-timer to timer height
+                                timerElement.style.width = "6.4rem";
+                                timerElement.style.height = "3.3rem";
+                            
+                                    
+                        }else if(visibleBoxes.length == 3){
+                            //adjust .fibonacci-timer to timer height
+                                timerElement.style.width = "9.4rem";
+                                timerElement.style.height = "6.4rem";
+                                
+                                
+                        }else if(visibleBoxes.length == 4){
+                            //adjust .fibonacci-timer to timer height
+                                timerElement.style.width = "9.4rem";
+                                timerElement.style.height = "15.9rem";
+                    
+                        }
+
+                        //hack to resolve visible boxes = 0 bug
+                        if(visibleBoxes.length == 0){
+                            //adjust .fibonacci-timer to timer height
+                                timerElement.style.width = "3.3rem";
+                                timerElement.style.height = "3.3rem";	
+                    
+                        }
+
+
+                        //timerElement.style.display = "block";
+                        timerElement.style.margin = "0 auto";
+                        
+                    }else{
+                        
+                    }
+                    
+                }
+            
+            //open more info div
+                $(".log-more-info-div").toggle();
+            
+                function openClickDialog(clickDialogTarget){
+
+                    $(clickDialogTarget + ".log-more-info-div").slideToggle("fast");
+
+                    //grey out backgeround
+                    var bodyHeight= $(document).height();
+                    $("#greyed-out-div").height(bodyHeight);
+                    $("#greyed-out-div").css("z-index", "10");
+                    $("#greyed-out-div").animate({opacity: 0.4}, 300);
+                    $("#greyed-out-div").click(function(){
+                        if ($("#greyed-out-div").height() > 0){
+                            
+                            if(confirm("your data will not be saved, close anyways?")){
+                                closeClickDialog(clickDialogTarget);
+                            
                             }
-                        }  
+                        }
+                    });
+                    
+                    
+                    
+                }
+                function closeClickDialog(clickDialogTarget){
+                    $("#greyed-out-div").animate({opacity: 0}, 200);
+                    $("#greyed-out-div").css("z-index", "0");
+                    $("#greyed-out-div").height(0);
+                    $("#greyed-out-div").off("click");
+                    
+                    $(clickDialogTarget + ".log-more-info-div").slideToggle("fast");
+                }
+
+
+            //SMOKE BUTTONS - START TIMER
+                    var smokeTimer;
+                    var boughtTimer;
+                    var goalTimer;
+
+
+            /*Actions on switch tab */
+                $(document).delegate("#baseline-tab-toggler", 'click', function(e){
+                    saveActiveTab();
+                    $("#settings-tab-toggler").removeClass("active");
+                    $("#statistics-tab-toggler").removeClass("active");
+                    $("#reports-tab-toggler").removeClass("active");
+                    //console.log('reports tab clicked - code to generate reports here');
+
+                    //insert code here to generate most recent report
+
+                    //close dropdown nav
+                    if($("#options-collapse-menu").hasClass("show")){
+                        
+                    $(".navbar-toggler").click();
+
                     }
 
-			
-    			//reload the page refresh
-			window.location.reload();
 
-            
+                });
+                $(document).delegate("#reports-tab-toggler", 'click', function(e){
+                    saveActiveTab();
+                    $("#baseline-tab-toggler").removeClass("active");
+                    $("#settings-tab-toggler").removeClass("active");
+                    $("#statistics-tab-toggler").removeClass("active");
+                    //console.log('reports tab clicked - code to generate reports here');
 
-		}
+                    //insert code here to generate most recent report
 
-		//reset all stats
-		function clearActions(){
-			window.localStorage.clear();
-			window.location.reload();
-		}
+                    //close dropdown nav
+                    if($("#options-collapse-menu").hasClass("show")){
+                        
+                    $(".navbar-toggler").click();
 
-		//share stats
-		function shareActions(){
-			//window.location("dataexport.html");
-			//window.open("dataexport.html", "_blank");
-		}
-        
-        /*SETTINGS MENU CLICK EVENTS */
-            $("#undoActionButton").click(function(event){
-                event.preventDefault();
-                undoLastAction();
+                    }
 
-            });
-
-            $("#clearTablesButton").click(function(event){
-                event.preventDefault();
-                clearActions();
-                //close dropdown
-                $(".hamburger .navbar-toggler").click();
-
-            });
-
-            $("#shareStatsButton").click(function(event){
-                event.preventDefault();
-                shareActions();
-                //close dropdown
-                $(".hamburger .navbar-toggler").click();
-
-            });
+                    initiateReport();
 
 
-	/* CREATE NEW RECORD OF ACTION */
-        //timestamp, clicktype, spent, goalStamp, goalType
-        function updateActionTable(ts, ct, spt, gs, gt){
-            var jsonObject = retrieveStorageObject();
-
-                ts = ts.toString();
-            
-            var newRecord;
-            
-            if(ct == "used" || ct == "craved"){
-                newRecord = { timestamp: ts, clickType: ct };
-                
-            }else if(ct == "bought"){
-                spt = spt.toString();
-                newRecord = { timestamp: ts, clickType: ct, spent: spt};
-
-            }else if (ct == "goal"){
-                gs = gs.toString();
-                var st = 1;
-                var goalStopped = -1;
-                newRecord = { timestamp: ts, clickType: ct, goalStamp: gs, goalType: gt, status: st, goalStopped: goalStopped};
-            }	
-
-                jsonObject["action"].push(newRecord);
-                
-                setStorageObject(jsonObject);
-            
-        }
-	
-	//readjust timer box to correct size
-        function adjustFibonacciTimerToBoxes(timerId){
-            //console.log("inside adjustFiboTimers, timerID = " + timerId);
-            /*
-            var relevantPane = "";
-            
-            if(timerId == "smoke-timer"){
-                relevantPane = "use-content";
-            
-            }else if(timerId == "bought-timer"){
-                relevantPane = "cost-content";
-                
-            }else if(timerId == "goal-timer"){
-                relevantPane = "goal-content";
-                
-            }
-            //console.log(relevantPane);
-            var relevantPaneIsActive = false;
-            if($("#" + relevantPane).css("display") == "block"){
-                relevantPaneIsActive = true;
-            }
-            */
-
-            //came from putting all statistics onto one page
-            var relevantPaneIsActive = true;
-
-        
-            if(userIsActive && relevantPaneIsActive){
-                
-                //console.log("fibbo timer readjust fired with timerId = " + timerId);
-                var visibleBoxes = $("#" + timerId + " .boxes div:visible"),
-                    timerElement = document.getElementById(timerId);
-                //console.log("visibile boxes equals: " + visibleBoxes.length)
-
-
-                if(visibleBoxes.length == 1){
-                    //adjust .fibonacci-timer to timer height
-                        timerElement.style.width = "3.3rem";
-                        timerElement.style.height = "3.3rem";	
-                
-                            
-                }else if(visibleBoxes.length == 2){
-                    //adjust .fibonacci-timer to timer height
-                        timerElement.style.width = "6.4rem";
-                        timerElement.style.height = "3.3rem";
+                });
+                $(document).delegate("#statistics-tab-toggler", 'click', function(e){
                     
+                    saveActiveTab();
+
+                    //push adjusting fibo timer to end of stack, so it reads the number of needed boxes corectly
+                        
+                            //showActiveStatistics();
+                        
+                        
+                        setTimeout(function(){
                             
-                }else if(visibleBoxes.length == 3){
-                    //adjust .fibonacci-timer to timer height
-                        timerElement.style.width = "9.4rem";
-                        timerElement.style.height = "6.4rem";
+                            hideInactiveStatistics();
+                            
+                            adjustFibonacciTimerToBoxes("goal-timer");
+                            adjustFibonacciTimerToBoxes("smoke-timer");
+                            adjustFibonacciTimerToBoxes("bought-timer");
+
+                        },0);
+
+                    $("#baseline-tab-toggler").removeClass("active");
+                    $("#settings-tab-toggler").removeClass("active");
+                    $("#reports-tab-toggler").removeClass("active");
+
+                    //console.log('statistics tab clicked');
+
+                //close dropdown nav
+                    if($("#options-collapse-menu").hasClass("show")){
                         
+                    $(".navbar-toggler").click();
+
+                    }
+
+                });
+                $(document).delegate("#settings-tab-toggler", 'click', function(e){
+                    
+                    saveActiveTab();
+                    
+                    $("#baseline-tab-toggler").removeClass("active");
+                    $("#reports-tab-toggler").removeClass("active");
+                    $("#statistics-tab-toggler").removeClass("active");
+
+                    //console.log('settings tab clicked');
+
+                    //close dropdown nav
+                    if($("#options-collapse-menu").hasClass("show")){
                         
-                }else if(visibleBoxes.length == 4){
-                    //adjust .fibonacci-timer to timer height
-                        timerElement.style.width = "9.4rem";
-                        timerElement.style.height = "15.9rem";
-            
-                }
+                    $(".navbar-toggler").click();
 
-                //hack to resolve visible boxes = 0 bug
-                if(visibleBoxes.length == 0){
-                    //adjust .fibonacci-timer to timer height
-                        timerElement.style.width = "3.3rem";
-                        timerElement.style.height = "3.3rem";	
-            
-                }
+                    }
 
-
-                //timerElement.style.display = "block";
-                timerElement.style.margin = "0 auto";
+                });
                 
-            }else{
-                
-            }
-            
-        }
-	
-	//open more info div
-	
-		$(".log-more-info-div").toggle();
-	
-		function openClickDialog(clickDialogTarget){
-
-			$(clickDialogTarget + ".log-more-info-div").slideToggle("fast");
-
-			//grey out backgeround
-			var bodyHeight= $(document).height();
-			$("#greyed-out-div").height(bodyHeight);
-			$("#greyed-out-div").css("z-index", "10");
-			$("#greyed-out-div").animate({opacity: 0.4}, 300);
-			$("#greyed-out-div").click(function(){
-				if ($("#greyed-out-div").height() > 0){
-					
-					if(confirm("your data will not be saved, close anyways?")){
-						closeClickDialog(clickDialogTarget);
-					
-					}
-				}
-			});
-			
-			
-			
-		}
-		function closeClickDialog(clickDialogTarget){
-			$("#greyed-out-div").animate({opacity: 0}, 200);
-			$("#greyed-out-div").css("z-index", "0");
-			$("#greyed-out-div").height(0);
-			$("#greyed-out-div").off("click");
-			
-			$(clickDialogTarget + ".log-more-info-div").slideToggle("fast");
-		}
-
-
-     //SMOKE BUTTONS - START TIMER
-            var smokeTimer;
-            var boughtTimer;
-			var goalTimer;
-
-
-	/*Actions on switch tab */
-    $(document).delegate("#baseline-tab-toggler", 'click', function(e){
-		saveActiveTab();
-        $("#settings-tab-toggler").removeClass("active");
-        $("#statistics-tab-toggler").removeClass("active");
-        $("#reports-tab-toggler").removeClass("active");
-		//console.log('reports tab clicked - code to generate reports here');
-
-        //insert code here to generate most recent report
-
-        //close dropdown nav
-        if($("#options-collapse-menu").hasClass("show")){
-            
-          $(".navbar-toggler").click();
-
-        }
-        initiateReport();
-
-
-	});
-	$(document).delegate("#reports-tab-toggler", 'click', function(e){
-		saveActiveTab();
-        $("#baseline-tab-toggler").removeClass("active");
-        $("#settings-tab-toggler").removeClass("active");
-        $("#statistics-tab-toggler").removeClass("active");
-		//console.log('reports tab clicked - code to generate reports here');
-
-        //insert code here to generate most recent report
-
-        //close dropdown nav
-        if($("#options-collapse-menu").hasClass("show")){
-            
-          $(".navbar-toggler").click();
-
-        }
-        initiateReport();
-
-
-	});
-	$(document).delegate("#statistics-tab-toggler", 'click', function(e){
-		
-		saveActiveTab();
-
-		//push adjusting fibo timer to end of stack, so it reads the number of needed boxes corectly
-            
-                //showActiveStatistics();
-            
-            
-			setTimeout(function(){
-                
-                hideInactiveStatistics();
-                
-				adjustFibonacciTimerToBoxes("goal-timer");
-				adjustFibonacciTimerToBoxes("smoke-timer");
-				adjustFibonacciTimerToBoxes("bought-timer");
-
-			},0);
-
-        $("#baseline-tab-toggler").removeClass("active");
-		$("#settings-tab-toggler").removeClass("active");
-         $("#reports-tab-toggler").removeClass("active");
-
-		//console.log('statistics tab clicked');
-
-       //close dropdown nav
-        if($("#options-collapse-menu").hasClass("show")){
-            
-          $(".navbar-toggler").click();
-
-        }
-
-	});
-	$(document).delegate("#settings-tab-toggler", 'click', function(e){
-		
-		saveActiveTab();
         
-        $("#baseline-tab-toggler").removeClass("active");
-         $("#reports-tab-toggler").removeClass("active");
-         $("#statistics-tab-toggler").removeClass("active");
-
-	    //console.log('settings tab clicked');
-
-        //close dropdown nav
-        if($("#options-collapse-menu").hasClass("show")){
-            
-          $(".navbar-toggler").click();
-
-        }
-
-	});
-	
-	
 /* CALL INITIAL STATE OF APP */	
     //If json action table doesn't exist, create it
     if(localStorage.esCrave){
@@ -2894,7 +2938,7 @@ $( document ).ready(function() {
             //console.log("hiding inactive use");
 
             //location.reload();
-            $("#reports-tab-toggler").click();
+            $("#baseline-tab-toggler").click();
             
             //ABSOLUTE NEW USER
             var introMessage = "<b>Welcome to Escrave</b> - the anonymous habit tracking app that shows you statistics about any habit as you record data about it!";
@@ -2937,6 +2981,9 @@ $( document ).ready(function() {
                         json.statistics.use.cravingsInARow++;
                         $("#cravingsResistedInARow").html(json.statistics.use.cravingsInARow);
                         
+                        
+                    showActiveStatistics();
+
                         //keep lastClickStamp up to date while using app
                             json.statistics.use.lastClickStampCrave = timestampSeconds;
 
@@ -3835,7 +3882,9 @@ $( document ).ready(function() {
 				}
 
                 //there is an active goal
-                if(json.statistics.goal.activeGoalUse !== 0 || json.statistics.goal.activeGoalBought !== 0 || json.statistics.goal.activeGoalBoth !==0){
+                if(json.statistics.goal.activeGoalUse !== 0 || 
+                  json.statistics.goal.activeGoalBought !== 0 || 
+                  json.statistics.goal.activeGoalBoth !==0){
                     
                     //ask if if user wants to extend goal
                     var message = "You already have an active goal, would you like to extend it?";
