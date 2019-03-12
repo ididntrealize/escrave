@@ -595,16 +595,21 @@
 
       
       /* shrink menu on scroll */
-      $(window).scroll(function() {
-        if ($(document).scrollTop() > 50) {
-          $('.navbar-brand img').addClass('shrink');
-          $('.navbar-brand .tagline').addClass('shrink');
-            $(window).unbind('scroll');
-        } else {
-            $('.navbar-brand img').removeClass('shrink');
-            $('.navbar-brand .tagline').removeClass('shrink');
-        }
+        $(window).scroll(function() {
+            if ($(document).scrollTop() > 50) {
+            $('.navbar-brand img').addClass('shrink');
+            $('.navbar-brand .tagline').addClass('shrink');
+                $(window).unbind('scroll');
+            } else {
+                $('.navbar-brand img').removeClass('shrink');
+                $('.navbar-brand .tagline').removeClass('shrink');
+            }
         });
+
+        /* Bind minHeight of section to INITIAL 100vh, HOTfix of viewport resize bug */
+
+            var initVeiwportHeight = $(window).height();
+            $("section").css("min-height", initVeiwportHeight);
 
 
     });

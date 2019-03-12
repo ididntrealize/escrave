@@ -2525,7 +2525,9 @@ $( document ).ready(function() {
 
             //}else if(relevantPane == "goal-content"){
                 //console.log("show stats goal tab");
-                if(json.statistics.goal.clickCounter !== 0){
+                if(json.statistics.goal.clickCounter !== 0 && 
+                  (json.statistics.goal.activeGoalBoth || json.statistics.goal.activeGoalBought || json.statistics.goal.activeGoalUse)
+                ){
                     if(json.option.liveStatsToDisplay.untilGoalEnd == true){
                         $("#goal-content .timer-recepticle").show();
                         $("#goal-content .fibonacci-timer").show();
