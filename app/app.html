@@ -182,11 +182,7 @@
           </div>
         </div-->
         </div>
-
-        <div class="main-content">
-
-            <div class="tab-content">
-                <!-- goal - LOG MORE INFO DIV -->
+         <!-- goal - LOG MORE INFO DIV -->
                 <div class="goal log-more-info-div">
 
                     <h3 class="text-center">I want to wait until</h3>
@@ -237,11 +233,14 @@
 
 
                     <div style="display:block;text-align:center;">
-                        <label for="boughtInput">
-                            <input id="boughtInput" type="checkbox" checked />&nbsp;To Buy it</label>
-                        <br />
-                        <label for="usedInput">
-                            <input id="usedInput" type="checkbox" checked />&nbsp;To Do it</label>
+                        <div>
+                            <label for="boughtInput">
+                            <input id="boughtGoalInput" type="checkbox" checked />&nbsp;To Buy it</label>
+                        </div>
+                        <div>
+                            <label for="usedInput">
+                            <input id="usedGoalInput" type="checkbox" checked />&nbsp;To Do it</label>
+                        </div>
                     </div>
 
 
@@ -264,9 +263,11 @@
                 <!-- spent - LOG MORE INFO DIV -->
                 <div class="cost log-more-info-div">
                     <div class="row">
-                        <div class="input-area">
-                            <h3 class="text-center">I spent:</h3>
-                            <label><input id="spentInput" type="number" style="margin-left: 8px;" /> $ </label>
+                        <div class="col-12">
+                            <div class="input-area">
+                                <h3 class="text-center">I spent:</h3>
+                                <label><input id="spentInput" type="number" style="margin-left: 8px;" /> $ </label>
+                            </div>
                         </div>
                         <div class="col-6" style="padding-right:7px;">
                             <button href="#" class="cancel btn btn-outline-dark btn-md btn-block">
@@ -280,6 +281,10 @@
                         </div>
                      </div>
                 </div>
+        <div class="main-content">
+
+            <div class="tab-content">
+               
 
                 <!-- start baseline questionnaire tab area-->
                 <div class="tab-pane" id="baseline-content">
@@ -429,10 +434,8 @@
 
                     <div class="weekly-report-description">
                         <p>
-                            after you've started recording data with Escrave's action buttons,
-                            you can come to this page to see your weekly progress,
-                            and how close you are to your goals.
-                            Reports can only show after you've been using Escrave for at least one week.
+                            after you've been recording data for a week, Escrave can start to generate reports about 
+                            your progress - since you started, and vs. the previous week.
                         </p>
                         <p>
                             Weekly reports can be customized to show different types of statistics,

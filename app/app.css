@@ -282,8 +282,13 @@ h4{
 		display:flex;
 	}
 	.weekly-report-template .week-range .current-week > div{
-		display:inline-block
+		display:inline-block;
 	}
+
+    .weekly-report-template span.ct-label.ct-horizontal.ct-end {
+        transform: rotate(60deg);
+        padding-left: 10px;
+    }
 
     /* BAR CHART */
 
@@ -504,8 +509,7 @@ h4{
 
 #greyed-out-div{
 	width:100%;
-	height:0px;
-	position:absolute;
+	position:fixed;
 	background-color:black;
 	z-index:0;
 	opacity:0;
@@ -671,3 +675,5 @@ h4{
 #habit-log-show-more p{
 	margin-bottom: 0px;
 }
+
+

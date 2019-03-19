@@ -1,32 +1,50 @@
 /****************************************************************************
- * This document is kinda long, like over 3000 lines,
- * so let me give you a quick overview of how everything works
- * that is, assuming it IS working. It usually does, I swear...
+ * This document is kinda long, almost 4000 lines,
+ * so let me give you a quick overview of how it is structured
  * 
- * ANYWAYS, 
+ * ACTION BUTTONS
  * the app accepts 4 inputs: I bought it, I did it, i didn't do it, Make a goal
  * the goal input extends to a date and time picker,
  * the bought input extends to accept an amount of money,
  * the did and didn't inputs take no additional parameters.
  * 
- * The rest of the app updates statistics about this data onLoad and onClick.
+ * NOTIFICATIONS
+ * The app communicates with the users via notifications
+ * These notifications can also have response tools included in them, to garner further information from a user,
+ * for example, upon returning to the app after a goal has finished, the app will prompt users (with a notificaiton)
+ * to confirm they completed the goal, or else give them a new date input to enter in the approximate date the goal actually ended.
+ * 
+ * MAIN APP PAGES
+ * There are 4 main pages (tab-content) in the app: 
+ * Baseline (questionnaire), (Weekly) Reports, (Live) Statistics, and Settings.
+ * 
+ * Baseline allows users to input their relationship to a habit (that they chose to track),
+ * at the moment (or within the first week) that they start using Escrave.
+ * 
+ * Reports generate a day to day breakdown of action button clicks,
+ * Comparing your usage with what you entered into your baseline questionnaire. 
+ * Reports are broken up into week long segments
+ *  
+ * Clicking any of the action buttons takes users to the Statistics page.
+ * Many of the functions in this file are dedicated to update this data onLoad, onClick, in local memory, in storage.
  * Each type of click has a live timer, which is kept in sync even if users close the site, or go inactive.
  * Statistics are shown or hidden based on if they have a relevant value, 
  * there's a function to show relevant statistics, and one to hide them if there isn't enough data for them to be relevant.
- * Most of the functions are related to formatting and displaying statistics about user input, 
- * however, a large amount are dedicated to handling goal completion.
+ * Many of the functions are related to formatting and displaying statistics about user input, especially to handle goal completion.
  * onLoad, there is a check if a goal has completed since the user has visited the site,
  * if a goal has ended, they are prompted to either confirm the goal as complete, or to mark the date their goal really ended.
  * Any completed goal will populate into a list of completed goals, demonstrating amount of time spent and when the goal ended.
  * 
- * Additionally, there are some rudimentary controls built in, to help the user recieve relevant data from the app:
- * There is a button that removes the last click action in storage (UNDO), 
+ * Finally, there is a settings page where users can access some basic controls for the app:
+ * a button that removes the last click action in storage (UNDO), 
  * a button to completely wipe storage (START OVER), 
- * and one to dump their storage for debugging purposes.
+ * a button to read more about the app - which takes the user to the main marketing site (about Escrave),
+ * and a button to give feedback about the app (give feedback).
+ * Aditionally, the settings page lists every type of statistic possible to be displayed by Escrave, 
+ * with a checkbox next to them to decide whether or not to display it.
  * 
- * Dig in, and please get back to me about any inconsistencies, or improvements!
  * 
- * ONE LAST THING - the software license
+ * and finally - the software license
  * 
  * MIT License
 
@@ -141,12 +159,14 @@ $( document ).ready(function() {
                                         "untilGoalEnd": true,
                                         "longestGoal": true,
                                         "usedButton": true,
+                                        "usedGoalButton": true,
                                         "cravedButton": true,
                                         "sinceLastDone": true,
                                         "avgBetweenDone": true,
                                         "didntPerDid": true,
                                         "resistedInARow": true,
                                         "spentButton": true,
+                                        "boughtGoalButton": true,
                                         "sinceLastSpent": true,
                                         "avgBetweenSpent": true,
                                         "totalSpent": true,
@@ -283,7 +303,7 @@ $( document ).ready(function() {
         //SET STATS FROM STORAGE
         //get data from storage and convert to working json object
             //set initial values in app			 
-			function setStateFromRecords(){
+			function setStatsFromRecords(){
 				
 				var jsonObject = retrieveStorageObject();
 				
@@ -335,7 +355,7 @@ $( document ).ready(function() {
 								
 								//craves in a row
 									var cravesInARow = 0;
-										for(i = useTabActions.length - 1; i>=0 ;i--){
+										for(var i = useTabActions.length - 1; i>=0 ;i--){
 											
 											if(useTabActions[i].clickType == "craved"){
 												cravesInARow++;
@@ -404,7 +424,7 @@ $( document ).ready(function() {
 										runningTotalCostYear = 0;
 
 									
-									for (i = boughtCount.length - 1; i >= 0; i--){
+									for (var i = boughtCount.length - 1; i >= 0; i--){
 										
 										//update every bought record into running total
 										runningTotalCost = runningTotalCost + parseInt(boughtCount[i].spent);
@@ -455,10 +475,10 @@ $( document ).ready(function() {
 							
 								if(goalCount.length>0){
 									var activeGoals = goalCount.filter(function(e){ return e.status == 1});
-									//console.log("inside setStateFromRecords, activeGoals = " + activeGoals);
+									//console.log("inside setStatsFromRecords, activeGoals = " + activeGoals);
 									
 									var inactiveGoals = goalCount.filter(function(e){ return e.status == 2 || e.status == 3 });
-									//console.log("inside setStateFromRecords, inactiveGoals = " + inactiveGoals);	
+									//console.log("inside setStatsFromRecords, inactiveGoals = " + inactiveGoals);	
 									
 									//timestamp of most recent click - to limit clicks in a row
 									json.statistics.goal.lastClickStamp = goalCount[goalCount.length-1].timestamp;
@@ -652,7 +672,7 @@ $( document ).ready(function() {
                                                    e.timestamp <= reportEndStamp
                                         });
 
-                    for(i = 0; i <= useActionsInRange.length - 1; i++){
+                    for(var i = 0; i <= useActionsInRange.length - 1; i++){
                         for(j = 0; j < 7; j++){
                             //increment the number in the array of any record happened on each of 7 days in a timespan week
                             if(
@@ -673,7 +693,7 @@ $( document ).ready(function() {
                                         });
 
 
-                    for(i = 0; i <= craveActionsInRange.length - 1; i++){
+                    for(var i = 0; i <= craveActionsInRange.length - 1; i++){
                         for(j = 0; j < 7; j++){
                             //increment the number in the array of any record happened on each of 7 days in a timespan week
                             if(
@@ -691,7 +711,7 @@ $( document ).ready(function() {
                                                    e.timestamp <= reportEndStamp
                                         });
 							
-                    for(i = 0; i <= spentActionsInRange.length - 1; i++){
+                    for(var i = 0; i <= spentActionsInRange.length - 1; i++){
                         for(j = 0; j < 7; j++){
                             //increment the number in the array of any record happened on each of 7 days in a timespan week
                             if(
@@ -726,7 +746,7 @@ $( document ).ready(function() {
 
                     if(costActionsLastWeek.length){
                         var totalCostLastWeek = 0;
-                        for(i = 0; i <= costActionsLastWeek.length -1; i++){
+                        for(var i = 0; i <= costActionsLastWeek.length -1; i++){
                             totalCostLastWeek = totalCostLastWeek + parseInt(costActionsLastWeek[i].spent);
                         }
                         valuesObject.CostLastWeek = totalCostLastWeek;
@@ -739,8 +759,10 @@ $( document ).ready(function() {
         function initiateReport(){
             var jsonObject = retrieveStorageObject();
             
+            console.log("initiate report");
             //retrieve curr date for time relevant stats
             var timeNow = Math.round(new Date()/1000);
+
                 //REPORTS!!!
                 //is there ANY data??
                     if(jsonObject["action"].length){
@@ -763,13 +785,20 @@ $( document ).ready(function() {
                                 json.report.minEndStamp = parseInt(firstStamp) + (60*60*24*7);
                                 json.report.maxEndStamp = parseInt(reportEndStamp) + (60*60*24*7);
 
+                                
                             //show most recent report
                                 createReport(calculateReportValues(reportEndStamp));
-
+                                
                             //hide report description
                                 $(".weekly-report-description").hide();
 
-                            /* Notify user of new report? */
+
+                            /* 
+                                Notify user of new report? 
+                                USER NOT ON REPORTS page 
+                            */
+                                if(!$("#reports-content").hasClass("active")){
+                                    //console.log("report page inactive");
                                 //find any data made in past report range
                                     var reportRangeActions = jsonObject.action.filter(function(e){
                                         return e.timestamp >= parseInt(reportEndStamp) - (60*60*24*7)
@@ -780,7 +809,6 @@ $( document ).ready(function() {
                                     var actionsSinceReportEnd = jsonObject.action.filter(function(e){
                                         return e.timestamp > parseInt(reportEndStamp)
                                     });
-
                                 
                                 //if any action taken since report could be generated, 
                                     //follows that the report end notification was seen.
@@ -796,6 +824,7 @@ $( document ).ready(function() {
 
                                         createNotification(message, responseTools);
                                     }
+                                }
                         }
                     }
         }
@@ -830,7 +859,7 @@ $( document ).ready(function() {
 
             //set bar chart values
                 var dayLabels = [];
-                for(i = 0; i <= 7; i++){
+                for(var i = 0; i <= 7; i++){
                     dayLabels.push(timestampToShortHandDate((reportStart + (60*60*24*i)), false));
                 }
                    
@@ -1098,21 +1127,20 @@ $( document ).ready(function() {
                                
                                 //on either click of a spent related N/A click, select both
                                    //console.log(this.id);
-                                    if(this.id == "amountSpentPerWeekNA" || this.id == "goalSpentPerWeekNA"){
-                                        //toggle both checkboxes
-                                        $("#amountSpentPerWeekNA").prop('checked', true);
-                                        $("#goalSpentPerWeekNA").prop('checked', true);
-                                        /*grey out input box
+                                        //toggle single checkboxes
+                                        $("#" + this.id).prop('checked', true);
+                                        //grey out input box
                                         var relInput =  this.id;
                                             relInput = relInput.replace("NA","");
-                                            $(relInput).attr("disabled");
-                                            */
-
-                                    }else if(this.id == "amountDonePerWeekNA" || this.id == "goalDonePerWeekNA"){
-                                        //toggle both checkboxes
-                                        $("#amountDonePerWeekNA").prop('checked', true);
-                                        $("#goalDonePerWeekNA").prop('checked', true);
-                                    }
+                                            $("." + relInput).prop("disabled", true);
+                                           
+                            }else{
+                                 //toggle single checkboxes
+                                        $("#" + this.id).prop('checked', false);
+                                        //grey out input box
+                                        var relInput =  this.id;
+                                            relInput = relInput.replace("NA","");
+                                            $("." + relInput).prop("disabled", false);
                             }
                         
                        
@@ -1127,15 +1155,14 @@ $( document ).ready(function() {
                         var jsonObject = retrieveStorageObject();
 
 
-                        if($("#amountSpentPerWeekNA").is(":checked") || $("#goalSpentPerWeekNA").is(":checked") ){
+
+                        if($("#amountSpentPerWeekNA").is(":checked")){
 
                                 //JSON
                                         json.baseline.costStatsIrrelevant = true;
                                     //baseline spent / week
                                         json.baseline.amountSpentPerWeek = false;
-                                    //goal spend / week
-                                        json.baseline.goalSpentPerWeek = false;
-
+                                   
                                     //uncheck visibility of spent related stats
                                         json.option.liveStatsToDisplay.sinceLastSpent = false;
                                         json.option.liveStatsToDisplay.avgBetweenSpent = false;
@@ -1148,20 +1175,18 @@ $( document ).ready(function() {
 
                                         json.option.reportItemsToDisplay.costChangeVsBaseline = false;
                                         json.option.reportItemsToDisplay.costChangeVsLastWeek = false;
-                                        json.option.reportItemsToDisplay.costGoalVsThisWeek = false;
-                                        
+                                       
                                         
 
                                 //localstorage
                                         jsonObject.baseline.costStatsIrrelevant = true;
                                     //baseline spent / week
                                         jsonObject.baseline.amountSpentPerWeek = false;
-                                    //goal spend / week
-                                        jsonObject.baseline.goalSpentPerWeek = false;
 
                                     //uncheck visibility of spent related stats
                                     
                                         json.option.liveStatsToDisplay.spentButton = false;
+                                        json.option.liveStatsToDisplay.boughtGoalButton = false;
 
                                         jsonObject.option.liveStatsToDisplay.sinceLastSpent = false;
                                         jsonObject.option.liveStatsToDisplay.avgBetweenSpent = false;
@@ -1174,7 +1199,6 @@ $( document ).ready(function() {
 
                                         jsonObject.option.reportItemsToDisplay.costChangeVsBaseline = false;
                                         jsonObject.option.reportItemsToDisplay.costChangeVsLastWeek = false;
-                                        jsonObject.option.reportItemsToDisplay.costGoalVsThisWeek = false;
                                         
                                 //console.log("massive ops on spent stats");
 
@@ -1185,36 +1209,51 @@ $( document ).ready(function() {
                                 //JSON
                                     //baseline spent / week
                                         json.baseline.amountSpentPerWeek = $("input.amountSpentPerWeek").val();
-                                    //goal spend / week
-                                        json.baseline.goalSpentPerWeek = $("input.goalSpentPerWeek").val();
 
                                     //display stats which default false
                                         json.option.reportItemsToDisplay.costChangeVsBaseline = true;
-                                        json.option.reportItemsToDisplay.costGoalVsThisWeek = true;
 
                                 //localstorage
                                     //baseline spent / week
                                         jsonObject.baseline.amountSpentPerWeek = $("input.amountSpentPerWeek").val();
-                                    //goal spend / week
-                                        jsonObject.baseline.goalSpentPerWeek = $("input.goalSpentPerWeek").val();
                                     //display stats which default false
                                         jsonObject.option.reportItemsToDisplay.costChangeVsBaseline = true;
-                                        jsonObject.option.reportItemsToDisplay.costGoalVsThisWeek = true;
 
 
                         }
+
+
+                         if($("#goalSpentPerWeekNA").is(":checked") ){
+                                    //goal spend / week
+                                              json.baseline.goalSpentPerWeek = false;
+                                        jsonObject.baseline.goalSpentPerWeek = false;
+                                        
+                                    //report cost goal vs this week
+                                              json.option.reportItemsToDisplay.costGoalVsThisWeek = false;
+                                        jsonObject.option.reportItemsToDisplay.costGoalVsThisWeek = false;
+
+                         }else{
+                                //goal spend / week
+                                              json.baseline.goalSpentPerWeek = $("input.goalSpentPerWeek").val();
+                                        jsonObject.baseline.goalSpentPerWeek = $("input.goalSpentPerWeek").val();
+
+                                    //display stats which default false
+                                             json.option.reportItemsToDisplay.costGoalVsThisWeek = true;
+                                        jsonObject.option.reportItemsToDisplay.costGoalVsThisWeek = true;
+
+                         }
+
                         
                     //if baseline done == 0 && baseline done goal == 0
-                        if($("#amountDonePerWeekNA").is(":checked") || $("#goalDonePerWeekNA").is(":checked") ){
+                        if($("#amountDonePerWeekNA").is(":checked")){
                             //toggle spent statistics (likely they are not useful)
                             //json 
                                     json.baseline.useStatsIrrelevant = true;
                                 //baseline done / week
                                     json.baseline.amountDonePerWeek = false;
-                                //goal done / week
-                                    json.baseline.goalDonePerWeek = false;
 
                                     json.option.liveStatsToDisplay.usedButton = false;
+                                    json.option.liveStatsToDisplay.usedGoalButton = false;
                                     json.option.liveStatsToDisplay.cravedButton = false;
                                     
                                     json.option.liveStatsToDisplay.sinceLastDone = false;
@@ -1225,16 +1264,13 @@ $( document ).ready(function() {
                                     json.option.logItemsToDisplay.used = false;
                                     json.option.logItemsToDisplay.craved = false;
 
-                                    json.option.reportItemsToDisplay = useChangeVsBaseline = false;
-                                    json.option.reportItemsToDisplay = useChangeVsLastWeek = false;
-                                    json.option.reportItemsToDisplay = useGoalVsThisWeek = false;
+                                    json.option.reportItemsToDisplay.useChangeVsBaseline = false;
+                                    json.option.reportItemsToDisplay.useChangeVsLastWeek = false;
 
                             //LOCAL STORAGE
                                     jsonObject.baseline.useStatsIrrelevant = true;
                             //baseline done / week
                                     jsonObject.baseline.amountDonePerWeek = false;
-                                //goal done / week
-                                    jsonObject.baseline.goalDonePerWeek = false;
 
                                     jsonObject.option.liveStatsToDisplay.usedButton = false;
                                     jsonObject.option.liveStatsToDisplay.cravedButton = false;
@@ -1247,36 +1283,46 @@ $( document ).ready(function() {
                                     jsonObject.option.logItemsToDisplay.used = false;
                                     jsonObject.option.logItemsToDisplay.craved = false;
 
-                                    jsonObject.option.reportItemsToDisplay = useChangeVsBaseline = false;
-                                    jsonObject.option.reportItemsToDisplay = useChangeVsLastWeek = false;
-                                    jsonObject.option.reportItemsToDisplay = useGoalVsThisWeek = false;
+                                    jsonObject.option.reportItemsToDisplay.useChangeVsBaseline = false;
+                                    jsonObject.option.reportItemsToDisplay.useChangeVsLastWeek = false;
 
                                     
                                 //console.log("massive ops on done stats");
 
                         }else{
-                            //json
                                 //baseline done / week
-                                    json.baseline.amountDonePerWeek = $("input.amountDonePerWeek").val();
-                                //goal done / week
-                                    json.baseline.goalDonePerWeek = $("input.goalDonePerWeek").val();
-
-                                //display stats which default false
-                                    json.option.reportItemsToDisplay.useChangeVsBaseline = true;
-                                    json.option.reportItemsToDisplay.useGoalVsThisWeek = true;
-
-
-                            //LOCAL STORAGE
-                                //baseline done / week
+                                          json.baseline.amountDonePerWeek = $("input.amountDonePerWeek").val();
                                     jsonObject.baseline.amountDonePerWeek = $("input.amountDonePerWeek").val();
-                                //goal done / week
-                                    jsonObject.baseline.goalDonePerWeek = $("input.goalDonePerWeek").val();
 
                                 //display stats which default false
+                                          json.option.reportItemsToDisplay.useChangeVsBaseline = true;
                                     jsonObject.option.reportItemsToDisplay.useChangeVsBaseline = true;
-                                    jsonObject.option.reportItemsToDisplay.useGoalVsThisWeek = true;
 
                         }
+
+
+                        if($("#goalDonePerWeekNA").is(":checked") ){
+                                   
+                                //goal done / week
+                                          json.baseline.goalDonePerWeek = false;
+                                    jsonObject.baseline.goalDonePerWeek = false;
+
+                                //report goal / week
+                                          json.option.reportItemsToDisplay.useGoalVsThisWeek = false;
+                                    jsonObject.option.reportItemsToDisplay.useGoalVsThisWeek = false;
+
+
+                         }else{
+                               
+                                //goal done / week
+                                          json.baseline.goalDonePerWeek = $("input.goalDonePerWeek").val();
+                                    jsonObject.baseline.goalDonePerWeek = $("input.goalDonePerWeek").val();
+
+                                //display goal vs this week
+                                          json.option.reportItemsToDisplay.useGoalVsThisWeek = true;
+                                    jsonObject.option.reportItemsToDisplay.useGoalVsThisWeek = true;
+
+                         }
                         
                             
                         setStorageObject(jsonObject);
@@ -1696,8 +1742,7 @@ $( document ).ready(function() {
 
                                 placeGoalIntoLog(startStamp, endStamp, goalType, false);
                                 
-                                var message = "Congrats on completing your goal! " + 
-                                        "It's been added to the your goal tab";
+                                var message = "congrats on completing your goal! Check your habit log on your statistics page for details.";
                                 createNotification(message);
                                 
                                 changeGoalStatus(3, goalType);
@@ -2364,6 +2409,9 @@ $( document ).ready(function() {
                     if(json.option.liveStatsToDisplay.spentButton == false){
                         $("#bought-button").parent().hide();
                     }
+                    if(json.option.liveStatsToDisplay.boughtGoalButton == false){
+                        $("#boughtGoalInput").parent().hide();
+                    }
 
                     if(json.option.liveStatsToDisplay.sinceLastSpent == false){
                         $("#cost-content .timer-recepticle").hide();
@@ -2393,6 +2441,9 @@ $( document ).ready(function() {
                 //USE
                     if(json.option.liveStatsToDisplay.usedButton == false){
                         $("#use-button").parent().hide();
+                    }
+                    if(json.option.liveStatsToDisplay.usedGoalButton = false){
+                        $("#usedGoalInput").parent().hide();
                     }
                     if(json.option.liveStatsToDisplay.cravedButton == false){
                         $("#crave-button").parent().hide();
@@ -2433,9 +2484,16 @@ $( document ).ready(function() {
                 if(json.option.liveStatsToDisplay.spentButton == true){
                     $("#bought-button").parent().show();
                 }
+                if(json.option.liveStatsToDisplay.boughtGoalButton == true){
+                    $("#boughtGoalInput").parent().hide();
+                }
                 if(json.option.liveStatsToDisplay.usedButton == true){
                     $("#use-button").parent().show();
                 }
+                if(json.option.liveStatsToDisplay.usedGoalButton == true){
+                    $("#usedGoalInput").parent().hide();
+                }
+
                 if(json.option.liveStatsToDisplay.cravedButton == true){
                     $("#crave-button").parent().show();
                 }
@@ -2618,16 +2676,18 @@ $( document ).ready(function() {
             /*SETTINGS MENU CLICK EVENTS */
                 $("#undoActionButton").click(function(event){
                     event.preventDefault();
-                    undoLastAction();
-
+                    
+                    if(confirm("Your last click will be undone - irreversibly. Are you sure?")){
+                        undoLastAction();
+                    }
                 });
 
                 $("#clearTablesButton").click(function(event){
                     event.preventDefault();
-                    clearActions();
-                    //close dropdown
-                    $(".hamburger .navbar-toggler").click();
-
+                    if(confirm("ALL your data will be cleared - irreversibly. Are you sure??")){
+                       clearActions();
+                    }
+                    
                 });
 
                 $("#shareStatsButton").click(function(event){
@@ -2753,20 +2813,23 @@ $( document ).ready(function() {
 
                     $(clickDialogTarget + ".log-more-info-div").slideToggle("fast");
 
-                    //grey out backgeround
-                    var bodyHeight= $(document).height();
-                    $("#greyed-out-div").height(bodyHeight);
-                    $("#greyed-out-div").css("z-index", "10");
-                    $("#greyed-out-div").animate({opacity: 0.4}, 300);
-                    $("#greyed-out-div").click(function(){
-                        if ($("#greyed-out-div").height() > 0){
-                            
-                            if(confirm("your data will not be saved, close anyways?")){
-                                closeClickDialog(clickDialogTarget);
-                            
+                    //grey out background
+                        var bodyHeight= $(document).height();
+                        $("#greyed-out-div").height(bodyHeight);
+                        $("#greyed-out-div").css("z-index", "10");
+                        $("#greyed-out-div").animate({opacity: 0.7}, 300);
+                        $("#greyed-out-div").click(function(){
+                            if ($("#greyed-out-div").height() > 0){
+                                
+                                if(confirm("Are you sure you want to close out of this dialog? No action will be recorded.")){
+                                    closeClickDialog(clickDialogTarget);
+                                
+                                }
                             }
-                        }
                     });
+                    
+
+                    //wait, actually height must be body + 
                     
                     
                     
@@ -2822,7 +2885,8 @@ $( document ).ready(function() {
 
                     }
 
-                    initiateReport();
+            
+                     initiateReport();
 
 
                 });
@@ -2883,7 +2947,7 @@ $( document ).ready(function() {
     //If json action table doesn't exist, create it
     if(localStorage.esCrave){
         setOptionsFromStorage();
-        setStateFromRecords();
+        setStatsFromRecords();
     //dump stats
     //console.log(json);
 
@@ -2922,6 +2986,9 @@ $( document ).ready(function() {
         //after all is said and done 
         //hide/show stats
             hideInactiveStatistics();
+
+        //get them notifcations for useful reports
+            initiateReport();
 
     }else{
         //replace this with 
@@ -3491,7 +3558,7 @@ $( document ).ready(function() {
 				//make boxes with value of zero hidden	until find a non zero value
 				function hideZeroValueTimerBoxes(timerSection){
 					//make boxes with value of zero hidden	until find a non zero value
-					for(i = 0; i< $("#"+ timerSection + " .boxes div").length; i ++){
+					for(var i = 0; i< $("#"+ timerSection + " .boxes div").length; i ++){
 						var currTimerSpanValue = $("#"+ timerSection + " .boxes div .timerSpan")[i];
 						if(currTimerSpanValue.innerHTML == "0"){
 							$(currTimerSpanValue).parent().hide();
@@ -3580,7 +3647,7 @@ $( document ).ready(function() {
 							showActiveStatistics();
 
 							//notify user that goal ended
-							var message = "your goal just ended, congrats! Check your goal log for details.";
+							var message = "your goal just ended, congrats! Check your habit log on your statistics page for details.";
 							createNotification(message);
 
 							//disappear zero seconds left timer
@@ -3865,15 +3932,15 @@ $( document ).ready(function() {
 
 				var goalType = "";
 				/* figure goal type */
-				if($("#boughtInput").is(":checked") && $("#usedInput").is(":checked")){
+				if($("#boughtGoalInput").is(":checked") && $("#usedGoalInput").is(":checked")){
 					//both are checked
 					goalType = "both";
 					
 				}else{
-					if($("#boughtInput").is(":checked")){
+					if($("#boughtGoalInput").is(":checked")){
 						goalType = "bought";
 						
-					}else if($("#usedInput").is(":checked")){
+					}else if($("#usedgoalInput").is(":checked")){
 						goalType = "use";
 						
 					}else{
