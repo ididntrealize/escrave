@@ -10,10 +10,10 @@ and allows you to set a goal for not doing or buying your guilty pleasure.
 Once you have input enough information, the app starts to spit out statistics on that information:<br />
 -Time since last bought<br />
 -Amount spent:<br />
-__-today<br />
-__-this week<br />
-__-this month<br />
-__-this year<br />
+ +today<br />
+ +this week<br />
+ +this month<br />
+ +this year<br />
 
 -Time since last done<br />
 -Number of times done<br />
@@ -30,7 +30,7 @@ Version 2 updates:<br />
 -baseline information and clicks in the app now form weekly reports<br />
 -users will be alerted of new reports, if the report has any data in it<br />
 -reports show <br />
-__+ A bar chart per day of uses and resists, <br />
-__+ Percent change of Uses and Spent since last week <br />
-__+ Percent change of Uses and Spent vs. baseline<br />
-__+ Raw difference in Uses and Spent vs. initial goal<br />
+ + A bar chart per day of uses and resists, <br />
+ + Percent change of Uses and Spent since last week <br />
+ + Percent change of Uses and Spent vs. baseline<br />
+ + Raw difference in Uses and Spent vs. initial goal<br />
