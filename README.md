@@ -10,10 +10,10 @@ and allows you to set a goal for not doing or buying your guilty pleasure.
 Once you have input enough information, the app starts to spit out statistics on that information:<br />
 -Time since last bought<br />
 -Amount spent:<br />
- +today<br />
- +this week<br />
- +this month<br />
- +this year<br />
+ + today<br />
+ + this week<br />
+ + this month<br />
+ + this year<br />
 
 -Time since last done<br />
 -Number of times done<br />
