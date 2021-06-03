@@ -60,7 +60,7 @@ h4{
 
 
 .app-background{
-	background:url("../images/mayan-ruin-background.jpg");
+	background:url("images/mayan-ruin-background.jpg");
 	padding-left:7px;
 	padding-right:7px;
 	padding-top:0px;
@@ -439,6 +439,7 @@ h4{
 	left:0;
     width: 437px;
 	width: 100%;
+	display: none;
 }
 
 
@@ -521,7 +522,7 @@ h4{
 
 	.fibonacci-timer{
 		display:inline-block;
-		background-image: url("../images/mayan-ruin-background-timers.jpg");
+		background-image: url("images/mayan-ruin-background-timers.jpg");
 		padding:3px;
 		overflow:hidden;
 		max-width: 100%;
@@ -599,7 +600,8 @@ h4{
 
 .notification {
 	position: relative;
-	background:url(../images/mayan-notification-background.jpg); 
+	background:white;
+	background:url("images/mayan-notification-background.jpg"); 
 	background-size: cover;
 	border: 1px solid #d6d6d6; 
 	border-radius: 4px; 

@@ -16,8 +16,8 @@
     <meta name="theme-color" content="#4d83b5"/>
 
 
-    <link rel="icon" href="../images/favicon.ico" />
-    <link rel="manifest" href="../manifest.json" />
+    <link rel="icon" href="images/favicon.ico" />
+    <link rel="manifest" href="manifest.json" />
 
     <title>esCrave - habit tracking web app</title>
 
@@ -29,7 +29,7 @@
       crossorigin="anonymous"
     />
   -->
-    <link rel="stylesheet" href="../css/bootstrap.min.css" />
+    <link rel="stylesheet" href="dependencies/bootstrap.min.css" />
 
     <!-- jQuery UI css 
     <link
@@ -39,7 +39,7 @@
     />
     -->
 
-    <link rel="stylesheet" href="../css/jquery-ui.css" />
+    <link rel="stylesheet" href="dependencies/jquery-ui.min.css" />
 
     <!-- Font awesome
     <link
@@ -49,12 +49,12 @@
       crossorigin="anonymous"
     />
   -->
-    <link href="../fontawesome/css/all.css" rel="stylesheet" />
+    <link href="dependencies/fontawesome/css/all.css" rel="stylesheet" />
 
     <!-- CHARTIST 
       <link rel="stylesheet" href="//cdn.jsdelivr.net/chartist.js/latest/chartist.min.css">
     -->
-    <link rel="stylesheet" href="../css/chartist.min.css">
+    <link rel="stylesheet" href="dependencies/chartist.min.css">
 
     <!-- Custom styles for this template -->
     <link href="app.css" rel="stylesheet" />
@@ -84,7 +84,7 @@
                 </div>
             </div>
              <div class="logo-and-tagline">
-                <img class="img-fluid" src="../images/escrave-logo-extended-inverse.png" />
+                <img class="img-fluid" src="images/escrave-logo-extended-inverse.png" />
                 <!--span class="tagline">esCrave</span-->
                 <!--p style="">Anonymous Habit Tracker</p -->
             </div>
@@ -268,6 +268,119 @@
                                 <h3 class="text-center">I spent:</h3>
                                 <label><input id="spentInput" type="number" style="margin-left: 8px;" /> $ </label>
                             </div>
+                        </div>
+                        <div class="col-6" style="padding-right:7px;">
+                            <button href="#" class="cancel btn btn-outline-dark btn-md btn-block">
+                                cancel
+                            </button>
+                        </div>
+                        <div class="col-6" style="padding-left:7px;">
+                            <button href="#" class="submit btn btn-dark btn-md btn-block">
+                                Submit
+                            </button>
+                        </div>
+                     </div>
+                </div>
+
+                <div class="use log-more-info-div">
+                    <div class="row">
+                        <div class="col-12">
+                            <div class="time-picker-container">
+
+                                <h3 class="text-center">Time started:</h3>
+
+                                <select class="time-picker-hour" data-min="0" data-max="23" data-step="1">
+                                    <option value="0">12</option>
+                                    <option value="1">1</option>
+                                    <option value="2">2</option>
+                                    <option value="3">3</option>
+                                    <option value="4">4</option>
+                                    <option value="5">5</option>
+                                    <option value="6">6</option>
+                                    <option value="7">7</option>
+                                    <option value="8">8</option>
+                                    <option value="9">9</option>
+                                    <option value="10">10</option>
+                                    <option value="11">11</option>
+        
+                                </select>
+                                <span class="label">
+                                    :
+                                </span>
+                                <select class="time-picker-minute" data-min="0" data-max="59" data-step="1">
+                                    <option value="0">00</option>
+                                    <option value="1">01</option>
+                                    <option value="2">02</option>
+                                    <option value="3">03</option>
+                                    <option value="4">04</option>
+                                    <option value="5">05</option>
+                                    <option value="6">06</option>
+                                    <option value="7">07</option>
+                                    <option value="8">08</option>
+                                    <option value="9">09</option>
+                                    <option value="10">10</option>
+                                    <option value="11">11</option>
+                                    <option value="12">12</option>
+                                    <option value="13">13</option>
+                                    <option value="14">14</option>
+                                    <option value="15">15</option>
+                                    <option value="16">16</option>
+                                    <option value="17">17</option>
+                                    <option value="18">18</option>
+                                    <option value="19">19</option>
+                                    <option value="20">20</option>
+                                    <option value="21">21</option>
+                                    <option value="22">22</option>
+                                    <option value="23">23</option>
+                                    <option value="24">24</option>
+                                    <option value="25">25</option>
+                                    <option value="26">26</option>
+                                    <option value="27">27</option>
+                                    <option value="28">28</option>
+                                    <option value="29">29</option>
+                                    <option value="30">30</option>
+                                    <option value="31">31</option>
+                                    <option value="32">32</option>
+                                    <option value="33">33</option>
+                                    <option value="34">34</option>
+                                    <option value="35">35</option>
+                                    <option value="36">36</option>
+                                    <option value="37">37</option>
+                                    <option value="38">38</option>
+                                    <option value="39">39</option>
+                                    <option value="40">40</option>
+                                    <option value="41">41</option>
+                                    <option value="42">42</option>
+                                    <option value="43">43</option>
+                                    <option value="44">44</option>
+                                    <option value="45">45</option>
+                                    <option value="46">46</option>
+                                    <option value="47">47</option>
+                                    <option value="48">48</option>
+                                    <option value="49">49</option>
+                                    <option value="50">50</option>
+                                    <option value="51">51</option>
+                                    <option value="52">52</option>
+                                    <option value="53">53</option>
+                                    <option value="54">54</option>
+                                    <option value="55">55</option>
+                                    <option value="56">56</option>
+                                    <option value="57">57</option>
+                                    <option value="58">58</option>
+                                    <option value="59">59</option>
+        
+                                </select>
+        
+                                <select class="time-picker-am-pm">
+                                    <option value="AM">AM</option>
+                                    <option value="PM">PM</option>
+                                </select>
+        
+        
+        
+                            </div>
+                            
+                            <div id="smokeStartPicker"></div>
                         </div>
                         <div class="col-6" style="padding-right:7px;">
                             <button href="#" class="cancel btn btn-outline-dark btn-md btn-block">
@@ -882,7 +995,7 @@
                             <button id="undoActionButton" class="btn btn-outline-warning" href="#"><i
                                     class="fas fa-undo-alt"></i>&nbsp;Undo last action</button>
                             <button id="clearTablesButton" class="btn btn-outline-danger" href="#"><i
-                                    class="fas fa-trash-alt"></i>&nbsp;Reset all app data</button>
+                                    class="fas fa-trash-alt"></i>&nbsp;Clear all app data</button>
 
                         <div class="live-statistics-display-options">
                             <h3>Displayed Statistics</h3>
@@ -1212,14 +1325,14 @@
       crossorigin="anonymous"
     ></script>
     -->
-        <script src="../js/jquery-3.2.1.min.js"></script>
+        <script src="dependencies/jquery-3.2.1.min.js"></script>
 
 
         <!-- jQuery UI
     <script src="https://code.jquery.com/ui/1.12.1/jquery-ui.js"></script>
     -->
 
-        <script src="../js/jquery-ui.js"></script>
+        <script src="dependencies/jquery-ui.min.js"></script>
 
 
         <!-- Popper 
@@ -1229,7 +1342,7 @@
       crossorigin="anonymous"
     ></script>
     -->
-        <script src="../js/popper.js"></script>
+        <script src="dependencies/popper.js"></script>
 
         <!-- Bootstrap 
     <script
@@ -1238,18 +1351,18 @@
       crossorigin="anonymous"
     ></script>
     -->
-        <script src="../js/bootstrap.min.js"></script>
+        <script src="dependencies/bootstrap.min.js"></script>
 
     <!-- CHARTIST 
         <script src="//cdn.jsdelivr.net/chartist.js/latest/chartist.min.js"></script>
     -->
-        <script src="../js/chartist.min.js"></script>
+        <script src="dependencies/chartist.min.js"></script>
 
 
         <script type="application/javascript" src="app.js"></script>
 
 
-        <script type="application/javascript" src="../js/main.js"></script>
+        <script type="application/javascript" src="dependencies/main.js"></script>
 
 </body>
 
