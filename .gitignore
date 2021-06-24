@@ -1,5 +1,8 @@
-00-xtra/
-
+*
+wp-admin/*
+wp-includes/*
+!app/
+!README.md
 
 # ignore everything in the "wp-content" directory, except:
 # "mu-plugins", "plugins", "themes" directory
