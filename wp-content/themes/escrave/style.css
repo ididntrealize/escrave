@@ -1,0 +1,580 @@
+/*
+Theme Name: Escrave
+Theme URI: https://github.com/ididntrealize/escrave/
+Description: This is a theme created for personal use on the marketing site/blog of a free - addiction tracking web app
+Version: 2.0
+Author: Corey Boiko
+Author URI: https://escrave.com
+*/
+
+
+
+ /*
+ COLOR PALETTE 
+ 
+dark red
+color:#420000;
+
+dark purple
+#512A3D;
+
+dark blue
+ #212666;
+*/
+
+body {
+  padding-top: 57px;
+}
+h2 {
+	font-size: 2.8rem;
+	color: #6B334E;
+}
+h3 {
+  text-transform: capitalize;
+  text-align: center;
+  font-size: 2.2rem;
+  margin: 20px 0px;
+}
+
+h4,h5,h6,p,span,em,strike,li,b{
+	font-family: 'Varela', sans-serif;
+}
+i {
+  color: #6B334E;
+   
+}
+p, span{
+	
+	font-size:1.2em;
+}
+li{
+	font-size: 1.4em;
+}
+em{
+	font-weight: 900;
+	text-decoration: underline;
+}
+
+strike {
+	height:2.8rem;
+  position: relative;
+}
+strike::after {
+  border-bottom: 0.125em solid #6B334E;
+  content: "";
+  left: 0;
+  margin-top: calc(0.125em / 2 );
+  position: absolute;
+  right: 0;
+  top: 50%;
+}
+
+/*navbar*/
+.navbar {
+  padding-top: 0px;
+  padding-bottom: 0px;
+}
+.navbar-expand-lg .navbar-nav .nav-link {
+  padding-right: 0.8rem;
+  padding-left: 0.8rem;
+  padding-top: 15px;
+}
+.navbar-expand-lg .btn {
+  font-size: 1.2rem;
+  font-weight: 750;
+  margin-bottom:10px;
+}
+
+.navbar-brand img {
+  max-height: 43px;
+	opacity:0;
+  -webkit-transition: opacity 1s; /* Safari */
+  transition: opacity 1s;
+}
+.navbar-brand img.shrink {
+	opacity: 1;
+	max-height: 40px;
+}
+
+.tagline{
+  color:#6B334E;
+  font-weight: 800;
+  font-size: 1.4rem;
+  -webkit-transition: font-size 1s; /* Safari */
+  transition: font-size 1s;
+}
+.tagline.shrink {
+  font-weight: 800;
+  font-size: 1.4rem;
+}
+
+
+/*all section */
+section {
+  min-height: 75vh;
+  padding-bottom: 30px;
+}
+
+/* this is the old system of above the fold header */
+.section-header {
+  background-image: url("images/mayan-courtyard-heading-bg.jpg");
+  background-position: center;
+  background-size: cover;
+	padding-top: 20px;
+	padding-bottom: 20px;
+  text-align: center;
+  margin-bottom: 20px;
+}
+
+.section-header h2 {
+  font-weight: 650;
+  display: inline-block;
+  background: rgba(255, 255, 255, 0.5);
+  padding: 10px;
+  padding-bottom: 10px;
+  margin-bottom: 0px;
+}
+
+.section-header{
+  text-align: center;
+  margin-bottom: 20px;
+}
+
+.section-header h2 {
+  font-weight: 900;
+  display: inline-block;
+  padding: 15px;
+  padding-bottom: 25px;
+  margin-bottom: 0px;
+} 
+
+
+
+/* MAIN OFFER DIV */
+    /* Mayan ruins centered 
+      .main-offer .item {
+        height: calc(100vh - 55px);
+        min-height:420px;
+        background-image: url('../images/mayan-ruins-head-on-rough.jpg');
+        background-repeat: no-repeat;
+        background-position:center center;
+        -webkit-background-size: cover;
+        -moz-background-size: cover;
+        -o-background-size: cover;
+        background-size: cover;
+      }
+
+      */
+
+/*Mayan ruins sloping in from left*/
+
+/* 
+#main-offer{
+ background-image: url("images/mayan-ruins-sky-right.jpg");
+  background-repeat: no-repeat;
+  background-position: -250px 0px;
+  -webkit-background-size: cover;
+  -moz-background-size: cover;
+  -o-background-size: cover;
+  background-size: cover;
+
+} 
+*/
+.main-heading-variation span{
+	opacity: 1;
+	transition: all 2s ease-in;
+}
+
+.main-heading-variation .transparent{
+	opacity:0;
+	transition: all 1.5s ease-in;
+}
+
+
+.main-offer .item {
+  /* height: calc(75vh - 55px); */
+  min-height: 420px;
+
+}
+
+.main-offer img.img-fluid{
+	max-width:300px;
+
+}
+
+.main-offer .caption {
+  /* position: absolute; */
+  right: 7%;
+  top: 60px;
+  left: 7%;
+  z-index: 10;
+  padding-top: 20px;
+  padding-bottom: 20px;
+  color: #111111;
+  text-align: left;
+  max-width: 760px;
+}
+.main-offer .caption .text-holder{
+  max-width: 420px;
+	padding:10px;
+}
+.main-offer .caption h3 {
+	font-family: 'Neucha', cursive;
+	padding-bottom: 15px;
+	font-size: 1.8rem;
+}
+.main-heading-variation{
+	display: block;
+}
+.main-offer .caption h3 span{
+	font-size: inherit;	
+	font-family: 'Neucha', cursive;
+}
+.main-offer .caption h3 .main-heading-variation span{
+	color:white;
+}
+
+.main-offer .caption a {
+  background: white;
+	font-weight: 650;
+	top: 70px;
+}
+
+.btn-outline-willing {
+ 	  color: #007bff8e;
+    padding: 0px 15px;
+    outline: 1px solid #420000;
+}
+
+.btn-outline-primary:hover {
+  color: #fff;
+  background-color: #58a2f1da;
+  border-color: #007bff8e;
+}
+
+
+/* TEMPLATE SPECIFIC STYLES */
+.card-icon{
+  text-align: center;
+  padding: 12px;
+  margin-top: 0px;
+}
+.card-icon i{
+  margin-top: 10px;
+}
+
+.card-icon:first-child{
+	margin-top:0px;
+}
+.icon-heading{
+	margin-top:70px;
+}
+
+
+/* SECTION SPECIFIC STYLES */
+#functionality .icon-paragraph{
+  display:flex;
+  align-items: center;
+
+}
+#methods .method-chunk{
+    margin-bottom:25px;
+}
+#methods .method-chunk h3{
+    margin-bottom:10px;
+}
+
+
+
+/* Blog styles */
+	.post{
+		margin-bottom: 40px;
+	}
+	.post h3{
+		margin-bottom: 5px;
+		font-size:2rem;
+	}
+
+	.post a{
+		color: #0081c2;
+		text-decoration:none;
+	}
+	.post a:hover,
+	.post a:focus
+	{
+		color: #66afff;
+	}
+	.post blockquote {
+		padding: 10px;
+		padding-left:20px;
+    color: #420000;
+    background: #f9f1f1;
+}
+.post table.tg{
+	margin-bottom:30px;
+}
+.post table.tg tr th{
+	background: #f9f1f1;
+}
+.post table.tg tr{
+	background: #f9f1f1;
+}
+
+.post table.tg tr{
+	border-bottom: .5px solid #420000;
+}
+
+.post table.tg tr td,
+.post table.tg tr th{
+	padding: 7px 15px;
+}
+	.post-header .author,
+	.post-header .date{
+		display:inline-block;
+		font-size: .9rem;
+		
+	}
+	.post-header .date{
+		margin-right:10px;
+	}
+	.post-info{
+		margin-bottom:15px;
+		color: grey;
+	}
+	.post-thumb img{
+		width:100%;
+		height:auto;
+		margin-bottom:10px;
+	}
+
+
+	.post-footer{
+		display: flex;
+		padding-top: 10px;
+		align-items: center;
+	}
+	.post-footer .read-more,
+	.post-footer .comments{
+		display:inline-block;
+	}
+	
+	.post-footer .read-more{
+		margin-right:10px;
+	}
+	
+	.post a.btn:hover,
+	.post a.btn:focus{
+		color:white;
+	}
+	
+	
+	
+	.comments{
+		width:100%;
+	}
+	
+	.comments-container{
+		
+		padding:10px;
+		margin-bottom:15px;
+		width:100%;	
+	}
+	
+	.comments-container h4{
+		color:#333;
+		padding:5px;
+	}
+	
+	.comment-form-comment{
+		margin-bottom:0px;
+	}
+	
+	p.form-submit{
+		margin-bottom:35px;
+	}
+	
+	/* faking bootstrap btn styles */
+		p.form-submit input,
+		a.comment-reply-link{
+			background: white;
+			padding:7px 20px;
+				padding: .5rem 1rem;
+				font-size: 1.25rem;
+				line-height: 1.5;
+				border-radius: .3rem;
+				
+				font-weight: 400;
+				text-align: center;
+				white-space: nowrap;
+				vertical-align: middle;
+				-webkit-user-select: none;
+				-moz-user-select: none;
+				-ms-user-select: none;
+				user-select: none;
+				border: 1px solid transparent;
+				padding: .375rem .75rem;
+				font-size: 1rem;
+				line-height: 1.5;
+				border-radius: .25rem;
+				transition: background-color .15s ease-in-out,border-color .15s ease-in-out,box-shadow .15s ease-in-out;
+				
+				color: #17a2b8;
+				background-color: transparent;
+				background-image: none;
+				border-color: #17a2b8;
+				display: inline-block;
+				
+				cursor: pointer;
+		
+		}
+		p.form-submit input:hover,
+		p.form-submit input:focus,
+		a.comment-reply-link:hover,
+		a.comment-reply-link:focus{
+			background-color: #17a2b8;
+			color:white;
+			
+		}
+	
+	.comment-body{
+		border: 1px #ccc solid;
+		margin-bottom:15px;
+		padding-bottom: 20px;
+	}
+	.comment-content{
+		padding: 5px 15px;
+	}
+	
+	li.comment{
+		list-style-type:none;
+	}
+	
+	.comment-meta{
+		background:#efefef;
+		padding:10px;
+		overflow:auto;
+	}
+	
+	.comment-meta img{
+		float:left;
+		margin-right:10px;
+	}
+	
+	.comment-reply-link{
+		display:inline-block;
+		padding:10px 15px;
+		margin:0px 15px;
+	}
+	
+	.comment-from input, .comment-form textarea{
+		width:100%;
+		border: 1px #ccc solid;
+		margin-bottom:15px;
+		
+	}
+	
+	.comment-form .logged-in-as > a{
+		margin-left:15px;
+	}
+		
+	.comment-form textarea{
+		min-height: 120px;
+	
+	}
+	
+	
+	/* Sidebar */
+	.sidebar-widget{
+		margin-top: 100px;
+	}
+	
+	.sidebar-module{
+		margin:20px 0px;
+	}
+	
+	.sidebar-module .screen-reader-text{
+		display:none;
+	}
+	
+	.sidebar-module ul{
+		padding-left: .7em;
+	}
+	
+	.sidebar-module li{
+		list-style:none;
+	}
+	
+	.sidebar-module a{
+		color: #0081c2;
+		text-decoration:none;
+	}
+	.sidebar-module a:hover,
+	.sidebar-module a:focus
+	{
+		color: #66afff;
+	}
+	
+	
+	
+	
+	/* AUTHOR PAGE */
+	
+	.author-avatar{
+		 max-width:100px;
+		 float:left;
+	}
+	.author-info{
+		 max-width:calc(100% - 100px);
+		 display:inline-block;
+	}
+
+
+
+/* ADJUST FOR LARGER SCREEN SIZES */
+@media (min-width: 768px) {
+  body {
+    padding-top: 57px;
+  }
+  h3 {
+    text-align: left;
+  }
+  .navbar-brand img {
+    max-height: 43px;
+  }
+  .navbar-expand-lg .btn {
+     margin-bottom:5px;
+     margin-top:5px;
+    }   
+  .main-offer .caption {
+		height: calc(75vh - 55px);
+		position: initial;
+		top: 60px;
+		margin:0 auto;
+	}
+	.main-offer .caption h3{
+		font-size: 2.4rem;
+	}
+  .main-offer .caption .text-holder{
+    margin-top:0px;
+  }
+  .horizontal-align-into-section {
+    margin-top: 15vh;
+  }
+}
+
+@media (min-width: 978px) {
+  .main-offer .item {
+    height: calc(75vh);
+		background-position: center 0px;
+		overflow: hidden;
+  }
+/* 
+  .main-offer .caption {
+    top: 58px;
+    right: 10%;
+    left: 10%;
+	} */
+	
+	
+
+}
