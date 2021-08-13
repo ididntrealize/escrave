@@ -1,5 +1,5 @@
 body, body * {
-	font-weight:.8rem;
+	font-weight: 400;
 	font-family: helvetica, Tahoma, Geneva, Verdana, sans-serif;
 }
 body{
@@ -429,7 +429,7 @@ h4{
 }
 
 /* log more info div */
-.log-more-info-div {
+.log-more-info {
     border: 1px solid black;
 	padding:15px 7px 7px 7px;
     background-color: white;
@@ -443,17 +443,17 @@ h4{
 }
 
 
-	.cost.log-more-info-div div.input-area{
+	.cost.log-more-info div.input-area{
 		margin: 0px auto;
 		display: block;
 		max-width: 220px;
         padding-bottom: 20px;
 	}
-	.cost.log-more-info-div h3{
+	.cost.log-more-info h3{
 		display: inline-block;
 		padding-left:20px;
 	}
-	.cost.log-more-info-div input{
+	.cost.log-more-info input{
 		color:grey;
 		max-width: 75px;
 		text-align: center;
@@ -478,7 +478,7 @@ h4{
         }
 
 
-	.cost.log-more-info-div label{
+	.cost.log-more-info label{
 		margin: 15px auto;
 		display: inline-block;
 		font-weight: 700;
@@ -488,12 +488,12 @@ h4{
 	}
 	
 	
-	.goal.log-more-info-div #goalEndPicker{
+	.goal.log-more-info #goalEndPicker{
 		display:table;
 		margin:20px auto;
 	}
 
-	.goal.log-more-info-div .time-picker-container{
+	.goal.log-more-info .time-picker-container{
 		text-align: center;
 	}
 
@@ -504,8 +504,24 @@ h4{
 		font-size:2.4rem;
 	}
 
+    .use.log-more-info .time-picker-container .form-check-input{
+        margin-left: 0;
+        padding-left: 10px;
+        transform: scale(1.4);
+    }
+    
+    .use.log-more-info .time-picker-container .time-picker-now,
+    .use.log-more-info .time-picker-container .time-picker-before {
+        padding-left: 10px;
+        font-size: 2.6rem;
+        display: flex;
+        align-items: center;
+    }
 
-
+    .use.log-more-info .time-picker-container .time-picker-now label,
+    .use.log-more-info .time-picker-container .time-picker-before label {
+        padding-left: 30px;
+    }
 
 
 #greyed-out-div{
@@ -538,10 +554,10 @@ h4{
 
 	}
 	
-	.fibonacci-timer .daysSinceLastClickSpan{
+	.fibonacci-timer .daysSinceLastClick {
 	  font-size: 52px;
 	}
-	.fibonacci-timer .hoursSinceLastClickSpan{
+	.fibonacci-timer .hoursSinceLastClick {
 	  font-size: 36px;
 	}
 	

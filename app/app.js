@@ -115,7 +115,7 @@ $(document).ready(function () {
                     "craveCounter": 0,
                     "cravingsInARow": 0,
                     "firstClickStamp": 0,
-                    "lastClickStamp": 0,
+                    "c": 0,
                     "lastClickStampCrave": 0,
                     "averageBetweenClicks": 0
                 },
@@ -322,6 +322,9 @@ $(document).ready(function () {
             var useCount = jsonObject.action.filter(function (e) {
                 return e.clickType == "used";
             });
+            useCount = useCount.sort( (a, b) => {
+                return parseInt(a.timestamp) > parseInt(b.timestamp) ? 1 : -1;
+            })
             json.statistics.use.clickCounter = useCount.length;
 
             //Restart timer value
@@ -331,12 +334,11 @@ $(document).ready(function () {
 
                 //average time between uses	
                 var totalTimeBetweenUses = useCount[useCount.length - 1].timestamp - useCount[0].timestamp,
-                    averageTimeBetweenUses = Math.round(totalTimeBetweenUses / (useCount.length));
+                    averageTimeBetweenUses = Math.round(totalTimeBetweenUses / (useCount.length - 1));
 
                 if ($.isNumeric(averageTimeBetweenUses)) {
                     json.statistics.use.averageBetweenClicks = averageTimeBetweenUses;
                 }
-
 
                 //used to calculate avg time between from json obj, live
                 json.statistics.use.firstClickStamp = useCount[0].timestamp;
@@ -576,8 +578,10 @@ $(document).ready(function () {
                         e.clickType == "bought" ||
                         (e.clickType == "goal" && (e.status == 2 || e.status == 3));
                 });
-                //console.log("allActions = ");
-                //console.log(allActions);
+                allActions = allActions.sort( (a, b) => {
+                    return parseInt(a.timestamp) > parseInt(b.timestamp) ? 1 : -1;
+                })
+
                 /* only display a certain number of actions per page */
                 var actionsToAddMax = allActions.length - 1,
                     actionsToAddMin = allActions.length - 10;
@@ -1892,7 +1896,6 @@ $(document).ready(function () {
             changeGoalStatus(1, goalType, false, goalStampSeconds);
 
         }
-
         function endActiveGoal() {
             //console.log("end that goal - start a new one");
 
@@ -2107,10 +2110,10 @@ $(document).ready(function () {
 
             //s	//m
             if (rangeInSeconds > (60)) {
-                var currMintues = Math.floor(rangeInSeconds / (60)) % 60;
-                if (currMintues < 10) { currMintues = "0" + currMintues };
+                var currMinutes = Math.floor(rangeInSeconds / (60)) % 60;
+                if (currMinutes < 10) { currMinutes = "0" + currMinutes };
 
-                finalStringStatistic = currMintues + "<span>m&nbsp;</span>" + finalStringStatistic;
+                finalStringStatistic = currMinutes + "<span>m&nbsp;</span>" + finalStringStatistic;
 
             }
 
@@ -2136,7 +2139,6 @@ $(document).ready(function () {
                 //drop minutes
                 finalStringStatistic = finalStringStatistic.split("h")[0] + "h</span>";
             }
-
 
             //remove very first 0 from string	
             //console.log(finalStringStatistic);
@@ -2261,12 +2263,16 @@ $(document).ready(function () {
 
         function calculateAverageTimeBetween(actionType) {
             //current timestamp
-            var currTimestamp = Math.round(new Date() / 1000);
+            var timeNow = Math.round(new Date() / 1000);
 
-            //set key to the correct calculation ((currTimestamp - firstTimestamp) / (totalClicks))
-            var totalTimeBetween = parseInt(currTimestamp) - parseInt(json.statistics[actionType].firstClickStamp),
+            //set key to the correct calculation ((timeNow - firstTimestamp) / (totalClicks))
+            var totalTimeBetween = parseInt(timeNow) - parseInt(json.statistics[actionType].firstClickStamp),
                 totalClicks = parseInt(json.statistics[actionType].clickCounter);
-            json.statistics[actionType].averageBetweenClicks = Math.round(totalTimeBetween / totalClicks);
+            json.statistics[actionType].averageBetweenClicks = Math.round(totalTimeBetween / (totalClicks - 1));
+
+            console.log("totalTimeBetween: ", totalTimeBetween)
+            console.log("totalClicks: ", totalClicks)
+            console.log("calculating avg: ", Math.round(totalTimeBetween / (totalClicks - 1)))
 
             //call function to display new stat
             displayAverageTimeBetween(actionType);
@@ -2281,13 +2287,9 @@ $(document).ready(function () {
 
         //TOGGLE ANY STATS WHICH ARE NOT ZERO 
         function hideInactiveStatistics() {
-
-            //console.log("inside show inactive");
-
+            //used to hide instructions once app is in use
             var statisticPresent = false;
             //bought page 
-            //if(relevantPane == "cost-content"){	
-
             /*HIDE UNAVAILABLE STATS */
             if (json.statistics.cost.clickCounter === 0) {
                 $("#bought-total").hide();
@@ -2303,7 +2305,6 @@ $(document).ready(function () {
             }
 
             if (json.statistics.cost.total === 0) {
-                //console.log("total spent is 0: " + json.statistics.totalSpent);
                 //toggle all
                 $("#cost-content .statistic-recepticle").hide();
                 $("#totalAmountSpent").parent().hide();
@@ -2312,28 +2313,20 @@ $(document).ready(function () {
                 $("#spentThisYear").parent().hide();
 
             } else if (json.statistics.cost.thisWeek == json.statistics.cost.total) {
-                //console.log("toggle all but total - spent this week equals total");
                 //toggle year month week 
                 $("#spentThisWeek").parent().hide();
                 $("#spentThisMonth").parent().hide();
                 $("#spentThisYear").parent().hide();
 
-
             } else if (json.statistics.cost.thisMonth == json.statistics.cost.thisWeek) {
-                //console.log("toggle all but week - spent this month equals week");
                 //toggle year and month
                 $("#spentThisMonth").parent().hide();
                 $("#spentThisYear").parent().hide();
 
-
             } else if (json.statistics.cost.thisYear == json.statistics.cost.thisMonth) {
-                //console.log("toggle year - spent this year equals month");
                 $("#spentThisYear").parent().hide();
 
-
             }
-
-            //}else if(relevantPane == "use-content"){
 
             if (json.statistics.use.clickCounter === 0) {
                 $("#use-total").hide();
@@ -2365,7 +2358,6 @@ $(document).ready(function () {
 
             }
 
-            //}else if(relevantPane == "goal-content"){
 
             if (json.statistics.goal.clickCounter === 0) {
                 $("#goal-content .timer-recepticle").hide();
@@ -2382,12 +2374,7 @@ $(document).ready(function () {
 
             }
 
-
-
-            //}
             if (statisticPresent) {
-                //hide instructions
-                //console.log("a statistic is present, hide instructions");
                 $("#statistics-content .initial-instructions").hide();
             }
 
@@ -2402,7 +2389,6 @@ $(document).ready(function () {
 
             if (json.option.liveStatsToDisplay.sinceLastSpent == false) {
                 $("#cost-content .timer-recepticle").hide();
-                //console.log("hide timer sinceLastSpent");
             }
 
             if (json.option.liveStatsToDisplay.avgBetweenSpent == false) {
@@ -2462,11 +2448,7 @@ $(document).ready(function () {
             }
 
         }
-
         function showActiveStatistics() {
-
-            //console.log("inside show active");
-
             //Show Buttons if requested
             if (json.option.liveStatsToDisplay.spentButton == true) {
                 $("#bought-button").parent().show();
@@ -2480,7 +2462,6 @@ $(document).ready(function () {
             if (json.option.liveStatsToDisplay.usedGoalButton == true) {
                 $("#usedGoalInput").parent().hide();
             }
-
             if (json.option.liveStatsToDisplay.cravedButton == true) {
                 $("#crave-button").parent().show();
             }
@@ -2488,9 +2469,7 @@ $(document).ready(function () {
                 $("#goal-button").parent().show();
             }
 
-
             //bought page 
-            //if(relevantPane == "cost-content"){	
             if (json.statistics.cost.clickCounter !== 0) {
                 $("#bought-total").show();
                 if (json.option.liveStatsToDisplay.sinceLastSpent == true) {
@@ -2498,22 +2477,18 @@ $(document).ready(function () {
                     $("#cost-content .timer-recepticle").show();
                     $("#cost-content .fibonacci-timer").show();
                 }
-
             }
             if (json.statistics.cost.averageBetweenClicks !== 0) {
                 if (json.option.liveStatsToDisplay.avgBetweenSpent == true) {
                     $("#averageTimeBetweenBoughts").parent().show();
                     calculateAverageTimeBetween("cost");
                 }
-
             }
             if (json.statistics.cost.total !== 0) {
                 $("#cost-content .statistic-recepticle").show();
-
                 if (json.option.liveStatsToDisplay.totalSpent == true) {
                     $("#totalAmountSpent").parent().show();
                 }
-
             }
             if (json.statistics.cost.thisWeek !== json.statistics.cost.total) {
                 if (json.option.liveStatsToDisplay.currWeekSpent == true) {
@@ -2524,37 +2499,27 @@ $(document).ready(function () {
                 if (json.option.liveStatsToDisplay.currMonthSpent == true) {
                     $("#spentThisMonth").parent().show();
                 }
-
             }
             if (json.statistics.cost.thisYear !== json.statistics.cost.thisMonth) {
                 if (json.option.liveStatsToDisplay.currYearSpent == true) {
                     $("#spentThisYear").parent().show();
                 }
             }
-
-            //}else if(relevantPane == "use-content"){
-
             if (json.statistics.use.clickCounter !== 0) {
                 $("#use-total").show();
                 if (json.option.liveStatsToDisplay.sinceLastDone == true) {
                     $("#use-content .timer-recepticle").show();
                     $("#use-content .fibonacci-timer").show();
-                    //console.log("about to show use timer");
                 }
             }
-
             if (json.statistics.use.averageBetweenClicks !== 0) {
                 if (json.option.liveStatsToDisplay.avgBetweenDone == true) {
                     $("#averageTimeBetweenUses").parent().show();
-                    //Average time between uses
                     calculateAverageTimeBetween("use");
                 }
-
             }
-
             if (json.statistics.use.craveCounter !== 0) {
                 $("#crave-total").show();
-
             }
             if (json.statistics.use.craveCounter !== 0 && json.statistics.use.clickCounter !== 0) {
                 if (json.option.liveStatsToDisplay.didntPerDid == true) {
@@ -2567,9 +2532,7 @@ $(document).ready(function () {
                 }
             }
 
-
-            //}else if(relevantPane == "goal-content"){
-            //console.log("show stats goal tab");
+            //goal page
             if (json.statistics.goal.clickCounter !== 0 &&
                 (json.statistics.goal.activeGoalBoth || json.statistics.goal.activeGoalBought || json.statistics.goal.activeGoalUse)
             ) {
@@ -2578,41 +2541,25 @@ $(document).ready(function () {
                     $("#goal-content .fibonacci-timer").show();
                 }
             }
-
             if (json.statistics.goal.bestTimeSeconds !== 0) {
                 if (json.option.liveStatsToDisplay.longestGoal == true) {
                     $("#longestGoalCompleted").parent().show();
                 }
-                //console.log("showing lng compl");
             }
             if (json.statistics.goal.completedGoals !== 0) {
                 $("#numberOfGoalsCompleted").parent().show();
             }
-
-
-
-            //}
-
-
         }
 
         /*SETTINGS MENU FUNCTIONS*/
         //undo last click
         function undoLastAction() {
-
-            //console.log("undo last action - clicked");
             var jsonObject = retrieveStorageObject();
-            //console.log(jsonObject);
-
-            //check what the record to be removed - clicktype is
             var undoneActionClickType = jsonObject["action"][jsonObject["action"].length - 1].clickType;
-            //console.log("undone actions clickType = " + undoneActionClickType);
 
             //remove most recent (last) record
             jsonObject["action"].pop();
 
-
-            //console.log(jsonObject);
             setStorageObject(jsonObject);
 
             //UNBREAK GOAL
@@ -2625,44 +2572,29 @@ $(document).ready(function () {
                     if (currRecord.clickType == "goal" && (currRecord.goalType == "both" || currRecord.goalType == undoneActionClickType)) {
                         //if this first finds a goal which would have been broken by undoneActionClickType, 
                         //change this.status to active, exit loop 
-                        //console.log("effected goal detected on cycle = " + i);
                         changeGoalStatus(1, currRecord.goalType, -1);
                         break;
 
                     } else if (currRecord.clickType == undoneActionClickType) {
                         //if this first finds an action.clickType == undoneActionClickType, 
                         //then a goal could not have been broken, so exit loop without changing goal status
-
                         break;
 
                     }
                 }
             }
-
-
-            //reload the page refresh
             window.location.reload();
 
-
-
         }
-
         //reset all stats
         function clearActions() {
             window.localStorage.clear();
             window.location.reload();
         }
 
-        //share stats
-        function shareActions() {
-            //window.location("dataexport.html");
-            //window.open("dataexport.html", "_blank");
-        }
-
         /*SETTINGS MENU CLICK EVENTS */
         $("#undoActionButton").click(function (event) {
             event.preventDefault();
-
             if (confirm("Your last click will be undone - irreversibly. Are you sure?")) {
                 undoLastAction();
             }
@@ -2676,14 +2608,6 @@ $(document).ready(function () {
 
         });
 
-        $("#shareStatsButton").click(function (event) {
-            event.preventDefault();
-            shareActions();
-            //close dropdown
-            $(".hamburger .navbar-toggler").click();
-
-        });
-
         /* CREATE NEW RECORD OF ACTION */
         //timestamp, clicktype, spent, goalStamp, goalType
         function updateActionTable(ts, ct, spt, gs, gt) {
@@ -2692,19 +2616,20 @@ $(document).ready(function () {
             ts = ts.toString();
 
             var newRecord;
+            var now = Math.round(new Date() / 1000);
 
             if (ct == "used" || ct == "craved") {
-                newRecord = { timestamp: ts, clickType: ct };
+                newRecord = { timestamp: ts, clickType: ct, clickStamp: now };
 
             } else if (ct == "bought") {
                 spt = spt.toString();
-                newRecord = { timestamp: ts, clickType: ct, spent: spt };
+                newRecord = { timestamp: ts, clickType: ct, clickStamp: now, spent: spt };
 
             } else if (ct == "goal") {
                 gs = gs.toString();
                 var st = 1;
                 var goalStopped = -1;
-                newRecord = { timestamp: ts, clickType: ct, goalStamp: gs, goalType: gt, status: st, goalStopped: goalStopped };
+                newRecord = { timestamp: ts, clickType: ct, clickStamp: now, goalStamp: gs, goalType: gt, status: st, goalStopped: goalStopped };
             }
 
             jsonObject["action"].push(newRecord);
@@ -2715,62 +2640,29 @@ $(document).ready(function () {
 
         //readjust timer box to correct size
         function adjustFibonacciTimerToBoxes(timerId) {
-            //console.log("inside adjustFiboTimers, timerID = " + timerId);
-            /*
-            var relevantPane = "";
-            
-            if(timerId == "smoke-timer"){
-                relevantPane = "use-content";
-            
-            }else if(timerId == "bought-timer"){
-                relevantPane = "cost-content";
-                
-            }else if(timerId == "goal-timer"){
-                relevantPane = "goal-content";
-                
-            }
-            //console.log(relevantPane);
-            var relevantPaneIsActive = false;
-            if($("#" + relevantPane).css("display") == "block"){
-                relevantPaneIsActive = true;
-            }
-            */
 
             //came from putting all statistics onto one page
             var relevantPaneIsActive = true;
 
-
             if (userIsActive && relevantPaneIsActive) {
-
-                //console.log("fibbo timer readjust fired with timerId = " + timerId);
                 var visibleBoxes = $("#" + timerId + " .boxes div:visible"),
                     timerElement = document.getElementById(timerId);
-                //console.log("visibile boxes equals: " + visibleBoxes.length)
-
 
                 if (visibleBoxes.length == 1) {
-                    //adjust .fibonacci-timer to timer height
                     timerElement.style.width = "3.3rem";
                     timerElement.style.height = "3.3rem";
 
-
                 } else if (visibleBoxes.length == 2) {
-                    //adjust .fibonacci-timer to timer height
                     timerElement.style.width = "6.4rem";
                     timerElement.style.height = "3.3rem";
 
-
                 } else if (visibleBoxes.length == 3) {
-                    //adjust .fibonacci-timer to timer height
                     timerElement.style.width = "9.4rem";
                     timerElement.style.height = "6.4rem";
 
-
                 } else if (visibleBoxes.length == 4) {
-                    //adjust .fibonacci-timer to timer height
                     timerElement.style.width = "9.4rem";
                     timerElement.style.height = "15.9rem";
-
                 }
 
                 //hack to resolve visible boxes = 0 bug
@@ -2781,14 +2673,10 @@ $(document).ready(function () {
 
                 }
 
-
                 //timerElement.style.display = "block";
                 timerElement.style.margin = "0 auto";
 
-            } else {
-
             }
-
         }
 
         //open more info div
@@ -2796,10 +2684,10 @@ $(document).ready(function () {
 
             var navBarHeight = 62;
 
-            $(clickDialogTarget + ".log-more-info-div").slideToggle("fast");
+            $(clickDialogTarget + ".log-more-info").slideToggle("fast");
 
             $('html, body').animate({
-                scrollTop: $('.log-more-info-div').offset().top - navBarHeight
+                scrollTop: $('.log-more-info').offset().top - navBarHeight
             }, 1500);
             //grey out background
             var bodyHeight = $(document).height();
@@ -2816,19 +2704,15 @@ $(document).ready(function () {
                 }
             });
 
-
-            //wait, actually height must be body + 
-
-
-
         }
+
         function closeClickDialog(clickDialogTarget) {
             $("#greyed-out-div").animate({ opacity: 0 }, 200);
             $("#greyed-out-div").css("z-index", "0");
             $("#greyed-out-div").height(0);
             $("#greyed-out-div").off("click");
 
-            $(clickDialogTarget + ".log-more-info-div").slideToggle("fast");
+            $(clickDialogTarget + ".log-more-info").slideToggle("fast");
         }
 
         //SMOKE BUTTONS - START TIMER
@@ -2842,17 +2726,12 @@ $(document).ready(function () {
             $("#settings-tab-toggler").removeClass("active");
             $("#statistics-tab-toggler").removeClass("active");
             $("#reports-tab-toggler").removeClass("active");
-            //console.log('reports tab clicked - code to generate reports here');
-
-            //insert code here to generate most recent report
 
             //close dropdown nav
             if ($("#options-collapse-menu").hasClass("show")) {
-
                 $(".navbar-toggler").click();
 
             }
-
 
         });
         $(document).delegate("#reports-tab-toggler", 'click', function (e) {
@@ -2860,35 +2739,22 @@ $(document).ready(function () {
             $("#baseline-tab-toggler").removeClass("active");
             $("#settings-tab-toggler").removeClass("active");
             $("#statistics-tab-toggler").removeClass("active");
-            //console.log('reports tab clicked - code to generate reports here');
-
-            //insert code here to generate most recent report
 
             //close dropdown nav
             if ($("#options-collapse-menu").hasClass("show")) {
-
                 $(".navbar-toggler").click();
 
             }
 
-
             initiateReport();
 
-
         });
-        $(document).delegate("#statistics-tab-toggler", 'click', function (e) {
 
+        $(document).delegate("#statistics-tab-toggler", 'click', function (e) {
             saveActiveTab();
 
-            //push adjusting fibo timer to end of stack, so it reads the number of needed boxes corectly
-
-            //showActiveStatistics();
-
-
             setTimeout(function () {
-
                 hideInactiveStatistics();
-
                 adjustFibonacciTimerToBoxes("goal-timer");
                 adjustFibonacciTimerToBoxes("smoke-timer");
                 adjustFibonacciTimerToBoxes("bought-timer");
@@ -2899,35 +2765,24 @@ $(document).ready(function () {
             $("#settings-tab-toggler").removeClass("active");
             $("#reports-tab-toggler").removeClass("active");
 
-            //console.log('statistics tab clicked');
-
             //close dropdown nav
             if ($("#options-collapse-menu").hasClass("show")) {
-
                 $(".navbar-toggler").click();
-
             }
-
         });
+
         $(document).delegate("#settings-tab-toggler", 'click', function (e) {
 
             saveActiveTab();
-
             $("#baseline-tab-toggler").removeClass("active");
             $("#reports-tab-toggler").removeClass("active");
             $("#statistics-tab-toggler").removeClass("active");
 
-            //console.log('settings tab clicked');
-
             //close dropdown nav
             if ($("#options-collapse-menu").hasClass("show")) {
-
                 $(".navbar-toggler").click();
-
             }
-
         });
-
 
         /* CALL INITIAL STATE OF APP */
         //If json action table doesn't exist, create it
@@ -2970,7 +2825,6 @@ $(document).ready(function () {
             hideTimersOnLoad();
 
             //after all is said and done 
-            //hide/show stats
             hideInactiveStatistics();
 
             //get them notifcations for useful reports
@@ -2990,9 +2844,7 @@ $(document).ready(function () {
             localStorage.setItem("esCrave", newJsonString);
 
             hideInactiveStatistics();
-            //console.log("hiding inactive use");
 
-            //location.reload();
             $("#baseline-tab-toggler").click();
 
             //ABSOLUTE NEW USER
@@ -3000,27 +2852,21 @@ $(document).ready(function () {
             createNotification(introMessage);
         }
 
-
         //SMOKE BUTTON		
-        //CRAVE BUTTON 					
+        //CRAVE BUTTON 		
         //BOUGHT BUTTON		
-
         $("#bought-button, #crave-button, #use-button, #goal-button").click(function () {
 
             //Detect section
-            var timerSection;
             var timestampSeconds = Math.round(new Date() / 1000);
 
-
             if (this.id == "crave-button") {
-                //timerSection = "#use-content";
 
                 //don't allow clicks more recent than 10 seconds
                 if (timestampSeconds - json.statistics.use.lastClickStampCrave > 10) {
 
                     //return user to stats page
                     $("#statistics-tab-toggler").click();
-
 
                     //update relevant statistics
                     json.statistics.use.craveCounter++;
@@ -3036,111 +2882,155 @@ $(document).ready(function () {
                     json.statistics.use.cravingsInARow++;
                     $("#cravingsResistedInARow").html(json.statistics.use.cravingsInARow);
 
-
                     showActiveStatistics();
 
                     //keep lastClickStamp up to date while using app
                     json.statistics.use.lastClickStampCrave = timestampSeconds;
 
-
                 } else {
                     alert("You just clicked this button! Wait a bit longer before clicking it again");
                 }
 
-
             } else if (this.id == "use-button") {                
                 openClickDialog(".use");
 
-                //set time default to curr time
-                //get hour and minutes value from date object
                 var date = new Date();
-
                 var currHours = date.getHours(),
-                    currMintues = date.getMinutes();
-
+                    currMinutes = date.getMinutes();
                 if (currHours >= 12) {
-                    $(".use.log-more-info-div .time-picker-am-pm").val("PM");
+                    $(".use.log-more-info .time-picker-am-pm").val("PM");
                     currHours = currHours % 12;
                 }
-                $(".use.log-more-info-div .time-picker-hour").val(currHours);
-                $(".use.log-more-info-div .time-picker-minute").val(currMintues);
+
+                //set minutes to approx. what time it is
+                if (currMinutes >= 45) {
+                    currMinutes = 45;
+                } else if (currMinutes >= 30) {
+                    currMinutes = 30;
+                } else if (currMinutes >= 15) {
+                    currMinutes = 15;
+                } else {
+                    currMinutes = 0;
+                }
+                
+                $(".use.log-more-info .time-picker-hour").val(currHours);
+                $(".use.log-more-info .time-picker-minute").val(currMinutes);
 
 
             } else if (this.id == "bought-button") {
                 openClickDialog(".cost");
 
             } else if (this.id == "goal-button") {
-
                 openClickDialog(".goal");
 
-
-                //set time default to curr time
-                //get hour and minutes value from date object
                 var date = new Date();
-
                 var currHours = date.getHours(),
-                    currMintues = date.getMinutes();
-
+                    currMinutes = date.getMinutes();
                 if (currHours >= 12) {
-                    $(".goal.log-more-info-div .time-picker-am-pm").val("PM");
+                    $(".goal.log-more-info .time-picker-am-pm").val("PM");
                     currHours = currHours % 12;
                 }
-                $(".goal.log-more-info-div .time-picker-hour").val(currHours);
+                $(".goal.log-more-info .time-picker-hour").val(currHours);
 
                 //set minutes to 0, 15, 30, or 45
-                var currMintuesRounded = 0;
-                if (currMintues > 8) {
-                    currMintuesRounded = 15;
+                var currMinutesRounded = 0;
+                if (currMinutes >= 15) {
+                    currMinutesRounded = 15;
                 }
-                if (currMintues > 23) {
-                    currMintuesRounded = 30;
+                if (currMinutes >= 30) {
+                    currMinutesRounded = 30;
                 }
-                if (currMintues > 38) {
-                    currMintuesRounded = 45;
+                if (currMinutes >= 45) {
+                    currMinutesRounded = 45;
                 }
-                $(".goal.log-more-info-div .time-picker-minute").val(currMintuesRounded);
+                $(".goal.log-more-info .time-picker-minute").val(currMinutesRounded);
 
             }
-
-
 
         }); //end bought-button click handler
 
         //START USED TIMER		
-        function initiateSmokeTimer() {
+        function initiateSmokeTimer(requestedTimestamp) {
+            //if there is a more recent timer than newly requested
+            var existingTimer = 
+                requestedTimestamp != undefined && 
+                requestedTimestamp < json.statistics.use.lastClickStamp;
+
+            if (existingTimer) {
+                return false;
+            }
             //USE TIMER
             clearInterval(smokeTimer);
 
             if ($("#smoke-timer").hasClass("counting")) {
-
                 //reset local vars
                 var daysSinceUse = 0,
                     hoursSinceUse = 0,
                     minutesSinceUse = 0,
                     secondsSinceUse = 0,
                     totalSecondsSinceUse = 0;
-                //reset json vars
-                json.statistics.use.sinceTimerStart.days = 0,
-                    json.statistics.use.sinceTimerStart.hours = 0,
-                    json.statistics.use.sinceTimerStart.minutes = 0,
-                    json.statistics.use.sinceTimerStart.seconds = 0,
+
+                var nowTimestamp = Math.floor(new Date().getTime() / 1000);
+
+                if (requestedTimestamp != undefined) {
+                    totalSecondsSinceUse = nowTimestamp - requestedTimestamp;
+                    daysSinceUse = Math.floor(totalSecondsSinceUse / (60*60*24));
+                    hoursSinceUse = Math.floor(totalSecondsSinceUse / (60*60)) % 24;
+                    minutesSinceUse = Math.floor(totalSecondsSinceUse / (60)) % 60;
+                    secondsSinceUse = totalSecondsSinceUse % 60;
+                    
+                    // console.log("daysSinceUse: ", daysSinceUse)
+                    // console.log("hoursSinceUse: ", hoursSinceUse)
+                    // console.log("minutesSinceUse: ", minutesSinceUse)
+                    // console.log("secondsSinceUse: ", secondsSinceUse)
+
+                    //reset json vars
+                    json.statistics.use.sinceTimerStart.days = daysSinceUse;
+                    json.statistics.use.sinceTimerStart.hours = hoursSinceUse;
+                    json.statistics.use.sinceTimerStart.minutes = minutesSinceUse;
+                    json.statistics.use.sinceTimerStart.seconds = secondsSinceUse;
+                    json.statistics.use.sinceTimerStart.totalSeconds = requestedTimestamp;
+
+                } else {
+                    //reset json vars
+                    json.statistics.use.sinceTimerStart.days = 0;
+                    json.statistics.use.sinceTimerStart.hours = 0;
+                    json.statistics.use.sinceTimerStart.minutes = 0;
+                    json.statistics.use.sinceTimerStart.seconds = 0;
                     json.statistics.use.sinceTimerStart.totalSeconds = 0;
-
+                }
+                
                 //Insert timer values into timer
-                $("#use-content .secondsSinceLastClickSpan:first-child").html("0" + secondsSinceUse);
-                $("#use-content .minutesSinceLastClickSpan:first-child").html(minutesSinceUse);
-                $("#use-content .hoursSinceLastClickSpan:first-child").html(hoursSinceUse);
-                $("#use-content .daysSinceLastClickSpan:first-child").html(daysSinceUse);
+                $("#use-content .secondsSinceLastClick:first-child").html("0" + secondsSinceUse);
+                $("#use-content .minutesSinceLastClick:first-child").html(minutesSinceUse);
+                $("#use-content .hoursSinceLastClick:first-child").html(hoursSinceUse);
+                $("#use-content .daysSinceLastClick:first-child").html(daysSinceUse);
 
-                if (!$("#use-content .fibonacci-timer").is(':visible')) {
-                    $("#use-content .fibonacci-timer:first-child").toggle();
-                }
-                while ($("#use-content .boxes div:visible").length > 1) {
-                    $($("#use-content .boxes div:visible")[0]).toggle();
+                if (requestedTimestamp != undefined) {
+                    for (let timerBox of $("#use-content .boxes div:visible")) {
+                        if (parseInt($(timerBox).find(".timerSpan").html()) == 0) {
+                            
+                            console.log("$(timerBox): ", $(timerBox))
+                            $(timerBox).hide();
+                        } else { //found a non-zero value
+                            $(timerBox).show();
+                            break;
+                        }
+                    }
 
+                } else {
+                    if (!$("#use-content .fibonacci-timer").is(':visible')) {
+                        $("#use-content .fibonacci-timer:first-child").toggle();
+                   }
+                   while ($("#use-content .boxes div:visible").length > 1) {
+                       $( $("#use-content .boxes div:visible")[0] ).toggle();
+                   }
                 }
+
+                adjustFibonacciTimerToBoxes("smoke-timer");
 
             } else {
+                console.log('not yet counting')
 
                 //reset timer from values
                 var daysSinceUse = json.statistics.use.sinceTimerStart.days,
@@ -3149,62 +3039,74 @@ $(document).ready(function () {
                     secondsSinceUse = json.statistics.use.sinceTimerStart.seconds,
                     totalSecondsSinceUse = json.statistics.use.sinceTimerStart.totalSeconds;
 
+                    // console.log("daysSinceUse: ", daysSinceUse)
+                    // console.log("hoursSinceUse: ", hoursSinceUse)
+                    // console.log("minutesSinceUse: ", minutesSinceUse)
+                    // console.log("secondsSinceUse: ", secondsSinceUse)
+
+                var nowTimestamp = Math.floor(new Date().getTime() / 1000);
+
+                if (requestedTimestamp != undefined) {
+                    totalSecondsSinceUse = nowTimestamp - requestedTimestamp;
+                    daysSinceUse = Math.floor(totalSecondsSinceUse / (60*60*24));
+                    hoursSinceUse = Math.floor(totalSecondsSinceUse / (60*60)) % 24;
+                    minutesSinceUse = Math.floor(totalSecondsSinceUse / (60)) % 60;
+                    secondsSinceUse = totalSecondsSinceUse % 60;
+                
+                }
+
                 //Insert timer values into timer
                 if (secondsSinceUse >= 10) {
-                    $("#use-content .secondsSinceLastClickSpan:first-child").html(secondsSinceUse);
+                    $("#use-content .secondsSinceLastClick:first-child").html(secondsSinceUse);
                 } else {
-                    $("#use-content .secondsSinceLastClickSpan:first-child").html("0" + secondsSinceUse);
+                    $("#use-content .secondsSinceLastClick:first-child").html("0" + secondsSinceUse);
                 }
-                $("#use-content .minutesSinceLastClickSpan:first-child").html(minutesSinceUse);
-                $("#use-content .hoursSinceLastClickSpan:first-child").html(hoursSinceUse);
-                $("#use-content .daysSinceLastClickSpan:first-child").html(daysSinceUse);
-
+                $("#use-content .minutesSinceLastClick:first-child").html(minutesSinceUse);
+                $("#use-content .hoursSinceLastClick:first-child").html(hoursSinceUse);
+                $("#use-content .daysSinceLastClick:first-child").html(daysSinceUse);
 
                 //Hide timer boxes which have zero values
-                if ($("#use-content .secondsSinceLastClickSpan:first-child").html() === "0") {
-                    $("#use-content .secondsSinceLastClickSpan").parent().toggle();
+                var foundNonZero = false;
+            
+                if (daysSinceUse == 0) {
+                    $("#use-content .daysSinceLastClick").parent().toggle();
+                } else {
+                    foundNonZero = true;
+                }
+                
+                if (hoursSinceUse == 0 && !foundNonZero) {
+                    $("#use-content .hoursSinceLastClick").parent().toggle();
+                } else {
+                    foundNonZero = true;
                 }
 
-                if ($("#use-content .minutesSinceLastClickSpan:first-child").html() === "0") {
-                    $("#use-content .minutesSinceLastClickSpan").parent().toggle();
-
+                if (minutesSinceUse == 0 && !foundNonZero) {
+                    $("#use-content .minutesSinceLastClick").parent().toggle();
+                } else if(minutesSinceUse == 0) {
+                    $("#use-content .minutesSinceLastClick:first-child").html("0" + minutesSinceUse);
+                } else {
+                    foundNonZero = true;
                 }
 
-                if ($("#use-content .hoursSinceLastClickSpan:first-child").html() === "0") {
-                    $("#use-content .hoursSinceLastClickSpan").parent().toggle();
-                }
+                
+                adjustFibonacciTimerToBoxes("smoke-timer");
 
-                //this temporarily toggles seconds box
-                if ($("#use-content .daysSinceLastClickSpan:first-child").html() === "0") {
-                    $("#use-content .daysSinceLastClickSpan").parent().toggle();
-                }
+                
             }
 
-
-
-            smokeTimer = setInterval(function () {
-
+            smokeTimer = setInterval(function() {
                 //reset local scope vars
                 totalSecondsSinceUse++;
                 secondsSinceUse++;
                 //update json
                 json.statistics.use.sinceTimerStart.totalSeconds++;
                 json.statistics.use.sinceTimerStart.seconds++;
-                /*	
-                if($("#smoke-timer").width() > 200){
-                    console.log("big box, eh?");
-                    adjustFibonacciTimerToBoxes("smoke-timer");
-                	
-                }
-                */
-
 
                 if (secondsSinceUse >= 10) {
-                    $("#use-content .secondsSinceLastClickSpan:first-child").html(secondsSinceUse);
+                    $("#use-content .secondsSinceLastClick:first-child").html(secondsSinceUse);
                 } else {
-                    $("#use-content .secondsSinceLastClickSpan:first-child").html("0" + secondsSinceUse);
+                    $("#use-content .secondsSinceLastClick:first-child").html("0" + secondsSinceUse);
                 }
-
 
                 if (secondsSinceUse >= 60) {
                     //reset local scope vars
@@ -3221,11 +3123,11 @@ $(document).ready(function () {
                     }
 
                     if (minutesSinceUse >= 10) {
-                        $("#use-content .minutesSinceLastClickSpan:first-child").html(minutesSinceUse);
+                        $("#use-content .minutesSinceLastClick:first-child").html(minutesSinceUse);
                     } else {
-                        $("#use-content .minutesSinceLastClickSpan:first-child").html("0" + minutesSinceUse);
+                        $("#use-content .minutesSinceLastClick:first-child").html("0" + minutesSinceUse);
                     }
-                    $("#use-content .secondsSinceLastClickSpan:first-child").html("0" + secondsSinceUse);
+                    $("#use-content .secondsSinceLastClick:first-child").html("0" + secondsSinceUse);
 
                     adjustFibonacciTimerToBoxes("smoke-timer");
 
@@ -3240,7 +3142,6 @@ $(document).ready(function () {
                     json.statistics.use.sinceTimerStart.minutes = 0;
                     json.statistics.use.sinceTimerStart.hours++;
 
-
                     if ($("#use-content .boxes div:visible").length == 2) {
                         var numberOfBoxesHidden = $("#use-content .boxes div:hidden").length;
                         $($("#use-content .boxes div:hidden")[numberOfBoxesHidden - 1]).toggle();
@@ -3248,13 +3149,12 @@ $(document).ready(function () {
                     }
 
                     if (hoursSinceUse >= 10) {
-                        $("#use-content .hoursSinceLastClickSpan:first-child").html(hoursSinceUse);
+                        $("#use-content .hoursSinceLastClick:first-child").html(hoursSinceUse);
                     } else {
-                        $("#use-content .hoursSinceLastClickSpan:first-child").html("0" + hoursSinceUse);
+                        $("#use-content .hoursSinceLastClick:first-child").html("0" + hoursSinceUse);
                     }
 
-                    $("#use-content .minutesSinceLastClickSpan:first-child").html("0" + minutesSinceUse);
-
+                    $("#use-content .minutesSinceLastClick:first-child").html("0" + minutesSinceUse);
 
                     adjustFibonacciTimerToBoxes("smoke-timer");
 
@@ -3273,19 +3173,12 @@ $(document).ready(function () {
                         var numberOfBoxesHidden = $('#use-content .boxes div:hidden').length;
                         $($("#use-content .boxes div:hidden")[numberOfBoxesHidden - 1]).toggle();
 
-                        //console.log("3 visible boxes");
-                        //adjustFibonacciTimerToBoxes();
-
                     }
 
-                    $("#use-content .hoursSinceLastClickSpan:first-child").html("0" + hoursSinceUse);
-                    $("#use-content .daysSinceLastClickSpan:first-child").html(daysSinceUse);
-
-
+                    $("#use-content .hoursSinceLastClick:first-child").html("0" + hoursSinceUse);
+                    $("#use-content .daysSinceLastClick:first-child").html(daysSinceUse);
 
                 }
-
-
 
             }, 1000); //end setInterval
 
@@ -3294,53 +3187,43 @@ $(document).ready(function () {
 
         }
 
-        //Restrict possible dates chosen in goal tab datepicker
-        //restrictGoalRange();
-        $("#smokeStartPicker").datepicker({ maxDate: 0 });
-        //INITIALIZE GOAL DATE TIME PICKER
-        $("#smokeStartPicker").datepicker();
-
-        //GOAL DIALOG CLICK
-
-        $(".use.log-more-info-div button.submit").click(function () {
+        //USE DIALOG CLICK
+        $(".use.log-more-info button.submit").click(function () {
 
             var date = new Date();
-
             var timestampSeconds = Math.round(date / 1000);
 
             //get time selection from form
-            var requestedTimeStartHours = parseInt($(".use.log-more-info-div select.time-picker-hour").val());
-            var requestedTimeStartMinutes = parseInt($(".use.log-more-info-div select.time-picker-minute").val());
+            var requestedTimeStartHours = parseInt($(".use.log-more-info select.time-picker-hour").val());
+            var requestedTimeStartMinutes = parseInt($(".use.log-more-info select.time-picker-minute").val());
 
+            console.log("requestedTimeStartHours: ", requestedTimeStartHours)
+            console.log("requestedTimeStartMinutes: ", requestedTimeStartMinutes)
+
+            var userDidItNow = $("#nowUseRadio").is(':checked');
+            if( userDidItNow ) {
+                requestedTimeStartHours = date.getHours();
+                requestedTimeStartMinutes = date.getMinutes();
+            }
 
             //12 am is actually the first hour in a day... goddamn them.
             if (requestedTimeStartHours == 12) {
                 requestedTimeStartHours = 0;
             }
             //account for am vs pm from userfriendly version of time input
-            if ($(".use.log-more-info-div select.time-picker-am-pm").val() == "PM") {
+            if ($(".use.log-more-info select.time-picker-am-pm").val() == "PM") {
                 requestedTimeStartHours = requestedTimeStartHours + 12;
             }
 
-            var requestedTimeStart = $('#smokeStartPicker').datepicker({
-                dateFormat: 'yy-mm-dd'
-            }).val();
-        
-            var smokeStampSeconds = Math.round(new Date(requestedTimeStart).getTime() / 1000);
+            var requestedTimeDiffSeconds = 0;
+                requestedTimeDiffSeconds += date.getHours()*60*60 - requestedTimeStartHours*60*60;
+                requestedTimeDiffSeconds += date.getMinutes()*60 - requestedTimeStartMinutes*60;
 
-            console.log(smokeStampSeconds);
+                //use requested time
+                requestedTimestamp = timestampSeconds - requestedTimeDiffSeconds;
 
                 //return to relevant screen
                 $("#statistics-tab-toggler").click();
-
-                //use requested time
-                requestedTimestamp = timestampSeconds - requestedTimeStartSeconds;
-
-                //update relevant statistics
-                updateActionTable(requestedTimeStartSeconds, "used");
-
-                //add record into log
-                placeActionIntoLog(requestedTimeStartSeconds, "used", null, false);
 
                 //fake firstStampUses in json obj
                 if (json.statistics.use.clickCounter == 0) {
@@ -3360,32 +3243,60 @@ $(document).ready(function () {
                 json.statistics.use.cravingsInARow = 0;
                 $("#cravingsResistedInARow").html(json.statistics.use.cravingsInARow);
 
-                //start timer
-                initiateSmokeTimer();
+                //start timer with optional param for past date
+                var userDidItNow = $("#nowUseRadio").is(':checked');
+                if (userDidItNow) {
+                    //update relevant statistics
+                    updateActionTable(timestampSeconds, "used");
+                    //add record into log
+                    placeActionIntoLog(timestampSeconds, "used", null, false);
+                    
+                    initiateSmokeTimer();
 
+                } else {
+                    //add record into log
+                    //placeActionIntoLog(requestedTimestamp, "used", null, false);
+                    
+                    //user is selecting time that appears to be in the future
+                    //will interpret as minus one day
+                    var secondsToNow = date.getHours()*60*60 + date.getMinutes()*60;
+                    var secondsToRequested = requestedTimeStartHours*60*60 + requestedTimeStartHours*60;
+                    console.log("secondsToRequested:", secondsToRequested)
+                    console.log("secondsToNow:", secondsToNow)
+                    
+                    if( secondsToRequested > secondsToNow) {
+                        console.log('firing initsmoke with a req timestampe: ', requestedTimestamp)
+                        //take one day off
+                        requestedTimestamp = requestedTimestamp - (1*24*60*60);
+                    }
 
+                    //update relevant statistics
+                    updateActionTable(requestedTimestamp, "used");
+                    
+                    initiateSmokeTimer(requestedTimestamp);
+                }
 
                 //there is an active bought related goal
                 if (json.statistics.goal.activeGoalUse !== 0 || json.statistics.goal.activeGoalBoth !== 0) {
                     if (json.statistics.goal.activeGoalUse !== 0) {
                         var goalType = "use";
                         var message = 'Your goal just ended early, ' +
-                            'it has been added to your habit log. ' +
-                            'Be proud, any progress is good progress!';
+                            'and was added to your habit log. ' +
+                            'Be proud no matter what, all progress is good progress!';
 
                         json.statistics.goal.activeGoalUse = 0;
 
                     } else if (json.statistics.goal.activeGoalBoth !== 0) {
                         var goalType = "both";
                         var message = 'Your goal just ended early, ' +
-                            'it has been added to your habit log. ' +
-                            'Be proud, any progress is good progress!';
+                            'and was added to your habit log. ' +
+                            'Be proud no matter what, all progress is good progress!';
 
                         json.statistics.goal.activeGoalBoth = 0;
 
                     }
 
-                    changeGoalStatus(2, goalType, timestampSeconds);
+                    changeGoalStatus(2, goalType, requestedTimestamp);
                     createNotification(message);
                     clearInterval(goalTimer);
 
@@ -3394,7 +3305,7 @@ $(document).ready(function () {
 
                     //place a goal into the goal log
                     var startStamp = json.statistics.goal.lastClickStamp;
-                    var actualEnd = timestampSeconds;
+                    var actualEnd = requestedTimestamp;
                     placeGoalIntoLog(startStamp, actualEnd, goalType, false);
 
                     //if longest goal just happened
@@ -3421,8 +3332,30 @@ $(document).ready(function () {
                 closeClickDialog(".use");
 
         });
+        
+        //notify user when requested times are for yesterday.
+        $(".use.log-more-info").find(".time-picker-minute, .time-picker-hour, .form-check-input").on('change', function() {
+            var date = new Date();
+            var currMinutes = date.getHours()*60 + date.getMinutes();
+            var reqHours = parseInt( $(".use.log-more-info .time-picker-hour").val() );
+            var reqMinutes = parseInt( $(".use.log-more-info .time-picker-minute").val() );
 
-        $(".use.log-more-info-div button.cancel").click(function () {
+            //compensate for non-military time
+            if ($(".use.log-more-info .time-picker-am-pm").val() == "PM") {
+                reqHours = reqHours + 12;
+            }
+            //total requested minutes
+            reqMinutes += reqHours*60;
+
+            var reqTimeInFuture = reqMinutes > currMinutes;
+            if (reqTimeInFuture && $('#pastTimeUseRadio').is(":checked") ) {
+                $('.24-hour-day-indicator').show();
+            } else {
+                $('.24-hour-day-indicator').hide();
+            }
+        });
+
+        $(".use.log-more-info button.cancel").click(function () {
             closeClickDialog(".use");
         });
 
@@ -3446,10 +3379,10 @@ $(document).ready(function () {
                     json.statistics.cost.sinceTimerStart.totalSeconds = 0;
 
                 //Insert timer values into timer
-                $("#cost-content .secondsSinceLastClickSpan:first-child").html("0" + secondsSinceBought);
-                $("#cost-content .minutesSinceLastClickSpan:first-child").html(minutesSinceBought);
-                $("#cost-content .hoursSinceLastClickSpan:first-child").html(hoursSinceBought);
-                $("#cost-content .daysSinceLastClickSpan:first-child").html(daysSinceBought);
+                $("#cost-content .secondsSinceLastClick:first-child").html("0" + secondsSinceBought);
+                $("#cost-content .minutesSinceLastClick:first-child").html(minutesSinceBought);
+                $("#cost-content .hoursSinceLastClick:first-child").html(hoursSinceBought);
+                $("#cost-content .daysSinceLastClick:first-child").html(daysSinceBought);
 
                 if (!$("#cost-content .fibonacci-timer").is(':visible')) {
                     $("#cost-content .fibonacci-timer:first-child").toggle();
@@ -3458,8 +3391,6 @@ $(document).ready(function () {
                     $($("#cost-content .boxes div:visible")[0]).toggle();
 
                 }
-
-
 
             } else {
 
@@ -3472,50 +3403,45 @@ $(document).ready(function () {
 
                 //Insert timer values into timer
                 if (secondsSinceBought >= 10) {
-                    $("#cost-content .secondsSinceLastClickSpan:first-child").html(secondsSinceBought);
+                    $("#cost-content .secondsSinceLastClick:first-child").html(secondsSinceBought);
                 } else {
-                    $("#cost-content .secondsSinceLastClickSpan:first-child").html("0" + secondsSinceBought);
+                    $("#cost-content .secondsSinceLastClick:first-child").html("0" + secondsSinceBought);
                 }
-                $("#cost-content .minutesSinceLastClickSpan:first-child").html(minutesSinceBought);
-                $("#cost-content .hoursSinceLastClickSpan:first-child").html(hoursSinceBought);
-                $("#cost-content .daysSinceLastClickSpan:first-child").html(daysSinceBought);
+                $("#cost-content .minutesSinceLastClick:first-child").html(minutesSinceBought);
+                $("#cost-content .hoursSinceLastClick:first-child").html(hoursSinceBought);
+                $("#cost-content .daysSinceLastClick:first-child").html(daysSinceBought);
 
                 //Hide timer boxes which have zero values
-                if ($("#cost-content .secondsSinceLastClickSpan:first-child").html() == "0") {
-                    $("#cost-content .secondsSinceLastClickSpan").parent().toggle();
+                if ($("#cost-content .secondsSinceLastClick:first-child").html() == "0") {
+                    $("#cost-content .secondsSinceLastClick").parent().toggle();
                 }
 
-                if ($("#cost-content .minutesSinceLastClickSpan:first-child").html() == "0") {
-                    $("#cost-content .minutesSinceLastClickSpan").parent().toggle();
+                if ($("#cost-content .minutesSinceLastClick:first-child").html() == "0") {
+                    $("#cost-content .minutesSinceLastClick").parent().toggle();
 
                 }
 
-                if ($("#cost-content .hoursSinceLastClickSpan:first-child").html() == "0") {
-                    $("#cost-content .hoursSinceLastClickSpan").parent().toggle();
+                if ($("#cost-content .hoursSinceLastClick:first-child").html() == "0") {
+                    $("#cost-content .hoursSinceLastClick").parent().toggle();
                 }
 
                 //this temporarily toggles seconds box
-                if ($("#cost-content .daysSinceLastClickSpan:first-child").html() == "0") {
-                    $("#cost-content .daysSinceLastClickSpan").parent().toggle();
+                if ($("#cost-content .daysSinceLastClick:first-child").html() == "0") {
+                    $("#cost-content .daysSinceLastClick").parent().toggle();
                 }
 
                 adjustFibonacciTimerToBoxes("bought-timer");
             }
 
-
-
             boughtTimer = setInterval(function () {
-
-
                 totalSecondsSinceBought++;
                 secondsSinceBought++;
 
                 if (secondsSinceBought >= 10) {
-                    $("#cost-content .secondsSinceLastClickSpan:first-child").html(secondsSinceBought);
+                    $("#cost-content .secondsSinceLastClick:first-child").html(secondsSinceBought);
                 } else {
-                    $("#cost-content .secondsSinceLastClickSpan:first-child").html("0" + secondsSinceBought);
+                    $("#cost-content .secondsSinceLastClick:first-child").html("0" + secondsSinceBought);
                 }
-
 
                 if (secondsSinceBought >= 60) {
                     secondsSinceBought = 0;
@@ -3526,11 +3452,11 @@ $(document).ready(function () {
                     }
                     //add trailing zero to below 10 values
                     if (minutesSinceBought >= 10) {
-                        $("#cost-content .minutesSinceLastClickSpan:first-child").html(minutesSinceBought);
+                        $("#cost-content .minutesSinceLastClick:first-child").html(minutesSinceBought);
                     } else {
-                        $("#cost-content .minutesSinceLastClickSpan:first-child").html("0" + minutesSinceBought);
+                        $("#cost-content .minutesSinceLastClick:first-child").html("0" + minutesSinceBought);
                     }
-                    $("#cost-content .secondsSinceLastClickSpan:first-child").html("0" + secondsSinceBought);
+                    $("#cost-content .secondsSinceLastClick:first-child").html("0" + secondsSinceBought);
 
                     adjustFibonacciTimerToBoxes("bought-timer");
                 }
@@ -3543,11 +3469,11 @@ $(document).ready(function () {
                     }
                     //add trailing zero to below 10 values
                     if (hoursSinceBought >= 10) {
-                        $("#cost-content .hoursSinceLastClickSpan:first-child").html(hoursSinceBought);
+                        $("#cost-content .hoursSinceLastClick:first-child").html(hoursSinceBought);
                     } else {
-                        $("#cost-content .hoursSinceLastClickSpan:first-child").html("0" + hoursSinceBought);
+                        $("#cost-content .hoursSinceLastClick:first-child").html("0" + hoursSinceBought);
                     }
-                    $("#cost-content .minutesSinceLastClickSpan:first-child").html("0" + minutesSinceBought);
+                    $("#cost-content .minutesSinceLastClick:first-child").html("0" + minutesSinceBought);
 
                     adjustFibonacciTimerToBoxes("bought-timer");
                 }
@@ -3558,8 +3484,8 @@ $(document).ready(function () {
                         var numberOfBoxesHidden = $('#cost-content .boxes div:hidden').length;
                         $($("#cost-content .boxes div:hidden")[numberOfBoxesHidden - 1]).toggle();
                     }
-                    $("#cost-content .hoursSinceLastClickSpan:first-child").html("0" + hoursSinceBought);
-                    $("#cost-content .daysSinceLastClickSpan:first-child").html(daysSinceBought);
+                    $("#cost-content .hoursSinceLastClick:first-child").html("0" + hoursSinceBought);
+                    $("#cost-content .daysSinceLastClick:first-child").html(daysSinceBought);
 
                     adjustFibonacciTimerToBoxes("bought-timer");
                 }
@@ -3586,10 +3512,10 @@ $(document).ready(function () {
                 jsonSecondsString = json.statistics.goal.untilTimerEnd.seconds,
                 jsonTotalSecondsString = json.statistics.goal.untilTimerEnd.totalSeconds;
 
-            $(timerSection + " .secondsSinceLastClickSpan:first-child").html(jsonSecondsString);
-            $(timerSection + " .minutesSinceLastClickSpan:first-child").html(jsonMinutesString);
-            $(timerSection + " .hoursSinceLastClickSpan:first-child").html(jsonHoursString);
-            $(timerSection + " .daysSinceLastClickSpan:first-child").html(jsonDaysString);
+            $(timerSection + " .secondsSinceLastClick:first-child").html(jsonSecondsString);
+            $(timerSection + " .minutesSinceLastClick:first-child").html(jsonMinutesString);
+            $(timerSection + " .hoursSinceLastClick:first-child").html(jsonHoursString);
+            $(timerSection + " .daysSinceLastClick:first-child").html(jsonDaysString);
 
             //return to default all visible value
             $("#goal-content .boxes div").show();
@@ -3601,10 +3527,7 @@ $(document).ready(function () {
                     var currTimerSpanValue = $("#" + timerSection + " .boxes div .timerSpan")[i];
                     if (currTimerSpanValue.innerHTML == "0") {
                         $(currTimerSpanValue).parent().hide();
-                        //console.log("dive to hide: ");
-                        //console.log($(currTimerSpanValue).parent());
                     } else {
-                        //console.log("got to " + i + ". now bouta break;");
                         break;
                     }
                 }
@@ -3612,22 +3535,18 @@ $(document).ready(function () {
             }
             hideZeroValueTimerBoxes("goal-content");
 
-
             goalTimer = setInterval(function () {
 
                 jsonTotalSecondsString--;
                 jsonSecondsString--;
 
                 if (jsonSecondsString >= 10) {
-                    $(timerSection + " .secondsSinceLastClickSpan:first-child").html(jsonSecondsString);
+                    $(timerSection + " .secondsSinceLastClick:first-child").html(jsonSecondsString);
                 } else {
-                    $(timerSection + " .secondsSinceLastClickSpan:first-child").html("0" + jsonSecondsString);
+                    $(timerSection + " .secondsSinceLastClick:first-child").html("0" + jsonSecondsString);
                 }
 
                 if (jsonSecondsString < 0) {
-
-
-
 
                     if (jsonMinutesString > 0 || jsonHoursString > 0 || jsonDaysString > 0) {
                         jsonSecondsString = 59;
@@ -3695,8 +3614,8 @@ $(document).ready(function () {
                     }
 
 
-                    $(timerSection + " .minutesSinceLastClickSpan:first-child").html(jsonMinutesString);
-                    $(timerSection + " .secondsSinceLastClickSpan:first-child").html(jsonSecondsString);
+                    $(timerSection + " .minutesSinceLastClick:first-child").html(jsonMinutesString);
+                    $(timerSection + " .secondsSinceLastClick:first-child").html(jsonSecondsString);
                 }
                 if (jsonMinutesString < 0) {
 
@@ -3719,8 +3638,8 @@ $(document).ready(function () {
                         $($(timerSection + " .boxes div:hidden")[numberOfBoxesHidden - 1]).toggle();
                     }
                     */
-                    $(timerSection + " .minutesSinceLastClickSpan:first-child").html(jsonMinutesString);
-                    $(timerSection + " .hoursSinceLastClickSpan:first-child").html(jsonHoursString);
+                    $(timerSection + " .minutesSinceLastClick:first-child").html(jsonMinutesString);
+                    $(timerSection + " .hoursSinceLastClick:first-child").html(jsonHoursString);
                 }
                 if (jsonHoursString < 0) {
                     if (jsonDaysString > 0) {
@@ -3745,8 +3664,8 @@ $(document).ready(function () {
                         var numberOfBoxesHidden = $(timerSection + ' .boxes div:hidden').length;
                         $($(timerSection + " .boxes div:hidden")[numberOfBoxesHidden - 1]).toggle();
                     }
-                    $(timerSection + " .hoursSinceLastClickSpan:first-child").html(jsonHoursString);
-                    $(timerSection + " .daysSinceLastClickSpan:first-child").html(jsonDaysString);
+                    $(timerSection + " .hoursSinceLastClick:first-child").html(jsonHoursString);
+                    $(timerSection + " .daysSinceLastClick:first-child").html(jsonDaysString);
                 }
 
 
@@ -3757,8 +3676,7 @@ $(document).ready(function () {
         }
 
         //COST DIALOG CLICK
-
-        $(".cost.log-more-info-div button.submit").click(function () {
+        $(".cost.log-more-info button.submit").click(function () {
             var amountSpent = $("#spentInput").val();
 
             if (!$.isNumeric(amountSpent)) {
@@ -3768,7 +3686,6 @@ $(document).ready(function () {
 
                 //return to relevant screen
                 $("#statistics-tab-toggler").click();
-
 
                 var timestampSeconds = Math.round(new Date() / 1000);
                 updateActionTable(timestampSeconds, "bought", amountSpent);
@@ -3866,7 +3783,7 @@ $(document).ready(function () {
 
         });
 
-        $(".cost.log-more-info-div button.cancel").click(function () {
+        $(".cost.log-more-info button.cancel").click(function () {
             closeClickDialog(".cost");
         });
 
@@ -3878,7 +3795,6 @@ $(document).ready(function () {
             json.statistics.goal.untilTimerEnd.minutes = 0;
             json.statistics.goal.untilTimerEnd.seconds = 0;
             json.statistics.goal.untilTimerEnd.totalSeconds = totalSecondsUntilGoalEnd;
-
 
             //calc mins and secs
             if (totalSecondsUntilGoalEnd > 60) {
@@ -3893,7 +3809,6 @@ $(document).ready(function () {
             if (totalSecondsUntilGoalEnd > (60 * 60)) {
                 json.statistics.goal.untilTimerEnd.minutes = json.statistics.goal.untilTimerEnd.minutes % 60;
                 json.statistics.goal.untilTimerEnd.hours = Math.floor(totalSecondsUntilGoalEnd / (60 * 60));
-
             } else {
                 json.statistics.goal.untilTimerEnd.hours = 0;
             }
@@ -3906,16 +3821,6 @@ $(document).ready(function () {
                 json.statistics.goal.untilTimerEnd.days = 0;
             }
 
-            /*
-            console.log(
-                          "days till complete: " + json.statistics.goal.untilTimerEnd.days
-                        + "\nhours until: "      + json.statistics.goal.untilTimerEnd.hours 
-                        + "\nminutes until: "    + json.statistics.goal.untilTimerEnd.minutes
-                        + "\nseconds until: "    + json.statistics.goal.untilTimerEnd.seconds 
-                        + "\ntotal seconds are: "+ json.statistics.goal.untilTimerEnd.totalSeconds
-                        );
-            */
-
         }
 
         //Restrict possible dates chosen in goal tab datepicker
@@ -3925,16 +3830,14 @@ $(document).ready(function () {
         $("#goalEndPicker").datepicker();
 
         //GOAL DIALOG CLICK
-
-        $(".goal.log-more-info-div button.submit").click(function () {
+        $(".goal.log-more-info button.submit").click(function () {
 
             var date = new Date();
-
             var timestampSeconds = Math.round(date / 1000);
 
             //get time selection from form
-            var requestedTimeEndHours = parseInt($(".goal.log-more-info-div select.time-picker-hour").val());
-            var requestedTimeEndMinutes = parseInt($(".goal.log-more-info-div select.time-picker-minute").val());
+            var requestedTimeEndHours = parseInt($(".goal.log-more-info select.time-picker-hour").val());
+            var requestedTimeEndMinutes = parseInt($(".goal.log-more-info select.time-picker-minute").val());
 
 
             //12 am is actually the first hour in a day... goddamn them.
@@ -3942,7 +3845,7 @@ $(document).ready(function () {
                 requestedTimeEndHours = 0;
             }
             //account for am vs pm from userfriendly version of time input
-            if ($(".goal.log-more-info-div select.time-picker-am-pm").val() == "PM") {
+            if ($(".goal.log-more-info select.time-picker-am-pm").val() == "PM") {
                 requestedTimeEndHours = requestedTimeEndHours + 12;
 
             }
@@ -4038,7 +3941,7 @@ $(document).ready(function () {
 
         });
 
-        $(".goal.log-more-info-div button.cancel").click(function () {
+        $(".goal.log-more-info button.cancel").click(function () {
             closeClickDialog(".goal");
         });
 
