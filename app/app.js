@@ -2080,20 +2080,14 @@ $(document).ready(function () {
                 '</p>' +
                 '</div><!--end habit-log item div-->';
 
-            //console.log(template);
-
-
             if (json.option.logItemsToDisplay[clickType] === true) {
                 if (placeBelow) {
                     $(target).append(template);
                 } else {
                     $(target).prepend(template);
                 }
-                //console.log(json.option.logItemsToDisplay[clickType]);
                 //and make sure the heading exists too
                 $(target + "-heading").show();
-            } else {
-                //console.log("create log entry of type: '" + clickType + "' did not display.");
             }
         }
 
@@ -2105,8 +2099,6 @@ $(document).ready(function () {
             if (currSeconds < 10) { currSeconds = "0" + currSeconds };
 
             var finalStringStatistic = currSeconds + "s";
-
-            //console.log(json.statistics.secondsBetweenUse);
 
             //s	//m
             if (rangeInSeconds > (60)) {
@@ -2141,7 +2133,6 @@ $(document).ready(function () {
             }
 
             //remove very first 0 from string	
-            //console.log(finalStringStatistic);
             if (finalStringStatistic.charAt(0) === "0") { finalStringStatistic = finalStringStatistic.substr(1) }
 
             return finalStringStatistic;
@@ -2168,7 +2159,6 @@ $(document).ready(function () {
 
             //actual end was passed to function	
             if (actualEnd) {
-                //console.log("actualEnd returns true, and is = " + actualEnd)
                 mostRecentGoal.goalStopped = actualEnd;
             } else {
                 //else set the actual end to end of goal endDate
@@ -2178,7 +2168,6 @@ $(document).ready(function () {
 
             //user wants to extend current goal
             if (goalExtendedTo) {
-                //console.log("changeGoalStatus param goalExtendedTo set");
                 if (mostRecentGoal.goalStamp < goalExtendedTo) {
                     //goal was extended, not shortened
                     mostRecentGoal.goalStamp = goalExtendedTo;
@@ -2199,27 +2188,19 @@ $(document).ready(function () {
                     var message = "Your current goal was longer than the one you just requested. " +
                         "Don't worry if you can't make it all the way, just try a more manageable goal next time!";
                     createNotification(message);
-
                 }
 
             } else {
-
-
                 setStorageObject(jsonObject);
             }
 
-            //console.log("at the end of change Goal Status, whole object being put in looks like: ");
-            //console.log(jsonObject);
-
         }
-
 
         /* CONVERT JSON TO LIVE STATS */
         function convertDateTimeToTimestamp(datePickerTarget, timePickerTarget) {
             var tempEndStamp = $(datePickerTarget).datepicker({ dateFormat: 'yy-mm-dd' }).val();
             tempEndStamp = Math.round(new Date(tempEndStamp).getTime() / 1000);
 
-            //console.log("tempEndStamp after pulled from datepicker = " + tempEndStamp);
             //get time selection from form
             var requestedTimeEndHours = parseInt($(timePickerTarget + " select.time-picker-hour").val());
 
@@ -2234,12 +2215,8 @@ $(document).ready(function () {
             }
 
             tempEndStamp += requestedTimeEndHours * (60 * 60);
-            //console.log("tempEndStamp after timepicker hours added = " + tempEndStamp);
-
 
             return tempEndStamp;
-
-
         }
 
         function displayAverageTimeBetween(actionType) {
@@ -2251,14 +2228,12 @@ $(document).ready(function () {
 
             } else if (actionType == "cost") {
                 htmlDestination = "#averageTimeBetweenBoughts";
-
             }
 
             var finalStringStatistic = convertSecondsToDateFormat(json.statistics[actionType].averageBetweenClicks);
 
             //insert HTML into span place holder
             $(htmlDestination).html(finalStringStatistic);
-
         }
 
         function calculateAverageTimeBetween(actionType) {
@@ -2270,9 +2245,9 @@ $(document).ready(function () {
                 totalClicks = parseInt(json.statistics[actionType].clickCounter);
             json.statistics[actionType].averageBetweenClicks = Math.round(totalTimeBetween / (totalClicks - 1));
 
-            console.log("totalTimeBetween: ", totalTimeBetween)
-            console.log("totalClicks: ", totalClicks)
-            console.log("calculating avg: ", Math.round(totalTimeBetween / (totalClicks - 1)))
+            // console.log("totalTimeBetween: ", totalTimeBetween)
+            // console.log("totalClicks: ", totalClicks)
+            // console.log("calculating avg: ", Math.round(totalTimeBetween / (totalClicks - 1)))
 
             //call function to display new stat
             displayAverageTimeBetween(actionType);
@@ -2930,20 +2905,20 @@ $(document).ready(function () {
                     $(".goal.log-more-info .time-picker-am-pm").val("PM");
                     currHours = currHours % 12;
                 }
-                $(".goal.log-more-info .time-picker-hour").val(currHours);
 
                 //set minutes to 0, 15, 30, or 45
                 var currMinutesRounded = 0;
-                if (currMinutes >= 15) {
+                if (currMinutes < 15) {
                     currMinutesRounded = 15;
-                }
-                if (currMinutes >= 30) {
+                }else if (currMinutes < 30) {
                     currMinutesRounded = 30;
-                }
-                if (currMinutes >= 45) {
+                } else if (currMinutes < 45) {
                     currMinutesRounded = 45;
+                } else {
+                    currHours += 1;
                 }
                 $(".goal.log-more-info .time-picker-minute").val(currMinutesRounded);
+                $(".goal.log-more-info .time-picker-hour").val(currHours);
 
             }
 
@@ -3145,7 +3120,6 @@ $(document).ready(function () {
                     if ($("#use-content .boxes div:visible").length == 2) {
                         var numberOfBoxesHidden = $("#use-content .boxes div:hidden").length;
                         $($("#use-content .boxes div:hidden")[numberOfBoxesHidden - 1]).toggle();
-
                     }
 
                     if (hoursSinceUse >= 10) {
@@ -3168,11 +3142,9 @@ $(document).ready(function () {
                     json.statistics.use.sinceTimerStart.hours = 0;
                     json.statistics.use.sinceTimerStart.days++;
 
-
                     if ($("#use-content .boxes div:visible").length == 3) {
                         var numberOfBoxesHidden = $('#use-content .boxes div:hidden').length;
                         $($("#use-content .boxes div:hidden")[numberOfBoxesHidden - 1]).toggle();
-
                     }
 
                     $("#use-content .hoursSinceLastClick:first-child").html("0" + hoursSinceUse);
