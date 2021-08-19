@@ -2,10 +2,10 @@ body, body * {
 	font-weight: 400;
 	font-family: helvetica, Tahoma, Geneva, Verdana, sans-serif;
 }
-body{
-	background:#111111;
+body {
+	background: #111111;
 }
-.footer{
+.footer {
     width: 100%;
 }
 .footer p {
@@ -13,29 +13,29 @@ body{
 	margin: 10px 0px;
 }
 
-a:hover, a:focus{
+a: hover, a: focus {
 	text-decoration: none;
 
 }
-h2{
+h2 {
 		font-size: 2rem;
         text-align: center;
 }
 
-h3{
+h3 {
     font-size: 1.5rem;
-	margin-top:26px;
-	margin-bottom:13px;
+	margin-top: 26px;
+	margin-bottom: 13px;
 
 }
-h4{
-    font-weight:550;
+h4 {
+    font-weight: 550;
 	margin-top: 20px;
-	font-size:1.2rem;
+	font-size: 1.2rem;
 
 }
 
-.container{
+.container {
 	max-width: 480px;
 }
 
@@ -59,172 +59,172 @@ h4{
 */
 
 
-.app-background{
-	background:url("images/mayan-ruin-background.jpg");
-	padding-left:7px;
-	padding-right:7px;
-	padding-top:0px;
-	min-height:calc(100vh - 50px);
+.app-background {
+	background: url("images/mayan-ruin-background.jpg");
+	padding-left: 7px;
+	padding-right: 7px;
+	padding-top: 0px;
+	min-height: calc(100vh - 50px);
 }
 
 
-.header-logo{
-	display:inline-block;
-	padding:13px 5px;
-	max-height:85px;
-}
-
-
-.logo-and-tagline{
+.header-logo {
 	display: inline-block;
-	max-height:85px;
+	padding: 13px 5px;
+	max-height: 85px;
 }
-.logo-and-tagline img{
-	display:inline-block;
-	max-height:75px;
-	padding-top:5px;
+
+
+.logo-and-tagline {
+	display: inline-block;
+	max-height: 85px;
 }
-.tagline{
-	color:white;
+.logo-and-tagline img {
+	display: inline-block;
+	max-height: 75px;
+	padding-top: 5px;
+}
+.tagline {
+	color: white;
 	font-weight: 800;
   font-size: 2.2rem;
 }
 
-.logo-and-tagline p{
-	color:white;
-	font-size:18px;
+.logo-and-tagline p {
+	color: white;
+	font-size: 18px;
 }
 
 /* Options hamburger and menu */
 
-.hamburger{
+.hamburger {
 	float: right;
 	width: 70px;
 }
 
-.hamburger .navbar-toggler{
+.hamburger .navbar-toggler {
 	background: white;
 	cursor: pointer;
-	margin-top:5px;
+	margin-top: 5px;
     width: 70px;
     height: 50px;
 }
-.navbar{
+.navbar {
     padding: 0px;
-    padding-top:5px;
+    padding-top: 5px;
 }
-#options-navbar{
+#options-navbar {
     width: 100%;
 	z-index: 1000;
 	padding: 5px 0px; 
-    border-radius:5px;
+    border-radius: 5px;
 }
-#options-navbar .container{
+#options-navbar .container {
 	background: white;
 
 }
-#options-collapse-menu{
-	padding:7px;
-	padding-top:.5rem;
+#options-collapse-menu {
+	padding: 7px;
+	padding-top: .5rem;
 }
 #options-collapse-menu {
-	margin-top:0px;
+	margin-top: 0px;
 }
-#options-collapse-menu a{
+#options-collapse-menu a {
     text-align: center;
     display: inherit;
     color: grey;
 }
-#options-collapse-menu a.active{
+#options-collapse-menu a.active {
     color: black;
 }
 
 
 /* app main area */
 
-.main-content{
-    display:flex;
-    align-items:flex-start;
+.main-content {
+    display: flex;
+    align-items: flex-start;
     min-height: 85vh;
 }
 
-.tab-content{
-    width:calc(100% - 75px);
+.tab-content {
+    width: calc(100% - 75px);
     
 }
 
-.tab-pane{
+.tab-pane {
 	background: white;
 	padding: 15px 7px;
 
      -moz-border-radius: 5px;
     -webkit-border-radius: 5px;
     -khtml-border-radius: 5px;
-    border-radius:5px;
+    border-radius: 5px;
 
 }
 
-.tab-pane .btn{
-	margin-bottom:20px;
+.tab-pane .btn {
+	margin-bottom: 20px;
 }
 
 /* tabs up top for page redirection */
-.navbar-header{
+.navbar-header {
     display: inline-flex;
-    max-height:85px;
-    padding-top:5px;
+    max-height: 85px;
+    padding-top: 5px;
 }
 .navbar-header .button-group {
-    display:inline-block;
-    min-width:65px;
-    padding-top:10px;
+    display: inline-block;
+    min-width: 65px;
+    padding-top: 10px;
     border-top-left-radius: 7px;
     border-top-right-radius: 7px;
 
 }
-.navbar-header .button-group .button-text{
-    font-size:.8rem;
+.navbar-header .button-group .button-text {
+    font-size: .8rem;
 }
 
-.navbar-header .button-group a{
+.navbar-header .button-group a {
     color: grey;
 }
-.navbar-header .button-group a.active{
+.navbar-header .button-group a.active {
     color: white;
 }
 
 
 /* app main tab menu - Cost, Use, Goals */
-.button-bar{
+.button-bar {
     background: white;
-    width:70px;
-    margin-left:5px;
+    width: 70px;
+    margin-left: 5px;
 
      -moz-border-radius: 5px;
     -webkit-border-radius: 5px;
     -khtml-border-radius: 5px;
-    border-radius:5px;
+    border-radius: 5px;
 }
 
-.button-bar .button-group{
-    width:100%;
-    margin-bottom:13px;
+.button-bar .button-group {
+    width: 100%;
+    margin-bottom: 13px;
 }
 .button-group a {
     color: grey;
-	width:70px;
+	width: 70px;
     margin-bottom: 0px;
 }
 .button-group a .icon,
-.button-group a .button-text{
+.button-group a .button-text {
     text-align: center;
-    margin-bottom:0px;
+    margin-bottom: 0px;
 }
 .button-group a.active {
-	color:black;
+	color: black;
 }
 
-.nav-tabs{
+.nav-tabs {
 	margin: 7px 0px 0px 0px;
 }
 
@@ -234,30 +234,30 @@ h4{
 
 /* BASELINE QUESTIONNAIRE */
    /* 
-    .baseline-questionnaire .follow-up-questions{
-		display:none;
+    .baseline-questionnaire .follow-up-questions {
+		display: none;
 	}
 	*/
-	.baseline-questionnaire div.question{
+	.baseline-questionnaire div.question {
 		margin: 40px 0px;
 	}
-	.baseline-questionnaire div.question > label{
-		font-weight:550;
+	.baseline-questionnaire div.question > label {
+		font-weight: 550;
 	}
   
 	.baseline-questionnaire .form-message .success,
-    .baseline-questionnaire .form-message .failure{
-        color:white;
+    .baseline-questionnaire .form-message .failure {
+        color: white;
         border-radius: 5px;
-        margin:10px;
-        padding:5px;
+        margin: 10px;
+        padding: 5px;
         
     }
-    .baseline-questionnaire .form-message .success{
+    .baseline-questionnaire .form-message .success {
         background: #218838;
         
     }
-    .baseline-questionnaire .form-message .failure{
+    .baseline-questionnaire .form-message .failure {
         background: #c82333;
         
     }
@@ -266,23 +266,23 @@ h4{
 
 
 
-    .weekly-report-template .week-range{
-		display:flex;
-		align-items:center;
-		justify-content:space-evenly;
-		margin-top:25px;
-		margin-bottom:25px;
+    .weekly-report-template .week-range {
+		display: flex;
+		align-items: center;
+		justify-content: space-evenly;
+		margin-top: 25px;
+		margin-bottom: 25px;
 	}
-    .weekly-report-template .week-range .btn{
-		margin-bottom:0px;
+    .weekly-report-template .week-range .btn {
+		margin-bottom: 0px;
 	}
 	
 	.weekly-report-template .week-range button,
-	.weekly-report-template .week-range .current-week{
-		display:flex;
+	.weekly-report-template .week-range .current-week {
+		display: flex;
 	}
-	.weekly-report-template .week-range .current-week > div{
-		display:inline-block;
+	.weekly-report-template .week-range .current-week > div {
+		display: inline-block;
 	}
 
     .weekly-report-template span.ct-label.ct-horizontal.ct-end {
@@ -292,183 +292,172 @@ h4{
 
     /* BAR CHART */
 
-        .bar-chart .legend{
+        .bar-chart .legend {
             display: flex;
             justify-content: center;
         }
 
-        .bar-chart .legend .color-descriptor{
-            padding:0px 10px;
+        .bar-chart .legend .color-descriptor {
+            padding: 0px 10px;
         }
 
-        .bar-chart .legend .color-descriptor label{
-            display:inline-block;
+        .bar-chart .legend .color-descriptor label {
+            display: inline-block;
             margin-bottom: 0px;
         }
 
-        .bar-chart .legend .color{
-            height:15px;
-            width:15px;
+        .bar-chart .legend .color {
+            height: 15px;
+            width: 15px;
             display: inline-block;
             
         }
-        .bar-chart .legend .color.primary{
-            background:#d70206;
+        .bar-chart .legend .color.primary {
+            background: #d70206;
 
         }
-        .bar-chart .legend .color.secondary{
+        .bar-chart .legend .color.secondary {
             background: #f05b4f;
         }
 
 
     /* bottom statistics */
-        .report-statistics{
+        .report-statistics {
             display: inline-block;
             width: 100%;
             padding-right: 25px;
         }
         
-        .report-statistics .statistic{
-            margin-top:15px;
-            margin-bottom:15px;
+        .report-statistics .statistic {
+            margin-top: 15px;
+            margin-bottom: 15px;
         }
         
         .report-statistics .statistic label,
-        .report-statistics .statistic .percent-changed{
-            float:right;
+        .report-statistics .statistic .percent-changed {
+            float: right;
         }
         
-        .report-statistics .statistic label{
+        .report-statistics .statistic label {
             color: grey;
-            padding-right:15px;
+            padding-right: 15px;
         
         }
-        .report-statistics .statistic .percent-changed{
+        .report-statistics .statistic .percent-changed {
             
-            clear:right;
+            clear: right;
         }
-        .weekly-report-template .statistic .percent-changed.down{
+        .weekly-report-template .statistic .percent-changed.down {
             color: #28a745;
         }
-        .weekly-report-template .statistic .percent-changed.up{
+        .weekly-report-template .statistic .percent-changed.up {
             color: #dc3545;
         }
         
-        .weekly-report-template .goal-report{
+        .weekly-report-template .goal-report {
             margin-top: 20px;
-            clear:both;
+            clear: both;
         }
-        .weekly-report-template .goal-report .row{
+        .weekly-report-template .goal-report .row {
             padding: 20px 0px;
         }
-        .weekly-report-template .goal-report .amount-changed{
+        .weekly-report-template .goal-report .amount-changed {
             font-weight: 600;
         } 
-        .weekly-report-template .goal-report .amount-changed.down{
+        .weekly-report-template .goal-report .amount-changed.down {
             color: #28a745;
         }
-        .weekly-report-template .goal-report .amount-changed.up{
+        .weekly-report-template .goal-report .amount-changed.up {
             color: #dc3545;
         }
 
     /* goal report table */
-        .goal-report table{
-            padding-top:20px;
+        .goal-report table {
+            padding-top: 20px;
         }
 
-        .goal-report th{
-            color:grey;
+        .goal-report th {
+            color: grey;
             font-weight: 500;
         }
         .goal-report thead th,
-        .goal-report td{
+        .goal-report td {
             text-align: center;
         }
 
 
 /* STATISTICS */
 .statistic-recepticle,
-.timer-recepticle{
-	text-align:left;
-	margin-bottom:20px;
-	display:flex;
-    align-items:center;
+.timer-recepticle {
+	text-align: left;
+	margin-bottom: 20px;
+    align-items: center;
 }
 
-.statistic-recepticle span{
+.statistic-recepticle span {
     display: inline-block;
-	font-weight:600;
-	font-size:1.4rem;
-    flex-basis:57%;
-}
-.timer-recepticle .spacer{
-    
-    flex-basis:57%;
+	font-weight: 600;
+	font-size: 1.4rem;
 }
 
 .statistic-recepticle p,
-.timer-recepticle p{
-	text-align: right;
+.timer-recepticle p {
 	margin: 0 auto;
-    padding-right:5px;
-    margin-right:5px;
-    border-right: 1px solid grey;
+    padding-right: 5px;
+    margin-right: 5px;
 	color: #828282;
-    flex-basis:43%;
 }  
 
-.clickCounter{
-	background:red;
-	color:white;
-	border-radius:15px;
-	position:absolute;
-	
+.clickCounter {
+	background: red;
+	color: white;
+	border-radius: 15px;
+	position: absolute;
 	padding: 0px 6px;
-    
     margin-left: 3px;
 }
 
 /* log more info div */
 .log-more-info {
     border: 1px solid black;
-	padding:15px 7px 7px 7px;
+	padding: 15px 7px 7px 7px;
     background-color: white;
     z-index: 100;
     border-radius: 5px;
 	position: relative;
-	left:0;
+	left: 0;
     width: 437px;
 	width: 100%;
 	display: none;
 }
 
 
-	.cost.log-more-info div.input-area{
+	.cost.log-more-info div.input-area {
 		margin: 0px auto;
 		display: block;
 		max-width: 220px;
         padding-bottom: 20px;
 	}
-	.cost.log-more-info h3{
+	.cost.log-more-info h3 {
 		display: inline-block;
-		padding-left:20px;
+		padding-left: 20px;
 	}
-	.cost.log-more-info input{
-		color:grey;
+	.cost.log-more-info input {
+		color: grey;
 		max-width: 75px;
 		text-align: center;
-		-moz-appearance:textfield;
+		-moz-appearance: textfield;
 	}
 
 	/*No more spinny shit on the number inputs */
-        input::-webkit-outer-spin-button,
-        input::-webkit-inner-spin-button {
+        input: : -webkit-outer-spin-button,
+        input: : -webkit-inner-spin-button {
             -webkit-appearance: none;
             margin: 0;
         }
 
     /*DOUBLE NO MORE SPINNY SHIT hide spinners on number inputs*/
-        input[type="number"]::-webkit-outer-spin-button, input[type="number"]::-webkit-inner-spin-button {
+        input[type="number"]: : -webkit-outer-spin-button, input[type="number"]: : -webkit-inner-spin-button {
             -webkit-appearance: none;
             margin: 0;
         }
@@ -478,7 +467,7 @@ h4{
         }
 
 
-	.cost.log-more-info label{
+	.cost.log-more-info label {
 		margin: 15px auto;
 		display: inline-block;
 		font-weight: 700;
@@ -488,23 +477,23 @@ h4{
 	}
 	
 	
-	.goal.log-more-info #goalEndPicker{
-		display:table;
-		margin:20px auto;
+	.goal.log-more-info #goalEndPicker {
+		display: table;
+		margin: 20px auto;
 	}
 
-	.goal.log-more-info .time-picker-container{
+	.goal.log-more-info .time-picker-container {
 		text-align: center;
 	}
 
 	select.time-picker-hour,
 	select.time-picker-minute,
 	select.time-picker-am-pm,
-	.time-picker-container span.label{
-		font-size:2.4rem;
+	.time-picker-container span.label {
+		font-size: 2.4rem;
 	}
 
-    .use.log-more-info .time-picker-container .form-check-input{
+    .use.log-more-info .time-picker-container .form-check-input {
         margin-left: 0;
         padding-left: 10px;
         transform: scale(1.4);
@@ -524,23 +513,23 @@ h4{
     }
 
 
-#greyed-out-div{
-	width:100%;
-	position:fixed;
-	background-color:black;
-	z-index:0;
-	opacity:0;
+#greyed-out-div {
+	width: 100%;
+	position: fixed;
+	background-color: black;
+	z-index: 0;
+	opacity: 0;
 }
 
 
 
 /*TIMER STYLES */
 
-	.fibonacci-timer{
-		display:inline-block;
+	.fibonacci-timer {
+		display: inline-block;
 		background-image: url("images/mayan-ruin-background-timers.jpg");
-		padding:3px;
-		overflow:hidden;
+		padding: 3px;
+		overflow: hidden;
 		max-width: 100%;
 	}
 	.fibonacci-timer .boxes {
@@ -561,41 +550,41 @@ h4{
 	  font-size: 36px;
 	}
 	
-	.fibonacci-timer .boxes div{
-		position:relative;
-		background-color:white;
-		margin:3px;
-		border-radius:3px;
+	.fibonacci-timer .boxes div {
+		position: relative;
+		background-color: white;
+		margin: 3px;
+		border-radius: 3px;
 	}
 
 	/*timer number values */
-	.fibonacci-timer .boxes div span:first-child{
+	.fibonacci-timer .boxes div span: first-child {
 		font-weight: 700;
 		text-align: center;
 	}
 
 	/*timer labels */
-	.fibonacci-timer .boxes div span:nth-child(2){
-		color:#919191;
-		display:inherit;
-		text-align:center;
+	.fibonacci-timer .boxes div span: nth-child(2) {
+		color: #919191;
+		display: inherit;
+		text-align: center;
 		position: relative;
 		bottom: 7px;
 	}
 	
 	
-	.fibonacci-timer .boxes div:first-child {
+	.fibonacci-timer .boxes div: first-child {
 		height: 100%;
 	  }
 	  
-	.fibonacci-timer .boxes div:nth-child(2) {
+	.fibonacci-timer .boxes div: nth-child(2) {
 		
 		width: calc(66.6% - 6px);
 		height: calc(66.6% - 6px);
 		float: left;
 	 }
 	  
-	.fibonacci-timer .boxes div:nth-child(3) {
+	.fibonacci-timer .boxes div: nth-child(3) {
 		
 		width: calc(33.3% - 6px);
 		height: calc(33.3% - 6px);
@@ -603,7 +592,7 @@ h4{
 		clear: right;
 	 }
 	  
-	.fibonacci-timer .boxes div:last-child {
+	.fibonacci-timer .boxes div: last-child {
 		
 		width: calc(33.3% - 6px);
 		height: calc(33.3% - 6px);
@@ -616,81 +605,81 @@ h4{
 
 .notification {
 	position: relative;
-	background:white;
-	background:url("images/mayan-notification-background.jpg"); 
+	background: white;
+	background: url("images/mayan-notification-background.jpg"); 
 	background-size: cover;
 	border: 1px solid #d6d6d6; 
 	border-radius: 4px; 
-	padding:5px 12px;
-	margin-bottom:3px;
-	transition:all 0.3s ease-in-out;
+	padding: 5px 12px;
+	margin-bottom: 3px;
+	transition: all 0.3s ease-in-out;
 }
-.notification.rotate-left{
+.notification.rotate-left {
 	-webkit-transform: rotateZ(-7deg);
 	-ms-transform: rotateZ(-7deg);
 	transform: rotateZ(-7deg);
 }
-.notification.rotate-right{
+.notification.rotate-right {
 	-webkit-transform: rotateZ(3deg);
 	-ms-transform: rotateZ(3deg);
 	transform: rotateZ(3deg);
 }
 
-.notification-message{
+.notification-message {
 	display: flex;
     align-items: center;
     padding-top: 10px;
 }
-.notification p{
-	margin-bottom:0px;
-	font-style:italic;
-	color:#111111;
+.notification p {
+	margin-bottom: 0px;
+	font-style: italic;
+	color: #111111;
 }
-.notification-text{
+.notification-text {
 	display: inline-block;
-	max-width:calc(100% - 20px);
+	max-width: calc(100% - 20px);
 }
-.notification-close{
-	width:20px;
-	padding-left:5px;
+.notification-close {
+	width: 20px;
+	padding-left: 5px;
     float: right;
     font-size: 1.4rem;
 	font-weight: 700;
-	color:black;
+	color: black;
 }
-.notification-response-tools{
-	padding-top:15px;
-	text-align:center;
+.notification-response-tools {
+	padding-top: 15px;
+	text-align: center;
 	
 }
-.notification-response-tools button{
-	padding:0px 15px;
+.notification-response-tools button {
+	padding: 0px 15px;
 	margin: 0px 5px 10px 5px;
 }
 
 /* GOAL LOG */
 
-#habit-log .item .title{
+#habit-log .item .title {
 	margin-top: 13px;
     font-size: 1.2rem;
 }
-#habit-log .item .date{
-	color:#d6d6d6;
+#habit-log .item .date {
+	color: #d6d6d6;
 }
-#habit-log .item p{
-	margin-bottom:0px;
+#habit-log .item p {
+	margin-bottom: 0px;
 }
-#habit-log .item hr{
-	margin-top:5px;
+#habit-log .item hr {
+	margin-top: 5px;
 }
-#habit-log .item i{
-	color:grey;
+#habit-log .item i {
+	color: grey;
 }
 
 /* show more buttons */
 
 #habit-log-show-more button.btn,
-#habit-log-show-more p{
+#habit-log-show-more p {
 	margin-bottom: 0px;
 }
 
