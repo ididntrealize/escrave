@@ -48,7 +48,7 @@
  * 
  * MIT License
 
-Copyright (c) 2019 Corey Boiko
+Copyright (c) 2021 Corey Boiko
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal
@@ -72,19 +72,13 @@ SOFTWARE.
 var welcomeHome;
 
 $(document).ready(function () {
-
     //CLIENT CAN USE STORAGE SYSTEM - html5
     if (typeof (Storage) !== "undefined") {
-
         //local working data to use in app
         var json = {
-
-            "statistics":
-            {
-                "cost":
-                {
-                    "sinceTimerStart":
-                    {
+            "statistics": {
+                "cost": {
+                    "sinceTimerStart": {
                         "totalSeconds": 0,
                         "days": 0,
                         "hours": 0,
@@ -100,11 +94,8 @@ $(document).ready(function () {
                     "lastClickStamp": 0,
                     "averageBetweenClicks": 0
                 },
-
-                "use":
-                {
-                    "sinceTimerStart":
-                    {
+                "use": {
+                    "sinceTimerStart": {
                         "totalSeconds": 0,
                         "days": 0,
                         "hours": 0,
@@ -119,11 +110,8 @@ $(document).ready(function () {
                     "lastClickStampCrave": 0,
                     "averageBetweenClicks": 0
                 },
-
-                "goal":
-                {
-                    "untilTimerEnd":
-                    {
+                "goal": {
+                    "untilTimerEnd": {
                         "totalSeconds": 0,
                         "days": 0,
                         "hours": 0,
@@ -139,9 +127,7 @@ $(document).ready(function () {
                     "activeGoalBoth": 0
                 }
             },
-
-            "baseline":
-            {
+            "baseline": {
                 "specificSubject": false,
                 "useStatsIrrelevant": false,
                 "costStatsIrrelevant": false,
@@ -150,9 +136,7 @@ $(document).ready(function () {
                 "amountSpentPerWeek": 0,
                 "goalSpentPerWeek": 0
             },
-
-            "option":
-            {
+            "option": {
                 "activeTab": "reports-content",
                 "liveStatsToDisplay": {
                     "goalButton": true,
@@ -174,7 +158,6 @@ $(document).ready(function () {
                     "currMonthSpent": true,
                     "currYearSpent": true
                 },
-
                 "logItemsToDisplay": {
                     "goal": true,
                     "used": true,
@@ -190,13 +173,11 @@ $(document).ready(function () {
                     "costGoalVsThisWeek": false
                 }
             },
-            "report":
-            {
+            "report": {
                 "minEndStamp": 0,
                 "activeEndStamp": 0,
                 "maxEndStamp": 0,
             }
-
         };
 
         //open local storage, make it into an object
@@ -205,12 +186,10 @@ $(document).ready(function () {
             if (key) {
                 var currJsonString = localStorage[key];
                 var jsonObject = JSON.parse(currJsonString);
-
             } else {
                 var currJsonString = localStorage.esCrave;
                 var jsonObject = JSON.parse(currJsonString);
             }
-
             return jsonObject;
         }
 
@@ -223,10 +202,7 @@ $(document).ready(function () {
         //get configuration from storage
         function setOptionsFromStorage() {
             var jsonObject = retrieveStorageObject();
-
-            //set local json from option in local storage
             json.option.activeTab = jsonObject.option.activeTab;
-            //console.log("json.option.activeTab was set to " + jsonObject.option.activeTab);
 
             //set remembered variables for settings page 
             //display logic
@@ -234,9 +210,7 @@ $(document).ready(function () {
             json.option.logItemsToDisplay = jsonObject.option.logItemsToDisplay;
             json.option.reportItemsToDisplay = jsonObject.option.reportItemsToDisplay;
 
-
             //SETTINGS PAGE INITIAL DISPLAY
-            //loop over 
             //LIVE STATS
             for (var key in json.option.liveStatsToDisplay) {
                 $("#" + key + "Displayed").prop('checked', json.option.liveStatsToDisplay[key]);
@@ -246,34 +220,28 @@ $(document).ready(function () {
             for (var key in json.option.logItemsToDisplay) {
                 $("#" + key + "RecordDisplayed").prop('checked', json.option.logItemsToDisplay[key]);
             }
-
             //WEEKLY REPORT
             for (var key in json.option.reportItemsToDisplay) {
                 $("#" + key + "Displayed").prop('checked', json.option.reportItemsToDisplay[key]);
             }
-
             //baseline questionnaire
             json.baseline = jsonObject.baseline;
 
             //populate fields on form with existing values
             //make the form field disabled
             if ($.isNumeric(json.baseline.amountSpentPerWeek) && json.baseline.amountSpentPerWeek != 0) {
-                //console.log("on start, amountSpent gets a value");
                 $("input.amountSpentPerWeek").val(parseInt(json.baseline.amountSpentPerWeek, 10));
                 $("input.amountSpentPerWeek").prop('disabled', true);
             }
             if ($.isNumeric(json.baseline.goalSpentPerWeek) && json.baseline.goalSpentPerWeek != 0) {
-                //console.log("on start, goalSpent gets a value");
                 $("input.goalSpentPerWeek").val(parseInt(json.baseline.goalSpentPerWeek, 10));
                 $("input.goalSpentPerWeek").prop('disabled', true);
             }
             if ($.isNumeric(json.baseline.amountDonePerWeek) && json.baseline.amountDonePerWeek != 0) {
-                //console.log("on start, amountDone gets a value");
                 $("input.amountDonePerWeek").val(parseInt(json.baseline.amountDonePerWeek, 10));
                 $("input.amountDonePerWeek").prop('disabled', true);
             }
             if ($.isNumeric(json.baseline.goalDonePerWeek) && json.baseline.goalDonePerWeek != 0) {
-                //console.log("on start, goalDone gets a value");
                 $("input.goalDonePerWeek").val(parseInt(json.baseline.goalDonePerWeek, 10));
                 $("input.goalDonePerWeek").prop('disabled', true);
             }
@@ -286,31 +254,18 @@ $(document).ready(function () {
             if (json.baseline.costStatsIrrelevant === true) {
                 $("#amountSpentPerWeekNA").prop('checked', true);
                 $("#goalSpentPerWeekNA").prop('checked', true);
-
             }
-
-
             if (JSON.parse(json.baseline.specificSubject)) {
-
-                //console.log(json.baseline.specificSubject);
                 $(".baseline-questionnaire .follow-up-questions").removeClass("d-none");
                 $($(".baseline-questionnaire .question")[0]).hide();
             }
-
-
         }
 
         //SET STATS FROM STORAGE
-        //get data from storage and convert to working json object
         //set initial values in app			 
         function setStatsFromRecords() {
-
             var jsonObject = retrieveStorageObject();
-
-            //retrieve curr date for time relevant stats
             var timeNow = Math.round(new Date() / 1000);
-
-
 
             /* USE STATISTICS */
             //total USE actions
@@ -339,15 +294,11 @@ $(document).ready(function () {
                 if ($.isNumeric(averageTimeBetweenUses)) {
                     json.statistics.use.averageBetweenClicks = averageTimeBetweenUses;
                 }
-
                 //used to calculate avg time between from json obj, live
                 json.statistics.use.firstClickStamp = useCount[0].timestamp;
-
                 //timestamp of most recent click - to limit clicks in a row
                 json.statistics.use.lastClickStamp = useCount[useCount.length - 1].timestamp;
-
             }
-
 
             //total craves
             var craveCount = jsonObject.action.filter(function (e) {
@@ -358,25 +309,21 @@ $(document).ready(function () {
             //craves in a row
             var cravesInARow = 0;
             for (var i = useTabActions.length - 1; i >= 0; i--) {
-
                 if (useTabActions[i].clickType == "craved") {
                     cravesInARow++;
                 } else {
                     break;
                 }
-
             }
             //update display	
             $("#cravingsResistedInARow").html(cravesInARow);
             //update json
             json.statistics.use.cravingsInARow = cravesInARow;
 
-
             //timestamp of most recent click - to limit clicks in a row
             if (craveCount.length > 0) {
                 json.statistics.use.lastClickStampCrave = craveCount[craveCount.length - 1].timestamp;
             }
-
 
             //avg craves per smoke
             var avgDidntPerDid = Math.round(craveCount.length / useCount.length * 10) / 10;
@@ -389,7 +336,6 @@ $(document).ready(function () {
                 return e.clickType == "bought";
             });
             json.statistics.cost.clickCounter = boughtCount.length;
-
 
             //Restart timer value
             if (boughtCount.length > 0) {
@@ -406,16 +352,11 @@ $(document).ready(function () {
 
                 //used to calculate avg time between from json obj, live
                 json.statistics.cost.firstClickStamp = boughtCount[0].timestamp;
-
                 //timestamp of most recent click - to limit clicks in a row
                 json.statistics.cost.lastClickStamp = boughtCount[boughtCount.length - 1].timestamp;
-
-
-
             }
+
             //calculate timestamps for past week
-
-
             var oneWeekAgoTimeStamp = timeNow - (60 * 60 * 24 * 7);
             oneMonthAgoTimeStamp = timeNow - (60 * 60 * 24 * 30),
                 oneYearAgoTimeStamp = timeNow - (60 * 60 * 24 * 365);
@@ -425,34 +366,24 @@ $(document).ready(function () {
                 runningTotalCostMonth = 0,
                 runningTotalCostYear = 0;
 
-
             for (var i = boughtCount.length - 1; i >= 0; i--) {
-
                 //update every bought record into running total
                 runningTotalCost = runningTotalCost + parseInt(boughtCount[i].spent);
 
                 if (boughtCount[i].timestamp > oneWeekAgoTimeStamp) {
                     //update running week only with timestamps from past week
                     runningTotalCostWeek = runningTotalCostWeek + parseInt(boughtCount[i].spent);
-
                 }
-
                 if (boughtCount[i].timestamp > oneMonthAgoTimeStamp) {
                     //update any record in last month into running total month
                     runningTotalCostMonth = runningTotalCostMonth + parseInt(boughtCount[i].spent);
-
                 }
-
                 if (boughtCount[i].timestamp > oneYearAgoTimeStamp) {
                     //update any record in last month into running total month
                     runningTotalCostYear = runningTotalCostYear + parseInt(boughtCount[i].spent);
-                    //might have to fabricate this sucker to test it.
                 }
-
             }
-            //console.log(runningTotalCost + " = total cost \n" + runningTotalCostWeek + " = cost this week\n"  + runningTotalCostMonth + " = cost this month\n" + runningTotalCostYear + " = cost this year");
-
-            //update display
+            
             $("#totalAmountSpent").html(runningTotalCost + "$");
             $("#spentThisWeek").html(runningTotalCostWeek + "$");
             $("#spentThisMonth").html(runningTotalCostMonth + "$");
@@ -465,7 +396,6 @@ $(document).ready(function () {
             json.statistics.cost.thisYear = runningTotalCostYear;
 
             /* GOAL STATISTICS*/
-
             var goalCount = jsonObject.action.filter(function (e) {
                 return e.clickType == "goal";
             });
@@ -474,18 +404,14 @@ $(document).ready(function () {
             //2 == partially completed goal
             //3 == completed goal
 
-
             if (goalCount.length > 0) {
                 var activeGoals = goalCount.filter(function (e) { return e.status == 1 });
-                //console.log("inside setStatsFromRecords, activeGoals = " + activeGoals);
-
                 var inactiveGoals = goalCount.filter(function (e) { return e.status == 2 || e.status == 3 });
-                //console.log("inside setStatsFromRecords, inactiveGoals = " + inactiveGoals);	
 
                 //timestamp of most recent click - to limit clicks in a row
                 json.statistics.goal.lastClickStamp = goalCount[goalCount.length - 1].timestamp;
-
                 json.statistics.goal.clickCounter = goalCount.length;
+
                 if (activeGoals.length > 0) {
                     var mostRecentGoal = activeGoals[activeGoals.length - 1];
 
@@ -493,20 +419,14 @@ $(document).ready(function () {
                     //to be used on click of relevant buttons to end goal
                     if (mostRecentGoal.goalType == "both") {
                         json.statistics.goal.activeGoalBoth = 1;
-
                     } else if (mostRecentGoal.goalType == "use") {
                         json.statistics.goal.activeGoalUse = 1;
-
                     } else if (mostRecentGoal.goalType == "bought") {
                         json.statistics.goal.activeGoalBought = 1;
-
                     }
 
-
                     var totalSecondsUntilGoalEnd = mostRecentGoal.goalStamp - timeNow;
-
                     if (totalSecondsUntilGoalEnd > 0) {
-
                         loadGoalTimerValues(totalSecondsUntilGoalEnd);
                         initiateGoalTimer();
                     } else {
@@ -514,51 +434,37 @@ $(document).ready(function () {
                         var mostRecentGoal = goalCount[goalCount.length - 1];
                         createGoalEndNotification(mostRecentGoal);
                         //last made goal time has concluded
-                        //hide empty timer
                         $("#goal-content .timer-recepticle").hide();
                     }
                 } else {
-
-                    //last made goal time has concluded
-                    //hide empty timer
+                    //hide empty timer when last goal has ended
                     $("#goal-content .timer-recepticle").hide();
                 }
 
                 if (inactiveGoals.length > 0) {
-
                     //number of goals Completed
                     json.statistics.goal.completedGoals = inactiveGoals.length;
-
                     //used for finding longest goal completed
                     var largestDiff = 0;
 
                     //iterate through goals for longest goal
                     for (var i = 0; i < inactiveGoals.length; i++) {
-
                         var currStartStamp = inactiveGoals[i].timestamp,
                             currEndStamp = inactiveGoals[i].goalStopped;
 
                         //find longest completed goal
                         var currDiff = currEndStamp - currStartStamp;
-
                         if (largestDiff < currDiff) {
                             largestDiff = currDiff;
                         }
-
                     }
 
                     json.statistics.goal.completedGoals = inactiveGoals.length;
                     $("#numberOfGoalsCompleted").html(json.statistics.goal.completedGoals);
-
                     json.statistics.goal.bestTimeSeconds = largestDiff;
                     $("#longestGoalCompleted").html(json.statistics.goal.bestTimeSeconds);
-
-
-
                 }
-
             }
-
 
             //NEEEWWWWW USERRR
             if ((useCount == 0 && craveCount == 0 && boughtCount == 0 && goalCount == 0) &&
@@ -566,11 +472,9 @@ $(document).ready(function () {
                 var introMessage = "<b>Welcome back!</b> - Try clicking some stuff this time! You can undo anything in the settings:";
                 var responseTools = '<button class="btn btn-md btn-outline-info clear-notification" onClick="$(\'#settings-tab-toggler\').click();">' +
                     "App Settings</button>";
-
                 createNotification(introMessage, responseTools);
-            } else {
-                //populate habit log with all actions
 
+            } else {
                 /* ADD ACTIONS INTO LOG */
                 var allActions = jsonObject.action.filter(function (e) {
                     return e.clickType == "used" ||
@@ -588,10 +492,7 @@ $(document).ready(function () {
 
                 function addMoreIntoHabitLog() {
                     if (actionsToAddMax >= 0) {
-                        //console.log(actionsToAddMax + " = actionsToAddMax, above zero");
                         for (var i = actionsToAddMax; i >= actionsToAddMin && i >= 0; i--) {
-
-                            //console.log("inside for loop");
 
                             var currClickStamp = allActions[i].timestamp,
                                 currClickType = allActions[i].clickType,
@@ -607,14 +508,12 @@ $(document).ready(function () {
                                 //append curr action
                                 placeActionIntoLog(currClickStamp, currClickType, currClickCost, true);
 
-
                             } else if (currClickType == "goal") {
                                 currGoalEndStamp = allActions[i].goalStopped,
                                     currGoalType = allActions[i].goalType;
                                 //append 10 new goals
                                 placeGoalIntoLog(currClickStamp, currGoalEndStamp, currGoalType, true);
                             }
-
 
                             if (i == actionsToAddMin || i == 0) {
                                 actionsToAddMin -= 10;
@@ -629,22 +528,15 @@ $(document).ready(function () {
                                 }
                                 break;
                             }
-
                         }
                     }
                 }
                 addMoreIntoHabitLog();
-
-
             }
-
-
-
         }
 
         //create object of weeks values from the end date timestamp
         function calculateReportValues(reportEndStamp) {
-
             var valuesObject = {
                 "reportStart": -1,
                 "reportEnd": -1,
@@ -689,13 +581,11 @@ $(document).ready(function () {
                 }
             }
 
-
             var craveActionsInRange = jsonObject.action.filter(function (e) {
                 return e.clickType == "craved" &&
                     e.timestamp >= reportStartStamp &&
                     e.timestamp <= reportEndStamp
             });
-
 
             for (var i = 0; i <= craveActionsInRange.length - 1; i++) {
                 for (j = 0; j < 7; j++) {
@@ -727,19 +617,13 @@ $(document).ready(function () {
                 }
             }
 
-            //console.log(useActionsInRange);
-            //console.log(craveActionsInRange);
-            //console.log(spentActionsInRange);
-
             //total uses last week
             var useActionsLastWeek = jsonObject.action.filter(function (e) {
                 return e.clickType == "used" &&
                     e.timestamp >= (reportStartStamp - (60 * 60 * 24 * 7)) &&
                     e.timestamp < (reportEndStamp - (60 * 60 * 24 * 7))
             });
-            //console.log(useActionsLastWeek.length);
             valuesObject.usesLastWeek = useActionsLastWeek.length;
-
 
             //total amount spent last week
             var costActionsLastWeek = jsonObject.action.filter(function (e) {
@@ -747,7 +631,6 @@ $(document).ready(function () {
                     e.timestamp >= (reportStartStamp - (60 * 60 * 24 * 7)) &&
                     e.timestamp <= (reportEndStamp - (60 * 60 * 24 * 7))
             });
-
             if (costActionsLastWeek.length) {
                 var totalCostLastWeek = 0;
                 for (var i = 0; i <= costActionsLastWeek.length - 1; i++) {
@@ -755,16 +638,11 @@ $(document).ready(function () {
                 }
                 valuesObject.CostLastWeek = totalCostLastWeek;
             }
-
-
             return valuesObject;
         }
 
         function initiateReport() {
             var jsonObject = retrieveStorageObject();
-
-            //console.log("initiate report");
-            //retrieve curr date for time relevant stats
             var timeNow = Math.round(new Date() / 1000);
 
             //REPORTS!!!
@@ -772,8 +650,6 @@ $(document).ready(function () {
             if (jsonObject["action"].length) {
                 //is there at least a week of data? 
                 var firstStamp = jsonObject.action[0].timestamp;
-                //console.log(firstStamp);
-
                 if ((timeNow - firstStamp) >= (60 * 60 * 24 * 7)) {
 
                     //calculate values for report
@@ -789,20 +665,13 @@ $(document).ready(function () {
                     json.report.minEndStamp = parseInt(firstStamp) + (60 * 60 * 24 * 7);
                     json.report.maxEndStamp = parseInt(reportEndStamp) + (60 * 60 * 24 * 7);
 
-
                     //show most recent report
                     createReport(calculateReportValues(reportEndStamp));
-
                     //hide report description
                     $(".weekly-report-description").hide();
 
-
-                    /* 
-                        Notify user of new report? 
-                        USER NOT ON REPORTS page 
-                    */
+                    //Notify user of new report unless user is on reports page
                     if (!$("#reports-content").hasClass("active")) {
-                        //console.log("report page inactive");
                         //find any data made in past report range
                         var reportRangeActions = jsonObject.action.filter(function (e) {
                             return e.timestamp >= parseInt(reportEndStamp) - (60 * 60 * 24 * 7)
@@ -818,8 +687,6 @@ $(document).ready(function () {
                         //follows that the report end notification was seen.
                         //and, only notify user if there was something in that report
 
-                        //console.log("reportRangeActions.length = " + reportRangeActions.length + "\nactionsSinceReportEnd.length = " + actionsSinceReportEnd.length);
-
                         if (!(actionsSinceReportEnd.length) && reportRangeActions.length) {
                             //createNotification();
                             var message = "A new report is available about the previous week's data about your habit!";
@@ -832,7 +699,6 @@ $(document).ready(function () {
                 }
             }
         }
-
 
         //report template
         function createReport(reportValues) {
@@ -850,14 +716,11 @@ $(document).ready(function () {
                 usesLastWeek = reportValues.usesLastWeek,
                 costLastWeek = reportValues.CostLastWeek;
 
-            //console.log(reportStart, reportEnd, usesWeek, cravesWeek, spentWeek, usesLastWeek, costLastWeek);
-
             var totalUsesThisWeek = usesWeek.reduce(function (a, b) { return a + b; });
             var totalCostThisWeek = spentWeek.reduce(function (a, b) { return a + b; });
 
             //set start date
             $("#reportStartDate").html(timestampToShortHandDate(reportStart, true));
-
             //set end date
             $("#reportEndDate").html(timestampToShortHandDate(reportEnd, true));
 
@@ -894,7 +757,6 @@ $(document).ready(function () {
             ];
 
             new Chartist.Bar('.ct-chart', data, options, responsiveOptions);
-
 
             //set uses vs last week
             if (json.option.reportItemsToDisplay.useChangeVsLastWeek) {
@@ -985,41 +847,28 @@ $(document).ready(function () {
             } else {
                 $("#goalSpentPerWeek").parent().parent().hide();
             }
-
             //remove table headers given case of nothing to be displayed in table
             if (!(json.option.reportItemsToDisplay.useGoalVsThisWeek) && !(json.option.reportItemsToDisplay.costGoalVsThisWeek)) {
                 $(".goal-report thead").hide();
             }
-
-
         }
 
         function percentChangedBetween(first, second) {
-
             var percentChanged = -1;
 
             if (!(first === 0 && second === 0)) {
                 //handle normal cases
                 percentChanged = Math.round(((first - second) / first) * 100);
-
             }
             if (first === 0 && second === 0) {
                 //hand NaN case
-                //no change
                 percentChanged = 0;
-
             }
             if (first === 0) {
                 //handle -infinity cases
                 percentChanged = -100;
             }
 
-
-            /*
-                //console.log("first number = " + first +
-                        "\nsecond number = " + second + 
-                        "\npercentChanged = " + percentChanged);
-            */
             return percentChanged;
         }
 
@@ -1040,7 +889,6 @@ $(document).ready(function () {
                 //icon
                 statTarget.parent().find("i.fas").remove();
                 statTarget.parent().prepend('<i class="fas fa-caret-down"></i>');
-
                 //remove minus sign
                 percentChanged *= -1;
 
@@ -1053,35 +901,26 @@ $(document).ready(function () {
             } else {
                 percentChanged = percentChanged + "%";
             }
-
-
             return percentChanged;
         }
 
         function timestampToShortHandDate(timestamp, includeYear) {
-
             var endDateObj = new Date(parseInt(timestamp + "000"));
             var shortHandDate = (endDateObj.getMonth() + 1) + "/" +
                 endDateObj.getDate();
             if (includeYear) {
                 shortHandDate = shortHandDate + "/" + (endDateObj.getFullYear());
             }
-
-
-
             return shortHandDate;
-
         }
 
         $(".previous-report").on("click", function () {
             if (json.report.activeEndStamp - (60 * 60 * 24 * 7) >= json.report.minEndStamp) {
                 var reportEndStamp = json.report.activeEndStamp - (60 * 60 * 24 * 7);
                 createReport(calculateReportValues(reportEndStamp));
-
             } else {
                 createNotification("Looks like there isn't enough data to make that report!");
             }
-
         });
 
         $(".next-report").on("click", function () {
@@ -1090,16 +929,11 @@ $(document).ready(function () {
                 createReport(calculateReportValues(reportEndStamp));
             } else {
                 createNotification("The next report is for a week that has not happened yet!");
-
             }
-
-
         });
-
 
         //listen for baseline responses 
         (function updateBaselineResponses() {
-
             //user doesn't know what to track, 
             //send them to 'what to track' help docs
             $(".baseline-questionnaire .passerby-user").on('change', function () {
@@ -1114,11 +948,8 @@ $(document).ready(function () {
             //display further baseline questions
             $(".baseline-questionnaire .serious-user").on('change', function () {
                 $(".baseline-questionnaire .follow-up-questions").removeClass("d-none");
-
                 //save user response
-                //local
                 json.baseline.specificSubject = true;
-                //storage
                 var jsonObject = retrieveStorageObject();
                 jsonObject.baseline.specificSubject = true;
                 setStorageObject(jsonObject);
@@ -1128,9 +959,7 @@ $(document).ready(function () {
             $(".baseline-questionnaire  input.stat-group-not-applicable").on('change', function () {
                 //check if checkbox was checked
                 if ($(this).is(":checked")) {
-
                     //on either click of a spent related N/A click, select both
-                    //console.log(this.id);
                     //toggle single checkboxes
                     $("#" + this.id).prop('checked', true);
                     //grey out input box
@@ -1146,23 +975,15 @@ $(document).ready(function () {
                     relInput = relInput.replace("NA", "");
                     $("." + relInput).prop("disabled", false);
                 }
-
-
-
             });
-
 
             //.follow-up-questions submitted
             $(".baseline-questionnaire .submit").on("click", function () {
-
                 //required to update loacal storage
                 var jsonObject = retrieveStorageObject();
 
-
-
                 if ($("#amountSpentPerWeekNA").is(":checked")) {
 
-                    //JSON
                     json.baseline.costStatsIrrelevant = true;
                     //baseline spent / week
                     json.baseline.amountSpentPerWeek = false;
@@ -1180,15 +1001,11 @@ $(document).ready(function () {
                     json.option.reportItemsToDisplay.costChangeVsBaseline = false;
                     json.option.reportItemsToDisplay.costChangeVsLastWeek = false;
 
-
-
-                    //localstorage
                     jsonObject.baseline.costStatsIrrelevant = true;
                     //baseline spent / week
                     jsonObject.baseline.amountSpentPerWeek = false;
 
                     //uncheck visibility of spent related stats
-
                     json.option.liveStatsToDisplay.spentButton = false;
                     json.option.liveStatsToDisplay.boughtGoalButton = false;
 
@@ -1204,28 +1021,17 @@ $(document).ready(function () {
                     jsonObject.option.reportItemsToDisplay.costChangeVsBaseline = false;
                     jsonObject.option.reportItemsToDisplay.costChangeVsLastWeek = false;
 
-                    //console.log("massive ops on spent stats");
-
-
                 } else {
-                    //update json with responses
-
-                    //JSON
                     //baseline spent / week
                     json.baseline.amountSpentPerWeek = $("input.amountSpentPerWeek").val();
-
                     //display stats which default false
                     json.option.reportItemsToDisplay.costChangeVsBaseline = true;
-
-                    //localstorage
                     //baseline spent / week
                     jsonObject.baseline.amountSpentPerWeek = $("input.amountSpentPerWeek").val();
                     //display stats which default false
                     jsonObject.option.reportItemsToDisplay.costChangeVsBaseline = true;
 
-
                 }
-
 
                 if ($("#goalSpentPerWeekNA").is(":checked")) {
                     //goal spend / week
@@ -1247,11 +1053,9 @@ $(document).ready(function () {
 
                 }
 
-
                 //if baseline done == 0 && baseline done goal == 0
                 if ($("#amountDonePerWeekNA").is(":checked")) {
                     //toggle spent statistics (likely they are not useful)
-                    //json 
                     json.baseline.useStatsIrrelevant = true;
                     //baseline done / week
                     json.baseline.amountDonePerWeek = false;
@@ -1290,9 +1094,6 @@ $(document).ready(function () {
                     jsonObject.option.reportItemsToDisplay.useChangeVsBaseline = false;
                     jsonObject.option.reportItemsToDisplay.useChangeVsLastWeek = false;
 
-
-                    //console.log("massive ops on done stats");
-
                 } else {
                     //baseline done / week
                     json.baseline.amountDonePerWeek = $("input.amountDonePerWeek").val();
@@ -1304,7 +1105,6 @@ $(document).ready(function () {
 
                 }
 
-
                 if ($("#goalDonePerWeekNA").is(":checked")) {
 
                     //goal done / week
@@ -1314,7 +1114,6 @@ $(document).ready(function () {
                     //report goal / week
                     json.option.reportItemsToDisplay.useGoalVsThisWeek = false;
                     jsonObject.option.reportItemsToDisplay.useGoalVsThisWeek = false;
-
 
                 } else {
 
@@ -1328,11 +1127,7 @@ $(document).ready(function () {
 
                 }
 
-
                 setStorageObject(jsonObject);
-
-                //console.log(json);
-
                 $("#statistics-tab-toggler").click();
 
                 var message = "Thank you for answering those questions! " +
@@ -1344,7 +1139,6 @@ $(document).ready(function () {
 
         //function to read settings changes for which stats to display
         (function settingsDisplayChanges() {
-
             //LIVE STATISTICS
             //listen when changed checkbox inside display options area
             $(".live-statistics-display-options .form-check-input").on('change', function () {
@@ -1360,7 +1154,6 @@ $(document).ready(function () {
                 //change value in JSON
                 var jsonHandle = itemHandle.replace("Displayed", "");
                 json.option.liveStatsToDisplay[jsonHandle] = displayCorrespondingStat;
-                //console.log(jsonHandle + " will be displayed = " + displayCorrespondingStat);
 
                 //update option table value
                 var jsonObject = retrieveStorageObject();
@@ -1375,17 +1168,13 @@ $(document).ready(function () {
             //HABIT LOG 
             //listen when changed checkbox inside display options area
             $(".habit-log-display-options .form-check-input").on('change', function () {
-
                 //detect specific id
                 var itemHandle = this.id;
                 var jsonHandle = itemHandle.replace("RecordDisplayed", "");
-
-
                 var displayCorrespondingStat = false;
 
                 if ($("#" + itemHandle).is(":checked")) {
                     displayCorrespondingStat = true;
-
                     //remove display none from relevant habit log items
                     $("#habit-log .item." + jsonHandle + "-record").removeClass("d-none");
 
@@ -1420,7 +1209,6 @@ $(document).ready(function () {
                 //change value in JSON
                 var jsonHandle = itemHandle.replace("Displayed", "");
                 json.option.reportItemsToDisplay[jsonHandle] = displayCorrespondingStat;
-                //console.log(jsonHandle + " will be displayed = " + displayCorrespondingStat);
 
                 //update option table value
                 var jsonObject = retrieveStorageObject();
@@ -1435,39 +1223,21 @@ $(document).ready(function () {
             if (json.option.activeTab) {
                 var tabName = json.option.activeTab.split("-")[0];
                 $("#" + tabName + "-tab-toggler").click();
-                //console.log("json.option.activeTab = " + json.option.activeTab);
-                //console.log($("#" + tabName + "-tab-toggler"));
             } else {
-                //console.log("option returns false");
                 $("#" + "reports" + "-tab-toggler").click();
             }
-
-            /*
-            //toggle active class on nav-tabs
-                $(".nav-tabs li").removeClass("active");
-                $("#" + tabName + "-tab-toggler").parent().addClass("active");
-            //toggle active class on actual tab content
-                $(".tab-pane").removeClass("active");
-                $("#" + tabName + "-content").addClass("active");
-            */
-
         }
 
         //save current tab on switch
         function saveActiveTab() {
             //update instance json
             json.option.activeTab = $(".tab-pane.active").attr('id');
-            //console.log("save active tab fired");
-            //console.log($(".tab-pane.active").attr('id'));
 
             //update in option table
             //convert localStorage to json
             var jsonObject = retrieveStorageObject();
-
             jsonObject.option.activeTab = $(".tab-pane.active").attr('id');
-
             setStorageObject(jsonObject);
-
 
         }
 
@@ -1475,7 +1245,6 @@ $(document).ready(function () {
         function restartTimerAtValues(timerArea, sinceLastAction) {
             var timeNow = new Date() / 1000;
 
-            //console.log("timer is trying to restart " + sinceLastAction);
             //update json with previous timer values
             var newTimerTotalSeconds = Math.floor(timeNow - sinceLastAction);
 
@@ -1491,8 +1260,6 @@ $(document).ready(function () {
                 if (newTimerMinutes < 10) {
                     newTimerMinutes = "0" + newTimerMinutes;
                 }
-
-
             } else {
                 newTimerSeconds = newTimerTotalSeconds;
                 newTimerMinutes = 0;
@@ -1532,7 +1299,6 @@ $(document).ready(function () {
             json.statistics[timerArea].sinceTimerStart.hours = newTimerHours;
             json.statistics[timerArea].sinceTimerStart.days = newTimerDays;
 
-
         }
 
         //hide timers on initiation if needed
@@ -1562,11 +1328,8 @@ $(document).ready(function () {
             }
         }
 
-
         /* NOTIFICATION CREATION AND RESPONSES */
-
         var clearNotification = function (event, swipeDirection) {
-
             //when user clicks X on a notification, slide it off the screen.
             var currNotification = $(event).parent().parent();
             //var notificationWidth = currNotification.css("width");
@@ -1608,10 +1371,8 @@ $(document).ready(function () {
                 if (!xDown || !yDown) {
                     return;
                 }
-
                 var xUp = evt.touches[0].clientX;
                 var yUp = evt.touches[0].clientY;
-
                 var xDiff = xDown - xUp;
                 var yDiff = yDown - yUp;
 
@@ -1623,7 +1384,6 @@ $(document).ready(function () {
                             //console.log("got class");
                             clearNotification.call(event, selectedElem, "left");
                         }
-
                     } else {
                         /* right swipe */
                         var selectedElem = document.elementFromPoint(xUp, yUp);
@@ -1633,7 +1393,6 @@ $(document).ready(function () {
                         }
                     }
                 }
-
                 /* reset values */
                 xDown = null;
                 yDown = null;
@@ -1658,7 +1417,6 @@ $(document).ready(function () {
             template += '</div><!--end notification div-->';
 
             $('#notifications-container').append(template);
-
             highlightNotification();
 
         }
@@ -1672,22 +1430,17 @@ $(document).ready(function () {
 
             setTimeout(function () {
                 $($(".notification")[$(".notification").length - 1]).addClass("rotate-left");
-
                 setTimeout(function () {
                     $($(".notification")[$(".notification").length - 1]).removeClass("rotate-left");
                     $($(".notification")[$(".notification").length - 1]).addClass("rotate-right");
-
                     setTimeout(function () {
                         $($(".notification")[$(".notification").length - 1]).removeClass("rotate-right");
-
                     }, 300);
                 }, 300);
             }, 300);
-
         }
 
         function createGoalEndNotification(goalHandle) {
-
             var goalType = goalHandle.goalType,
                 goalTypeGerund = "";
             if (goalType == "use") {
@@ -1711,15 +1464,12 @@ $(document).ready(function () {
 
         }
 
-
         /* Notification button events */
-
         $('#notifications-container').on('click', '.notification-close, .clear-notification', function (event) {
             clearNotification.call(event, this);
         });
 
         $('#notifications-container').on('click', '.notification-response-tool', function (event) {
-
             //need these variables: startStamp, endStamp, goalType
             //convert localStorage to json
             var currJsonString = localStorage.esCrave;
@@ -1729,7 +1479,6 @@ $(document).ready(function () {
             var activeGoals = jsonObject.action.filter(function (e) {
                 return e.clickType == "goal" && e.status == 1;
             });
-
             var mostRecentGoal = activeGoals[activeGoals.length - 1];
 
             //grab relevant data from object
@@ -1738,17 +1487,13 @@ $(document).ready(function () {
                 goalType = mostRecentGoal.goalType;
 
             //your last goal has finished, was it successful?
-            //yes
             if ($(this).hasClass("goal-ended-on-time")) {
-
                 //this is to just shoot the goal straight through the pipeline
                 clearNotification.call(event, this);
-
                 placeGoalIntoLog(startStamp, endStamp, goalType, false);
 
                 var message = "congrats on completing your goal! Check your habit log on your statistics page for details.";
                 createNotification(message);
-
                 changeGoalStatus(3, goalType);
 
                 //update json about if there's an active goal
@@ -1756,26 +1501,10 @@ $(document).ready(function () {
                 json.statistics.goal.activeGoalUse = 0;
                 json.statistics.goal.activeGoalBought = 0;
 
-                /*
-                    //this is to prompt the goal to extend! ask if if user wants to extend goal
-                    clearNotification.call(event, this); 
-
-                    var message = "Congrats on completing your goal! Would you like to extend it?";
-                    var responseTools = 
-                        '<button class="notification-response-tool extend-goal" href="#" >' + 
-                        'Yes</button>' + 
-                        '<button class="notification-response-tool end-goal" href="#">' + 
-                        'No</button>';
-                        
-                        
-                    createNotification(message, responseTools);
-                */
-                //no
+                
             } else if ($(this).hasClass("goal-ended-early")) {
                 clearNotification.call(event, this);
-
                 var now = Math.round(new Date() / 1000);
-
                 var min = new Date(parseInt(startStamp)).getTime();
                 var max = new Date(parseInt(endStamp)).getTime();
 
@@ -1793,9 +1522,7 @@ $(document).ready(function () {
                 } else {
                     maxFormatted = (maxFormatted * -1);
                 }
-                //console.log("minFormatted = " + minFormatted + "\nmaxFormatted = " + maxFormatted);
-
-
+            
                 var message = "Even though you didn't make it until the end, you still get credit for how long you waited. " +
                     "Around when do you think you broke your goal?";
 
@@ -1828,25 +1555,20 @@ $(document).ready(function () {
                     'if(currHours>=12){ $("#goalEndTimePicker .time-picker-am-pm").val("PM"); }' +
                     '</script><br/>' +
                     '<button class="notification-response-tool submit-new-goal-time" href="#" >' +
-
                     'Submit</button>';
 
                 createNotification(message, responseTools);
-
 
             }
 
             //if goal ended ahead of schedule, when did it end?
             //submitted new date/time
             if ($(this).hasClass("submit-new-goal-time")) {
-
-
                 var tempEndStamp = convertDateTimeToTimestamp('#datepicker-notification', '#goalEndTimePicker');
                 //console.log(tempEndStamp);
                 if (tempEndStamp - startStamp > 0 || endStamp - tempEndStamp < 0) {
                     changeGoalStatus(2, goalType, tempEndStamp);
                     placeGoalIntoLog(startStamp, tempEndStamp, goalType, false);
-
                     clearNotification.call(event, this);
 
                     //update json about if there's an active goal
@@ -1854,12 +1576,10 @@ $(document).ready(function () {
                     json.statistics.goal.activeGoalUse = 0;
                     json.statistics.goal.activeGoalBought = 0;
 
-
                 } else {
                     alert('Please choose a time within your goal range!');
                 }
             }
-
 
         });
 
@@ -1874,17 +1594,12 @@ $(document).ready(function () {
         });
 
         function extendActiveGoal() {
-            //console.log("extend that goal");
-
             if (json.statistics.goal.activeGoalUse !== 0) {
                 var goalType = "use";
-
             } else if (json.statistics.goal.activeGoalBought !== 0) {
                 var goalType = "bought";
-
             } else if (json.statistics.goal.activeGoalBoth !== 0) {
                 var goalType = "both";
-
             }
 
             var requestedGoalEnd = $('#goalEndPicker').datepicker({
@@ -1892,28 +1607,22 @@ $(document).ready(function () {
             }).val();
 
             var goalStampSeconds = Math.round(new Date(requestedGoalEnd).getTime() / 1000);
-
             changeGoalStatus(1, goalType, false, goalStampSeconds);
 
         }
         function endActiveGoal() {
-            //console.log("end that goal - start a new one");
-
             var date = new Date();
             var timestampSeconds = Math.round(date / 1000);
 
             if (json.statistics.goal.activeGoalUse !== 0) {
                 var goalType = "use";
                 json.statistics.goal.activeGoalUse = 0;
-
             } else if (json.statistics.goal.activeGoalBought !== 0) {
                 var goalType = "bought";
                 json.statistics.goal.activeGoalBought = 0;
-
             } else if (json.statistics.goal.activeGoalBoth !== 0) {
                 var goalType = "both";
                 json.statistics.goal.activeGoalBoth = 0;
-
             }
             var message = 'Your goal just ended early, ' +
                 'it has been added to your habit log. ' +
@@ -1922,7 +1631,6 @@ $(document).ready(function () {
             changeGoalStatus(2, goalType, timestampSeconds);
             createNotification(message);
 
-            //place a goal into the goal log
             var startStamp = json.statistics.goal.lastClickStamp;
             var actualEnd = timestampSeconds;
             placeGoalIntoLog(startStamp, actualEnd, goalType, false);
@@ -1934,35 +1642,27 @@ $(document).ready(function () {
                 //insert onto page
                 var newLongestGoal = convertSecondsToDateFormat(json.statistics.goal.bestTimeSeconds);
                 $("#longestGoalCompleted").html(newLongestGoal);
-
             }
             //update number of goals
             json.statistics.goal.completedGoals++;
             $("#numberOfGoalsCompleted").html(json.statistics.goal.completedGoals);
             showActiveStatistics();
 
-
-            //copied from goal submit button there is an active goal case
-            //-->
             var requestedGoalEnd = $('#goalEndPicker').datepicker({
                 dateFormat: 'yy-mm-dd'
             }).val();
 
             var goalStampSeconds = Math.round(new Date(requestedGoalEnd).getTime() / 1000);
 
-
-            //-->
             //keep lastClickStamp up to date while using app
             json.statistics.goal.lastClickStamp = timestampSeconds;
 
             //return to relevant screen
             $("#statistics-tab-toggler").click();
 
-
             //set local json goal type which is active
             var jsonHandle = "activeGoal" + goalType.charAt(0).toUpperCase() + goalType.slice(1);
             json.statistics.goal[jsonHandle] = 1;
-
 
             updateActionTable(timestampSeconds, "goal", "", goalStampSeconds, goalType);
 
@@ -1971,20 +1671,13 @@ $(document).ready(function () {
 
             loadGoalTimerValues(totalSecondsUntilGoalEnd);
             initiateGoalTimer();
-
             showActiveStatistics();
             adjustFibonacciTimerToBoxes("goal-timer");
 
-
         }
-
 
         /* GOAL LOG FUNCTION */
         function placeGoalIntoLog(startStamp, endStamp, goalType, placeBelow) {
-
-
-            //data seems to be in order
-            //console.log(endStamp);
 
             var endDateObj = new Date(parseInt(endStamp + "000"));
 
@@ -2005,21 +1698,16 @@ $(document).ready(function () {
                 '</p>' +
                 '</div><!--end habit-log item div-->';
 
-
             //assure user has selected to display this log item type 
             //controller is on settings pane
             if (json.option.logItemsToDisplay.goal === true) {
                 if (placeBelow) {
                     $('#habit-log').append(template);
-
                 } else {
                     $('#habit-log').prepend(template);
-
                 }
-
                 //and make sure the heading exists too
                 $("#habit-log-heading").show();
-
             } else {
                 //console.log("create log entry of type: '" + "goal" + "' did not display.");
             }
@@ -2029,8 +1717,6 @@ $(document).ready(function () {
         function placeActionIntoLog(clickStamp, clickType, amountSpent, placeBelow) {
 
             //data seems to be in order
-            //console.log(clickStamp, clickType, amountSpent, target, placeBelow);
-
             var endDateObj = new Date(parseInt(clickStamp + "000"));
             var dayOfTheWeek = endDateObj.toString().split(' ')[0];
             var shortHandDate = (endDateObj.getMonth() + 1) + "/" +
@@ -2039,12 +1725,9 @@ $(document).ready(function () {
             var shortHandTimeHours = (endDateObj.getHours()),
                 shortHandTimeMinutes = (endDateObj.getMinutes()),
                 shortHandTimeAMPM = "am";
-
             if (shortHandTimeHours == 12) {
                 shortHandTimeAMPM = "pm";
-
             } else if (shortHandTimeHours > 12) {
-
                 shortHandTimeHours = shortHandTimeHours % 12;
                 shortHandTimeAMPM = "pm";
             }
@@ -2054,22 +1737,18 @@ $(document).ready(function () {
 
             var shortHandTime = shortHandTimeHours + "<b>:</b>" + shortHandTimeMinutes + shortHandTimeAMPM;
 
-
             var titleHTML = "";
             var target = "#habit-log";
 
             if (clickType == "bought") {
                 titleHTML = '<i class="fas fa-dollar-sign"></i>&nbsp;&nbsp;' + "You spent <b>" + parseInt(amountSpent) + "$</b> on it.";
                 //target = "#cost-log";
-
             } else if (clickType == "used") {
                 titleHTML = '<i class="fas fa-cookie-bite"></i>&nbsp;' + "You did it at <b>" + shortHandTime + "</b>.";
                 //target = "#use-log";
-
             } else if (clickType == "craved") {
                 titleHTML = '<i class="fas fa-ban"></i>&nbsp;' + "You resisted it at <b>" + shortHandTime + "</b>.";
                 //target = "#use-log";
-
             }
 
             var template = '<div class="item ' + clickType + '-record">' +
@@ -2165,7 +1844,6 @@ $(document).ready(function () {
                 mostRecentGoal.goalStopped = mostRecentGoal.goalStamp;
             }
 
-
             //user wants to extend current goal
             if (goalExtendedTo) {
                 if (mostRecentGoal.goalStamp < goalExtendedTo) {
@@ -2211,11 +1889,9 @@ $(document).ready(function () {
             //account for am vs pm from userfriendly version of time input
             if ($(timePickerTarget + " select.time-picker-am-pm").val() == "PM") {
                 requestedTimeEndHours = requestedTimeEndHours + 12;
-
             }
 
             tempEndStamp += requestedTimeEndHours * (60 * 60);
-
             return tempEndStamp;
         }
 
@@ -2245,19 +1921,13 @@ $(document).ready(function () {
                 totalClicks = parseInt(json.statistics[actionType].clickCounter);
             json.statistics[actionType].averageBetweenClicks = Math.round(totalTimeBetween / (totalClicks - 1));
 
-            // console.log("totalTimeBetween: ", totalTimeBetween)
-            // console.log("totalClicks: ", totalClicks)
-            // console.log("calculating avg: ", Math.round(totalTimeBetween / (totalClicks - 1)))
-
             //call function to display new stat
             displayAverageTimeBetween(actionType);
-
         }
 
         function displayLongestGoal() {
             var html = convertSecondsToDateFormat(json.statistics.goal.bestTimeSeconds);
             $("#longestGoalCompleted").html(html);
-
         }
 
         //TOGGLE ANY STATS WHICH ARE NOT ZERO 
@@ -2269,16 +1939,12 @@ $(document).ready(function () {
             if (json.statistics.cost.clickCounter === 0) {
                 $("#bought-total").hide();
                 $("#cost-content .timer-recepticle").hide();
-
             } else {
                 statisticPresent = true;
             }
-
             if (json.statistics.cost.averageBetweenClicks === 0) {
                 $("#averageTimeBetweenBoughts").parent().hide();
-
             }
-
             if (json.statistics.cost.total === 0) {
                 //toggle all
                 $("#cost-content .statistic-recepticle").hide();
@@ -2286,69 +1952,50 @@ $(document).ready(function () {
                 $("#spentThisWeek").parent().hide();
                 $("#spentThisMonth").parent().hide();
                 $("#spentThisYear").parent().hide();
-
             } else if (json.statistics.cost.thisWeek == json.statistics.cost.total) {
                 //toggle year month week 
                 $("#spentThisWeek").parent().hide();
                 $("#spentThisMonth").parent().hide();
                 $("#spentThisYear").parent().hide();
-
             } else if (json.statistics.cost.thisMonth == json.statistics.cost.thisWeek) {
                 //toggle year and month
                 $("#spentThisMonth").parent().hide();
                 $("#spentThisYear").parent().hide();
-
             } else if (json.statistics.cost.thisYear == json.statistics.cost.thisMonth) {
                 $("#spentThisYear").parent().hide();
-
             }
-
             if (json.statistics.use.clickCounter === 0) {
                 $("#use-total").hide();
                 $("#use-content .timer-recepticle").hide();
-
             } else {
                 statisticPresent = true;
             }
-
             if (json.statistics.use.averageBetweenClicks === 0) {
                 $("#averageTimeBetweenUses").parent().hide();
-
             }
-
             if (json.statistics.use.craveCounter === 0) {
                 $("#crave-total").hide();
-
             } else {
                 statisticPresent = true;
             }
-
             if (json.statistics.use.craveCounter === 0 || json.statistics.use.clickCounter === 0) {
                 $("#avgDidntPerDid").parent().hide();
-
             }
-
             if (json.statistics.use.cravingsInARow === 0 || json.statistics.use.cravingsInARow === 1) {
                 $("#cravingsResistedInARow").parent().hide();
-
             }
-
 
             if (json.statistics.goal.clickCounter === 0) {
                 $("#goal-content .timer-recepticle").hide();
             } else {
                 statisticPresent = true;
             }
-
             if (json.statistics.goal.bestTimeSeconds === 0) {
                 $("#longestGoalCompleted").parent().hide();
             }
-
             if (json.statistics.goal.completedGoals === 0) {
                 $("#numberOfGoalsCompleted").parent().hide();
-
             }
-
             if (statisticPresent) {
                 $("#statistics-content .initial-instructions").hide();
             }
@@ -2361,27 +2008,21 @@ $(document).ready(function () {
             if (json.option.liveStatsToDisplay.boughtGoalButton == false) {
                 $("#boughtGoalInput").parent().hide();
             }
-
             if (json.option.liveStatsToDisplay.sinceLastSpent == false) {
                 $("#cost-content .timer-recepticle").hide();
             }
-
             if (json.option.liveStatsToDisplay.avgBetweenSpent == false) {
                 $("#averageTimeBetweenBoughts").parent().hide();
             }
-
             if (json.option.liveStatsToDisplay.totalSpent == false) {
                 $("#totalAmountSpent").parent().parent().hide();
             }
-
             if (json.option.liveStatsToDisplay.currWeekSpent == false) {
                 $("#spentThisWeek").parent().parent().hide();
             }
-
             if (json.option.liveStatsToDisplay.currMonthSpent == false) {
                 $("#spentThisMonth").parent().parent().hide();
             }
-
             if (json.option.liveStatsToDisplay.currYearSpent == false) {
                 $("#spentThisYear").parent().parent().hide();
             }
@@ -2608,7 +2249,6 @@ $(document).ready(function () {
             }
 
             jsonObject["action"].push(newRecord);
-
             setStorageObject(jsonObject);
 
         }
@@ -2645,7 +2285,6 @@ $(document).ready(function () {
                     //adjust .fibonacci-timer to timer height
                     timerElement.style.width = "3.3rem";
                     timerElement.style.height = "3.3rem";
-
                 }
 
                 //timerElement.style.display = "block";
@@ -2705,7 +2344,6 @@ $(document).ready(function () {
             //close dropdown nav
             if ($("#options-collapse-menu").hasClass("show")) {
                 $(".navbar-toggler").click();
-
             }
 
         });
@@ -2764,27 +2402,6 @@ $(document).ready(function () {
         if (localStorage.esCrave) {
             setOptionsFromStorage();
             setStatsFromRecords();
-            //dump stats
-            //console.log(json);
-
-            //detect if there are new jsonObject elements needed
-            /*overwrite options, baseline, report
-                    var jsonObject = retrieveStorageObject();
-        
-                    var jsonObjectExtention = "";
-        
-                    if(jsonObject.hasOwnProperty("baseline")){
-                       //console.log("localstorage has baseline");
-        
-                    }else{
-        
-                    }
-        
-                    if(jsonObject.baseline.hasOwnProperty("useStatsIrrelevant")){
-                       //console.log("localstorage has useStatsIrrelevant");
-        
-                    }
-            */
 
             //set stats	
             //set total clicks for each button
@@ -3005,7 +2622,6 @@ $(document).ready(function () {
                 adjustFibonacciTimerToBoxes("smoke-timer");
 
             } else {
-                console.log('not yet counting')
 
                 //reset timer from values
                 var daysSinceUse = json.statistics.use.sinceTimerStart.days,
@@ -3062,11 +2678,9 @@ $(document).ready(function () {
                 } else {
                     foundNonZero = true;
                 }
-
                 
                 adjustFibonacciTimerToBoxes("smoke-timer");
 
-                
             }
 
             smokeTimer = setInterval(function() {
@@ -3103,13 +2717,11 @@ $(document).ready(function () {
                         $("#use-content .minutesSinceLastClick:first-child").html("0" + minutesSinceUse);
                     }
                     $("#use-content .secondsSinceLastClick:first-child").html("0" + secondsSinceUse);
-
                     adjustFibonacciTimerToBoxes("smoke-timer");
 
 
                 }
                 if (minutesSinceUse >= 60) {
-
                     //reset local scope vars
                     minutesSinceUse = 0;
                     hoursSinceUse++;
@@ -3129,7 +2741,6 @@ $(document).ready(function () {
                     }
 
                     $("#use-content .minutesSinceLastClick:first-child").html("0" + minutesSinceUse);
-
                     adjustFibonacciTimerToBoxes("smoke-timer");
 
                 }
@@ -3168,9 +2779,6 @@ $(document).ready(function () {
             //get time selection from form
             var requestedTimeStartHours = parseInt($(".use.log-more-info select.time-picker-hour").val());
             var requestedTimeStartMinutes = parseInt($(".use.log-more-info select.time-picker-minute").val());
-
-            console.log("requestedTimeStartHours: ", requestedTimeStartHours)
-            console.log("requestedTimeStartMinutes: ", requestedTimeStartMinutes)
 
             var userDidItNow = $("#nowUseRadio").is(':checked');
             if( userDidItNow ) {
@@ -3220,21 +2828,14 @@ $(document).ready(function () {
                 if (userDidItNow) {
                     //update relevant statistics
                     updateActionTable(timestampSeconds, "used");
-                    //add record into log
                     placeActionIntoLog(timestampSeconds, "used", null, false);
-                    
                     initiateSmokeTimer();
 
                 } else {
-                    //add record into log
-                    //placeActionIntoLog(requestedTimestamp, "used", null, false);
-                    
                     //user is selecting time that appears to be in the future
                     //will interpret as minus one day
                     var secondsToNow = date.getHours()*60*60 + date.getMinutes()*60;
                     var secondsToRequested = requestedTimeStartHours*60*60 + requestedTimeStartHours*60;
-                    console.log("secondsToRequested:", secondsToRequested)
-                    console.log("secondsToNow:", secondsToNow)
                     
                     if( secondsToRequested > secondsToNow) {
                         console.log('firing initsmoke with a req timestampe: ', requestedTimestamp)
@@ -3244,7 +2845,6 @@ $(document).ready(function () {
 
                     //update relevant statistics
                     updateActionTable(requestedTimestamp, "used");
-                    
                     initiateSmokeTimer(requestedTimestamp);
                 }
 
@@ -3293,14 +2893,11 @@ $(document).ready(function () {
                     json.statistics.goal.completedGoals++;
                     $("#numberOfGoalsCompleted").html(json.statistics.goal.completedGoals);
 
-
                 }
 
                 showActiveStatistics();
-
                 //keep lastClickStamp up to date while using app
                 json.statistics.use.lastClickStamp = timestampSeconds;
-
                 closeClickDialog(".use");
 
         });
@@ -3462,8 +3059,6 @@ $(document).ready(function () {
                     adjustFibonacciTimerToBoxes("bought-timer");
                 }
 
-
-
             }, 1000); //end setInterval
             $("#bought-timer").addClass("counting");
             $("#bought-timer").show();
@@ -3474,7 +3069,6 @@ $(document).ready(function () {
             var timerSection = "#goal-content";
 
             json.statistics.goal.clickCounter++;
-
 
             clearInterval(goalTimer);
 
@@ -3503,7 +3097,6 @@ $(document).ready(function () {
                         break;
                     }
                 }
-
             }
             hideZeroValueTimerBoxes("goal-content");
 
@@ -3537,7 +3130,6 @@ $(document).ready(function () {
                         clearInterval(goalTimer);
                         hideInactiveStatistics();
 
-
                         //find most recent goal type
                         var goalType = "";
                         if (json.statistics.goal.activeGoalBoth == 1) {
@@ -3554,7 +3146,6 @@ $(document).ready(function () {
                         }
 
                         var actualEnd = Math.round(new Date() / 1000);
-
                         changeGoalStatus(3, goalType, actualEnd);
 
                         //(startStamp, endStamp, goalType) =>
@@ -3573,7 +3164,6 @@ $(document).ready(function () {
                         //update number of goals
                         json.statistics.goal.completedGoals++;
                         $("#numberOfGoalsCompleted").html(json.statistics.goal.completedGoals);
-
                         showActiveStatistics();
 
                         //notify user that goal ended
@@ -3582,9 +3172,7 @@ $(document).ready(function () {
 
                         //disappear zero seconds left timer
                         $(timerSection + " .fibonacci-timer").parent().hide();
-
                     }
-
 
                     $(timerSection + " .minutesSinceLastClick:first-child").html(jsonMinutesString);
                     $(timerSection + " .secondsSinceLastClick:first-child").html(jsonSecondsString);
@@ -3601,15 +3189,8 @@ $(document).ready(function () {
                                 adjustFibonacciTimerToBoxes("goal-timer");
                             }
                         }
-
                     }
 
-                    /*
-                    if ($(timerSection + " .boxes div:visible").length == 2 ) {
-                        var numberOfBoxesHidden = $(timerSection + " .boxes div:hidden").length;
-                        $($(timerSection + " .boxes div:hidden")[numberOfBoxesHidden - 1]).toggle();
-                    }
-                    */
                     $(timerSection + " .minutesSinceLastClick:first-child").html(jsonMinutesString);
                     $(timerSection + " .hoursSinceLastClick:first-child").html(jsonHoursString);
                 }
@@ -3622,15 +3203,10 @@ $(document).ready(function () {
                             setTimeout(function () {
                                 $($("#goal-content .boxes div")[0]).hide();
                                 adjustFibonacciTimerToBoxes("goal-timer");
-
                             }, 0);
 
                         }
-                    } else {
-
-
                     }
-
 
                     if ($(timerSection + " .boxes div:visible").length == 3) {
                         var numberOfBoxesHidden = $(timerSection + ' .boxes div:hidden').length;
@@ -3640,9 +3216,7 @@ $(document).ready(function () {
                     $(timerSection + " .daysSinceLastClick:first-child").html(jsonDaysString);
                 }
 
-
             }, 1000); //end setInterval
-
 
             $("#goal-button").addClass("counting");
         }
@@ -3691,12 +3265,9 @@ $(document).ready(function () {
                 $("#spentThisYear").html(json.statistics.cost.thisYear + "$");
 
                 closeClickDialog(".cost");
-
                 initiateBoughtTimer();
-
                 showActiveStatistics();
                 hideInactiveStatistics();
-
                 adjustFibonacciTimerToBoxes("bought-timer");
 
                 //there is an active bought related goal
@@ -3743,14 +3314,10 @@ $(document).ready(function () {
                     //update number of goals
                     json.statistics.goal.completedGoals++;
                     $("#numberOfGoalsCompleted").html(json.statistics.goal.completedGoals);
-
                     showActiveStatistics();
                 }
-
                 //keep lastClickStamp up to date while using app
                 json.statistics.cost.lastClickStamp = timestampSeconds;
-
-
             }
 
         });
@@ -3811,7 +3378,6 @@ $(document).ready(function () {
             var requestedTimeEndHours = parseInt($(".goal.log-more-info select.time-picker-hour").val());
             var requestedTimeEndMinutes = parseInt($(".goal.log-more-info select.time-picker-minute").val());
 
-
             //12 am is actually the first hour in a day... goddamn them.
             if (requestedTimeEndHours == 12) {
                 requestedTimeEndHours = 0;
@@ -3819,7 +3385,6 @@ $(document).ready(function () {
             //account for am vs pm from userfriendly version of time input
             if ($(".goal.log-more-info select.time-picker-am-pm").val() == "PM") {
                 requestedTimeEndHours = requestedTimeEndHours + 12;
-
             }
 
             var requestedGoalEnd = $('#goalEndPicker').datepicker({
@@ -3839,7 +3404,6 @@ $(document).ready(function () {
             //values 1-12 for Hours 0-59 for minutes	
 
             if (goalStampSeconds >= timestampSeconds || secondsUntilRequestedGoal > secondsUntilNow) {
-                //alert("it's not today || or you picked a time later than now");
 
                 goalStampSeconds += secondsUntilRequestedGoal;
 
@@ -3852,14 +3416,8 @@ $(document).ready(function () {
                 } else {
                     if ($("#boughtGoalInput").is(":checked")) {
                         goalType = "bought";
-
                     } else if ($("#usedgoalInput").is(":checked")) {
                         goalType = "use";
-
-                    } else {
-                        //manage those people who just haveta SPECIFICALLY mark neither....
-
-
                     }
                 }
 
@@ -3944,7 +3502,6 @@ $(document).ready(function () {
             idleTime = 0;
         });
 
-
         function timerIncrement() {
             idleTime = idleTime + 1;
             if (idleTime >= 5) { // 5 minutes
@@ -3963,10 +3520,8 @@ $(document).ready(function () {
                     userIsActive = true;
 
                 });
-
             }
         }
-
 
     })();
 
