@@ -13,7 +13,7 @@ body {
 	margin: 10px 0px;
 }
 
-a: hover, a: focus {
+a:hover, a:focus {
 	text-decoration: none;
 
 }
@@ -450,14 +450,14 @@ h4 {
 	}
 
 	/*No more spinny shit on the number inputs */
-        input: : -webkit-outer-spin-button,
-        input: : -webkit-inner-spin-button {
+        input::-webkit-outer-spin-button,
+        input::-webkit-inner-spin-button {
             -webkit-appearance: none;
             margin: 0;
         }
 
     /*DOUBLE NO MORE SPINNY SHIT hide spinners on number inputs*/
-        input[type="number"]: : -webkit-outer-spin-button, input[type="number"]: : -webkit-inner-spin-button {
+        input[type="number"]::-webkit-outer-spin-button, input[type="number"]::-webkit-inner-spin-button {
             -webkit-appearance: none;
             margin: 0;
         }
@@ -558,13 +558,13 @@ h4 {
 	}
 
 	/*timer number values */
-	.fibonacci-timer .boxes div span: first-child {
+	.fibonacci-timer .boxes div span:first-child {
 		font-weight: 700;
 		text-align: center;
 	}
 
 	/*timer labels */
-	.fibonacci-timer .boxes div span: nth-child(2) {
+	.fibonacci-timer .boxes div span:nth-child(2) {
 		color: #919191;
 		display: inherit;
 		text-align: center;
@@ -573,18 +573,18 @@ h4 {
 	}
 	
 	
-	.fibonacci-timer .boxes div: first-child {
+	.fibonacci-timer .boxes div:first-child {
 		height: 100%;
 	  }
 	  
-	.fibonacci-timer .boxes div: nth-child(2) {
+	.fibonacci-timer .boxes div:nth-child(2) {
 		
 		width: calc(66.6% - 6px);
 		height: calc(66.6% - 6px);
 		float: left;
 	 }
 	  
-	.fibonacci-timer .boxes div: nth-child(3) {
+	.fibonacci-timer .boxes div:nth-child(3) {
 		
 		width: calc(33.3% - 6px);
 		height: calc(33.3% - 6px);
@@ -592,7 +592,7 @@ h4 {
 		clear: right;
 	 }
 	  
-	.fibonacci-timer .boxes div: last-child {
+	.fibonacci-timer .boxes div:last-child {
 		
 		width: calc(33.3% - 6px);
 		height: calc(33.3% - 6px);
