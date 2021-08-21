@@ -139,6 +139,11 @@ h4 {
     color: black;
 }
 
+.undo-button {
+    float: right;
+    margin: 20px;
+}
+
 
 /* app main area */
 
@@ -239,7 +244,7 @@ h4 {
 	}
 	*/
 	.baseline-questionnaire div.question {
-		margin: 40px 0px;
+		padding: 20px 0px;
 	}
 	.baseline-questionnaire div.question > label {
 		font-weight: 550;
@@ -260,6 +265,61 @@ h4 {
     .baseline-questionnaire .form-message .failure {
         background: #c82333;
         
+    }
+
+    .desires-increase {
+        display: none;
+    }
+
+    .baseline-questionnaire {
+        padding-bottom: 15px;
+
+    }
+
+    .btn.btn-collapse {
+        width: 100%;
+        margin: 4px 0;
+        position: relative;
+    }
+    
+    .btn.btn-collapse h3 {
+        margin: 0px;
+        text-align: left;
+    }
+
+    .btn-collapse .caret {
+        top: 7px;
+        right: 15px;
+        width: 0;
+        height: 0;
+        position: absolute;
+    }
+    .btn-collapse .caret:before,
+    .btn-collapse .caret:after {
+        content: "";
+        position: absolute;
+        display: block;
+        width: 0;
+        height: 0;
+        border-width: 7px 8px;
+        border-style: solid;
+        border-color: transparent;
+        z-index: 100;
+    }
+    .btn-collapse[aria-expanded="true"] .caret:after {
+        bottom: -18px;
+        right: -8px;
+        border-bottom-color: #000;
+    }
+    
+    .btn-collapse[aria-expanded="false"] .caret:after {
+        bottom: -18px;
+        right: -8px;
+        border-top-color: #000;
+    }
+
+    .btn-collapse[aria-expanded="false"] .caret {
+        top: 14px;
     }
 
 /* REPORTS */
@@ -531,7 +591,8 @@ h4 {
 		padding: 3px;
 		overflow: hidden;
 		max-width: 100%;
-	}
+    }
+    
 	.fibonacci-timer .boxes {
 	  width: 9rem;
 	  height: 9rem;
@@ -545,7 +606,8 @@ h4 {
 	
 	.fibonacci-timer .daysSinceLastClick {
 	  font-size: 52px;
-	}
+    }
+    
 	.fibonacci-timer .hoursSinceLastClick {
 	  font-size: 36px;
 	}
@@ -572,32 +634,53 @@ h4 {
 		bottom: 7px;
 	}
 	
-	
 	.fibonacci-timer .boxes div:first-child {
 		height: 100%;
-	  }
+	}
 	  
 	.fibonacci-timer .boxes div:nth-child(2) {
-		
 		width: calc(66.6% - 6px);
 		height: calc(66.6% - 6px);
 		float: left;
-	 }
+	}
 	  
 	.fibonacci-timer .boxes div:nth-child(3) {
-		
 		width: calc(33.3% - 6px);
 		height: calc(33.3% - 6px);
 		float: left;
 		clear: right;
-	 }
+	}
 	  
 	.fibonacci-timer .boxes div:last-child {
-		
 		width: calc(33.3% - 6px);
 		height: calc(33.3% - 6px);
 		float: left;
-	 }
+    }
+
+    /* Create artificial horizontal layout when all boxes are visible */
+    .fully-visible.fibonacci-timer .boxes div:nth-child(2) {
+        width: calc(66.6% - 2px);
+        height: calc(66.6% - 2px);
+        position: relative;
+        left: 100%;
+        top: -104%;
+	}
+	  
+	.fully-visible.fibonacci-timer .boxes div:nth-child(3) {
+        width: calc(33.3% - 4px);
+		height: calc(33.3% - 4px);
+        position: relative;
+        left: 100%;
+        top: -105%;
+	}
+	  
+	.fully-visible.fibonacci-timer .boxes div:last-child {
+		width: calc(33.3% - 4px);
+		height: calc(33.3% - 4px);
+        position: relative;
+        left: 100%;
+        top: -105%;
+	}
 
 
 /* TEMPLATE STYLES */
