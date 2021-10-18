@@ -4,7 +4,7 @@
     "icons": [
       {
         "src": "images/escrave-logo.png",
-        "type": "image/png",
+        "type": "image/png", 
         "sizes": "183x183"
       },
       {

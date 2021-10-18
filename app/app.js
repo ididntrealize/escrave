@@ -89,12 +89,17 @@ $(document).ready(function () {
                     "totals": {
                         "total": 0, 
                         "week": 0, 
-                        "Month": 0, 
+                        "month": 0, 
                         "year": 0
                     },
                     "firstClickStamp": 0,
                     "lastClickStamp": 0,
-                    "averageBetweenClicks": 0
+                    "betweenClicks": {
+                        "total": 0, 
+                        "week": 0, 
+                        "month": 0, 
+                        "year": 0
+                    },
                 },
                 "use": {
                     "sinceTimerStart": {
@@ -104,13 +109,32 @@ $(document).ready(function () {
                         "minutes": 0,
                         "seconds": 0
                     },
+                    "betweenClicks": {
+                        "total": 0, 
+                        "week": 0, 
+                        "month": 0, 
+                        "year": 0
+
+                    },
                     "clickCounter": 0,
                     "craveCounter": 0,
                     "cravingsInARow": 0,
                     "firstClickStamp": 0,
                     "lastClickStamp": 0,
                     "lastClickStampCrave": 0,
-                    "averageBetweenClicks": 0
+                    "didntPerDid": {
+                        "total": 0, 
+                        "week": 0, 
+                        "month": 0, 
+                        "year": 0
+                    },
+                    "resistStreak": {
+                        "total": 0, 
+                        "week": 0, 
+                        "month": 0, 
+                        "year": 0
+                    }
+
                 },
                 "goal": {
                     "untilTimerEnd": {
@@ -122,7 +146,12 @@ $(document).ready(function () {
                     },
                     "clickCounter": 0,
                     "lastClickStamp": 0,
-                    "bestTimeSeconds": 0,
+                    "longestGoal": {
+                        "total": 0, 
+                        "week": 0, 
+                        "month": 0, 
+                        "year": 0
+                    },
                     "completedGoals": 0,
                     "activeGoalUse": 0,
                     "activeGoalBought": 0,
@@ -153,6 +182,7 @@ $(document).ready(function () {
                     "usedGoalButton": true,
                     "cravedButton": true,
                     "sinceLastDone": true,
+                    "timesDone": true,
                     "avgBetweenDone": true,
                     "didntPerDid": true,
                     "resistedInARow": true,
@@ -160,20 +190,19 @@ $(document).ready(function () {
                     "boughtGoalButton": true,
                     "sinceLastSpent": true,
                     "avgBetweenSpent": true,
-                    "totalSpent": true,
-                    "currWeekSpent": true,
-                    "currMonthSpent": true,
-                    "currYearSpent": true
+                    "totalSpent": true
                 },
                 "logItemsToDisplay": {
                     "goal": true,
                     "used": true,
                     "craved": true,
-                    "bought": true
+                    "bought": true,
+                    "mood": true
                 },
                 "reportItemsToDisplay": {
                     "useChangeVsBaseline": false,
                     "useChangeVsLastWeek": true,
+                    "useVsResistsGraph": true,
                     "costChangeVsBaseline": false,
                     "costChangeVsLastWeek": true,
                     "useGoalVsThisWeek": false,
@@ -184,6 +213,7 @@ $(document).ready(function () {
                 "minEndStamp": 0,
                 "activeEndStamp": 0,
                 "maxEndStamp": 0,
+                "maxHeight": 1
             }
         };
 
@@ -222,7 +252,6 @@ $(document).ready(function () {
             for (var key in json.option.liveStatsToDisplay) {
                 $("#" + key + "Displayed").prop('checked', json.option.liveStatsToDisplay[key]);
             }
-
             //HABIT LOG
             for (var key in json.option.logItemsToDisplay) {
                 $("#" + key + "RecordDisplayed").prop('checked', json.option.logItemsToDisplay[key]);
@@ -294,10 +323,13 @@ $(document).ready(function () {
             if (JSON.parse(json.baseline.decreaseHabit)) {
                 $(".desires-decrease").removeClass("d-none");
                 $(".desires-increase").addClass("d-none");
+                $('body').removeClass("desires-increase");
+                $('body').addClass("desires-decrease");
             } else {
                 $(".desires-decrease").addClass("d-none");
                 $(".desires-increase").removeClass("d-none");
-
+                $('body').removeClass("desires-decrease");
+                $('body').addClass("desires-increase");
             }
         }
 
@@ -306,12 +338,153 @@ $(document).ready(function () {
         function setStatsFromRecords() {
             var jsonObject = retrieveStorageObject();
             var timeNow = Math.round(new Date() / 1000);
+            var oneWeekAgoTimeStamp = timeNow - (60 * 60 * 24 * 7);
+            var oneMonthAgoTimeStamp = timeNow - (60 * 60 * 24 * 30);
+            var oneYearAgoTimeStamp = timeNow - (60 * 60 * 24 * 365);
 
             /* USE STATISTICS */
             //total USE actions
             var useTabActions = jsonObject.action.filter(function (e) {
                 return e.clickType == "used" || e.clickType == "craved";
             });
+            useTabActions = useTabActions.sort( (a, b) => {
+                return parseInt(a.timestamp) > parseInt(b.timestamp) ? 1 : -1;
+            });
+
+            var useTabActionsWeek = useTabActions.filter(function (e) {
+                return e.timestamp >= oneWeekAgoTimeStamp;
+            });
+
+            var useTabActionsMonth = useTabActions.filter(function (e) {
+                return e.timestamp >= oneMonthAgoTimeStamp;
+            });
+
+            var useTabActionsYear = useTabActions.filter(function (e) {
+                return e.timestamp >= oneYearAgoTimeStamp;
+            });
+
+            if(useTabActions.length > 0) {
+                var runningTotal = 0;
+                var streak = 0;
+
+                for (const [i, action] of useTabActions.entries()) {
+                    //last action found
+                    if (useTabActions.length == i + 1) {
+                        if (action.clickType == "craved") { streak++; }
+                        //New record
+                        if (streak > runningTotal) { runningTotal = streak; }
+                        break;
+                    }
+                    
+                    if (action.clickType == "craved") {
+                        streak++;
+                        continue;
+                    } 
+                    
+                    if (action.clickType == "used") {
+                        //New record
+                        if(streak > runningTotal) { runningTotal = streak; }
+                        streak = 0;
+                    }
+
+                }
+
+                json.statistics.use.resistStreak.total = runningTotal;
+
+                //console.log("resistStreak total : ", json.statistics.use.resistStreak.total )
+
+            }
+
+            if (useTabActionsWeek.length > 0) {
+                var runningTotal = 0;
+                var streak = 0;
+
+                for (const [i, action] of useTabActionsWeek.entries()) {
+                    
+                    //console.log("action: ", action)
+                    //last action found
+                    if (useTabActionsWeek.length - 1 == i ) {
+                        if (action.clickType == "craved") { streak++; }
+                        //New record
+                        if (streak > runningTotal) { runningTotal = streak; }
+                        break;
+                    }
+                    if (action.clickType == "craved") {
+                        streak++;
+                        continue;
+                    } 
+                    if (action.clickType == "used") {
+                        //New record
+                        if(streak > runningTotal) { runningTotal = streak; }
+                        streak = 0;
+                    }
+                }
+                json.statistics.use.resistStreak.week = runningTotal;
+                console.log("resistStreak week : ", json.statistics.use.resistStreak.week )
+
+            }
+
+            if (useTabActionsMonth.length > 0) {
+                var runningTotal = 0;
+                var streak = 0;
+
+                for (const [i, action] of useTabActionsMonth.entries()) {
+                    //last action found
+                    if (useTabActionsMonth.length - 1 == i) {
+                        if (action.clickType == "craved") { streak++; }
+                        //New record
+                        if (streak > runningTotal) { runningTotal = streak; }
+                        break;
+                    }
+                    if (action.clickType == "craved") {
+                        streak++;
+                        continue;
+                    } 
+                    if (action.clickType == "used") {
+                        //New record
+                        if(streak > runningTotal) { runningTotal = streak; }
+                        streak = 0;
+                    }
+                }
+                json.statistics.use.resistStreak.month = runningTotal;
+                console.log("resistStreak month : ", json.statistics.use.resistStreak.month )
+
+            }
+
+            if (useTabActionsYear.length > 0) {
+                var runningTotal = 0;
+                var streak = 0;
+
+                for (const [i, action] of useTabActionsYear.entries()) {
+                    //last action found
+                    if (useTabActionsYear.length == i + 1) {
+                        if (action.clickType == "craved") { streak++; }
+                        //New record
+                        if (streak > runningTotal) { runningTotal = streak; }
+                        break;
+                    }
+                    if (action.clickType == "craved") {
+                        streak++;
+                        continue;
+                    } 
+                    if (action.clickType == "used") {
+                        //New record
+                        if(streak > runningTotal) { runningTotal = streak; }
+                        streak = 0;
+                    }
+                }
+                json.statistics.use.resistStreak.year = runningTotal;
+                console.log("resistStreak year : ", json.statistics.use.resistStreak.year )
+
+            }
+
+            var resistStreak = json.statistics.use.resistStreak;
+            
+            $(".statistic.use.resistStreak.total").html(resistStreak.total);
+            $(".statistic.use.resistStreak.week").html(resistStreak.week);
+            $(".statistic.use.resistStreak.month").html(resistStreak.month);
+            $(".statistic.use.resistStreak.year").html(resistStreak.year);
+
 
             //total uses
             var useCount = jsonObject.action.filter(function (e) {
@@ -319,32 +492,133 @@ $(document).ready(function () {
             });
             useCount = useCount.sort( (a, b) => {
                 return parseInt(a.timestamp) > parseInt(b.timestamp) ? 1 : -1;
-            })
+            });
             json.statistics.use.clickCounter = useCount.length;
+
+            var useCountWeek = useCount.filter(function (e) {
+                return e.timestamp >= oneWeekAgoTimeStamp;
+            });
+
+            var useCountMonth = useCount.filter(function (e) {
+                return e.timestamp >= oneMonthAgoTimeStamp;
+            });
+
+            var useCountYear = useCount.filter(function (e) {
+                return e.timestamp >= oneYearAgoTimeStamp;
+            });
 
             //Restart timer value
             if (useCount.length > 0) {
+                
                 var sinceLastUse = useCount[useCount.length - 1].timestamp;
                 restartTimerAtValues("use", sinceLastUse);
 
-                //average time between uses	
-                var totalTimeBetweenUses = useCount[useCount.length - 1].timestamp - useCount[0].timestamp,
-                    averageTimeBetweenUses = Math.round(totalTimeBetweenUses / (useCount.length - 1));
-
-                if ($.isNumeric(averageTimeBetweenUses)) {
-                    json.statistics.use.averageBetweenClicks = averageTimeBetweenUses;
-                }
                 //used to calculate avg time between from json obj, live
                 json.statistics.use.firstClickStamp = useCount[0].timestamp;
                 //timestamp of most recent click - to limit clicks in a row
                 json.statistics.use.lastClickStamp = useCount[useCount.length - 1].timestamp;
+
+                //average time between uses	
+                var totalTimeBetween = { }
+                var avgTimeBetween   = { }
+
+                totalTimeBetween.total = timeNow - useCount[0].timestamp;
+                avgTimeBetween.total = Math.round(totalTimeBetween.total / (useCount.length));
+
+                if(useCountWeek.length >= 1) {
+                    console.log("avg time between doing (week) is  ", timeNow - useCountWeek[0].timestamp)
+                    if (useCountMonth.length == useCountWeek.length) {
+                        totalTimeBetween.week = timeNow - useCountWeek[0].timestamp;
+                        avgTimeBetween.week = Math.round(totalTimeBetween.week / (useCountWeek.length));
+                    } else {
+                        totalTimeBetween.week = 7*24*60*60;
+                        avgTimeBetween.week = Math.round(totalTimeBetween.week / (useCountWeek.length));
+                    }
+
+                } else {
+                    console.log("avg time between doing (week) is default")
+                    totalTimeBetween.week = 7*24*60*60;
+                    avgTimeBetween.week = 7*24*60*60;
+                }
+
+                if(useCountMonth.length >= 1) {
+                    console.log("avg time between doing (month) is ", timeNow - useCountMonth[0].timestamp)
+                    if (useCountYear.length == useCountMonth.length) {
+                        totalTimeBetween.month = timeNow - useCountMonth[0].timestamp;
+                        avgTimeBetween.month = Math.round(totalTimeBetween.month / (useCountMonth.length));
+                
+                    } else {
+                        totalTimeBetween.month = 30*24*60*60;
+                        avgTimeBetween.month = Math.round(totalTimeBetween.month / (useCountMonth.length));
+                
+                    }
+                    
+                } else {
+                    console.log("avg time between doing (month) is default")
+                    totalTimeBetween.month = 30*24*60*60;
+                    avgTimeBetween.month = 30*24*60*60;
+                }
+                
+                if(useCountYear.length >= 1) {
+                    console.log("avg time between doing (year) is ", timeNow - useCountYear[0].timestamp)
+                    if (useCountYear.length == useCount.length) {
+                        totalTimeBetween.year = timeNow - useCountMonth[0].timestamp;
+                        avgTimeBetween.year = Math.round(totalTimeBetween.year / (useCountYear.length));
+
+                    } else {
+                        totalTimeBetween.year = 365*24*60*60;
+                        avgTimeBetween.year = Math.round(totalTimeBetween.year / (useCountYear.length));
+                    }
+
+                } else {
+                    console.log("avg time between doing (year) is default")
+                    totalTimeBetween.year = 365*24*60*60;
+                    avgTimeBetween.year = 365*24*60*60;
+                }
+
+                for (const [key, value] of Object.entries(avgTimeBetween)) {
+                    console.log(`${key}: ${value}`);
+                    $(".betweenClicks.use.statistic" + "." + key).html(convertSecondsToDateFormat(value, true))
+                }
+
+                if ($.isNumeric(avgTimeBetween.total)) {
+                    json.statistics.use.betweenClicks = {
+                        total: avgTimeBetween.total,
+                        week: avgTimeBetween.week,
+                        month: avgTimeBetween.month,
+                        year: avgTimeBetween.year
+
+                    }
+                }
             }
+
+            var doneStatistic = segregatedTimeRange(timeNow, useCount);
+
+            //update json
+            json.statistics.use.totals = doneStatistic;
+            
+            $(".statistic.use.totals.total").html(doneStatistic.total);
+            $(".statistic.use.totals.week").html(doneStatistic.week);
+            $(".statistic.use.totals.month").html(doneStatistic.month);
+            $(".statistic.use.totals.year").html(doneStatistic.year);
 
             //total craves
             var craveCount = jsonObject.action.filter(function (e) {
                 return e.clickType == "craved";
             });
             json.statistics.use.craveCounter = craveCount.length;
+
+            var craveCountWeek = craveCount.filter(function (e) {
+                return e.timestamp >= oneWeekAgoTimeStamp;
+            });
+
+            var craveCountMonth = craveCount.filter(function (e) {
+                return e.timestamp >= oneMonthAgoTimeStamp;
+            });
+
+            var craveCountYear = craveCount.filter(function (e) {
+                return e.timestamp >= oneYearAgoTimeStamp;
+            });
 
             //craves in a row
             var cravesInARow = 0;
@@ -366,94 +640,178 @@ $(document).ready(function () {
             }
 
             //avg craves per smoke
-            var avgDidntPerDid = Math.round(craveCount.length / useCount.length * 10) / 10;
-            //don't forget to call updates from clicking smoke and crave button
-            $("#avgDidntPerDid").html(avgDidntPerDid);
+
+            var didntPerDidtotal = Math.round(craveCount.length / useCount.length * 10) / 10; 
+            var didntPerDidweek = Math.round(craveCountWeek.length / useCountWeek.length * 10) / 10;
+            var didntPerDidmonth = Math.round(craveCountMonth.length / useCountMonth.length * 10) / 10; 
+            var didntPerDidyear = Math.round(craveCountYear.length / useCountYear.length * 10) / 10;
+
+            var didntPerDidTotals = {
+                "total": isFinite(didntPerDidtotal) ? didntPerDidtotal : "N/A", 
+                "week": isFinite(didntPerDidweek) ? didntPerDidweek : "N/A", 
+                "month": isFinite(didntPerDidmonth) ? didntPerDidmonth : "N/A", 
+                "year": isFinite(didntPerDidyear) ? didntPerDidyear : "N/A"
+            }
+
+            json.statistics.use.didntPerDid = didntPerDidTotals;
+
+            for (const [key, value] of Object.entries(didntPerDidTotals)) {
+                //console.log(`${key}: ${value}`);
+                $(".didntPerDid.statistic." + key) .html(value)
+            }
 
             /* COST STATISTICS */
             //total boughts
-            var boughtCount = jsonObject.action.filter(function (e) {
+            var costCount = jsonObject.action.filter(function (e) {
                 return e.clickType == "bought";
             });
-            json.statistics.cost.clickCounter = boughtCount.length;
+            json.statistics.cost.clickCounter = costCount.length;
+
+            var costCountWeek = costCount.filter(function (e) {
+                return e.timestamp >= oneWeekAgoTimeStamp;
+            });
+            
+            var costCountMonth = costCount.filter(function (e) {
+                return e.timestamp >= oneMonthAgoTimeStamp;
+            });
+            
+            var costCountYear = costCount.filter(function (e) {
+                return e.timestamp >= oneYearAgoTimeStamp;
+            });
 
             //Restart timer value
-            if (boughtCount.length > 0) {
-                var sinceLastBought = boughtCount[boughtCount.length - 1].timestamp;
-                restartTimerAtValues("cost", sinceLastBought);
-
-                //average time between boughts
-                var totalTimeBetweenBoughts = boughtCount[boughtCount.length - 1].timestamp - boughtCount[0].timestamp,
-                    averageTimeBetweenBoughts = Math.round(totalTimeBetweenBoughts / (boughtCount.length));
-
-                if ($.isNumeric(averageTimeBetweenBoughts)) {
-                    json.statistics.cost.averageBetweenClicks = averageTimeBetweenBoughts;
-                }
+            if (costCount.length > 0) {
+                var sinceLastCost = costCount[costCount.length - 1].timestamp;
+                restartTimerAtValues("cost", sinceLastCost);
 
                 //used to calculate avg time between from json obj, live
-                json.statistics.cost.firstClickStamp = boughtCount[0].timestamp;
-                //timestamp of most recent click - to limit clicks in a row
-                json.statistics.cost.lastClickStamp = boughtCount[boughtCount.length - 1].timestamp;
-            }
+                json.statistics.cost.firstClickStamp = costCount[0].timestamp;
+                json.statistics.cost.lastClickStamp = costCount[costCount.length - 1].timestamp;
 
-            //calculate timestamps for past week
-            var oneWeekAgoTimeStamp = timeNow - (60 * 60 * 24 * 7);
-                oneMonthAgoTimeStamp = timeNow - (60 * 60 * 24 * 30);
-                oneYearAgoTimeStamp = timeNow - (60 * 60 * 24 * 365);
+                //average time between uses	
+                var totalTimeBetween = { }
+                var avgTimeBetween   = { }
 
-            var runningTotalCost = 0,
-                runningTotalCostWeek = 0,
-                runningTotalCostMonth = 0,
-                runningTotalCostYear = 0;
+                totalTimeBetween.total = timeNow - useCount[0].timestamp;
+                avgTimeBetween.total = Math.round(totalTimeBetween.total / (costCount.length));
 
-            for (var i = boughtCount.length - 1; i >= 0; i--) {
-                //update every bought record into running total
-                runningTotalCost = runningTotalCost + parseInt(boughtCount[i].spent);
+                if(costCountWeek.length >= 1) {
+                    console.log("avg time between COST (week) is  ", timeNow - costCountWeek[0].timestamp)
+                    if (costCountMonth.length == costCountWeek.length) {
+                        totalTimeBetween.week = timeNow - costCountWeek[0].timestamp;
+                        avgTimeBetween.week = Math.round(totalTimeBetween.week / (costCountWeek.length));
+                    } else {
+                        totalTimeBetween.week = 7*24*60*60;
+                        avgTimeBetween.week = Math.round(totalTimeBetween.week / (costCountWeek.length));
+                    }
 
-                if (boughtCount[i].timestamp > oneWeekAgoTimeStamp) {
-                    //update running week only with timestamps from past week
-                    runningTotalCostWeek = runningTotalCostWeek + parseInt(boughtCount[i].spent);
+                } else {
+                    console.log("avg time between COST (week) is default")
+                    totalTimeBetween.week = 7*24*60*60;
+                    avgTimeBetween.week = 7*24*60*60;
                 }
-                if (boughtCount[i].timestamp > oneMonthAgoTimeStamp) {
-                    //update any record in last month into running total month
-                    runningTotalCostMonth = runningTotalCostMonth + parseInt(boughtCount[i].spent);
+
+                if(costCountMonth.length >= 1) {
+                    console.log("avg time between COST (month) is ", timeNow - costCountMonth[0].timestamp)
+                    if (costCountYear.length == costCountMonth.length) {
+                        totalTimeBetween.month = timeNow - costCountMonth[0].timestamp;
+                        avgTimeBetween.month = Math.round(totalTimeBetween.month / (costCountMonth.length));
+                
+                    } else {
+                        totalTimeBetween.month = 30*24*60*60;
+                        avgTimeBetween.month = Math.round(totalTimeBetween.month / (costCountMonth.length));
+                
+                    }
+                    
+                } else {
+                    console.log("avg time between COST (month) is default")
+                    totalTimeBetween.month = 30*24*60*60;
+                    avgTimeBetween.month = 30*24*60*60;
                 }
-                if (boughtCount[i].timestamp > oneYearAgoTimeStamp) {
-                    //update any record in last month into running total month
-                    runningTotalCostYear = runningTotalCostYear + parseInt(boughtCount[i].spent);
+                
+                if(costCountYear.length >= 1) {
+                    console.log("avg time between COST (year) is ", timeNow - costCountYear[0].timestamp)
+                    if (costCountYear.length == costCount.length) {
+                        totalTimeBetween.year = timeNow - costCountYear[0].timestamp;
+                        avgTimeBetween.year = Math.round(totalTimeBetween.year / (costCountYear.length));
+
+                    } else {
+                        totalTimeBetween.year = 365*24*60*60;
+                        avgTimeBetween.year = Math.round(totalTimeBetween.year / (costCountYear.length));
+                    }
+
+                } else {
+                    console.log("avg time between COST (year) is default")
+                    totalTimeBetween.year = 365*24*60*60;
+                    avgTimeBetween.year = 365*24*60*60;
                 }
+
+                for (const [key, value] of Object.entries(avgTimeBetween)) {
+                    //console.log(`${key}: ${value}`);
+                    $(".betweenClicks.cost.statistic" + "." + key).html(convertSecondsToDateFormat(value, true))
+                }
+
+                if ($.isNumeric(avgTimeBetween.total)) {
+                    json.statistics.cost.betweenClicks = {
+                        total: avgTimeBetween.total,
+                        week: avgTimeBetween.week,
+                        month: avgTimeBetween.month,
+                        year: avgTimeBetween.year
+
+                    }
+                }
+
+                
             }
             
-            $("#totalAmountSpent").html("$" + runningTotalCost);
-            $("#spentThisWeek").html("$" + runningTotalCostWeek);
-            $("#spentThisMonth").html("$" + runningTotalCostMonth);
-            $("#spentThisYear").html("$" + runningTotalCostYear);
+            var spentStatistic = segregatedTimeRange(timeNow, costCount, "spent");
 
             //update json
-            json.statistics.cost.totals = {
-                total: runningTotalCost, 
-                week: runningTotalCostWeek, 
-                month: runningTotalCostMonth, 
-                year: runningTotalCostYear
-            };
+            json.statistics.cost.totals = spentStatistic;
+            
+            $(".statistic.cost.totals.total").html("$" + spentStatistic.total);
+            $(".statistic.cost.totals.week").html("$" + spentStatistic.week);
+            $(".statistic.cost.totals.month").html("$" + spentStatistic.month);
+            $(".statistic.cost.totals.year").html("$" + spentStatistic.year);
 
-            // json.statistics.cost.total = runningTotalCost;
-            // json.statistics.cost.thisWeek = runningTotalCostWeek;
-            // json.statistics.cost.thisMonth = runningTotalCostMonth;
-            // json.statistics.cost.thisYear = runningTotalCostYear;
+
+            var moodCount = jsonObject.action.filter(function(e) {
+                return e.clickType == "mood";
+            });
 
             /* GOAL STATISTICS*/
             var goalCount = jsonObject.action.filter(function (e) {
                 return e.clickType == "goal";
             });
+            goalCount = goalCount.sort( (a, b) => {
+                return parseInt(a.timestamp) > parseInt(b.timestamp) ? 1 : -1;
+            })
             //goal status
             //1 == active goal
             //2 == partially completed goal
             //3 == completed goal
 
             if (goalCount.length > 0) {
-                var activeGoals = goalCount.filter(function (e) { return e.status == 1 });
-                var inactiveGoals = goalCount.filter(function (e) { return e.status == 2 || e.status == 3 });
+                var activeGoals = goalCount.filter(function (e) { 
+                    return e.status == 1 
+                });
+
+                activeGoals = activeGoals.sort( (a, b) => {
+                    return parseInt(a.timestamp) > parseInt(b.timestamp) ? 1 : -1;
+                })
+
+                var inactiveGoals = goalCount.filter(function (e) { 
+                    return e.status == 2 || e.status == 3 
+                });
+                var inactiveGoalsWeek = goalCount.filter(function (e) { 
+                    return (e.status == 2 || e.status == 3) && e.timestamp >= oneWeekAgoTimeStamp
+                });
+                var inactiveGoalsMonth = goalCount.filter(function (e) { 
+                    return (e.status == 2 || e.status == 3) && e.timestamp >= oneMonthAgoTimeStamp
+                });
+                var inactiveGoalsYear = goalCount.filter(function (e) { 
+                    return (e.status == 2 || e.status == 3) && e.timestamp >= oneYearAgoTimeStamp
+                });
 
                 //timestamp of most recent click - to limit clicks in a row
                 json.statistics.goal.lastClickStamp = goalCount[goalCount.length - 1].timestamp;
@@ -477,8 +835,10 @@ $(document).ready(function () {
                         loadGoalTimerValues(totalSecondsUntilGoalEnd);
                         initiateGoalTimer();
                     } else {
+                        console.log("goal ended while user away")
                         //goal ended ewhile user was away
                         var mostRecentGoal = goalCount[goalCount.length - 1];
+                        console.log("mostRecentGoal: ", mostRecentGoal)
                         createGoalEndNotification(mostRecentGoal);
                         //last made goal time has concluded
                         $("#goal-content .timer-recepticle").hide();
@@ -508,13 +868,96 @@ $(document).ready(function () {
 
                     json.statistics.goal.completedGoals = inactiveGoals.length;
                     $("#numberOfGoalsCompleted").html(json.statistics.goal.completedGoals);
-                    json.statistics.goal.bestTimeSeconds = largestDiff;
-                    $("#longestGoalCompleted").html(json.statistics.goal.bestTimeSeconds);
+                    json.statistics.goal.longestGoal["total"] = largestDiff;
+                    $(".statistic.longestGoal" + ".total").html(convertSecondsToDateFormat(largestDiff, true));
+                    console.log('Longest goal (total) is ', convertSecondsToDateFormat(largestDiff, true))
+
+
+                    if (inactiveGoalsWeek.length > 0) {
+                        //used for finding longest goal completed
+                        var largestDiff = 0;
+    
+                        //iterate through goals for longest goal
+                        for (var i = 0; i < inactiveGoalsWeek.length; i++) {
+                            var currStartStamp = inactiveGoalsWeek[i].timestamp,
+                                currEndStamp = inactiveGoalsWeek[i].goalStopped;
+    
+                            //find longest completed goal
+                            var currDiff = currEndStamp - currStartStamp;
+                            if (largestDiff < currDiff) {
+                                largestDiff = currDiff;
+                            }
+                        }
+                        
+                        console.log('Longest goal (week) is', convertSecondsToDateFormat(largestDiff, true))
+                        json.statistics.goal.longestGoal["week"] = largestDiff;
+                        $(".statistic.longestGoal" + ".week").html(convertSecondsToDateFormat(largestDiff, true));
+    
+    
+                    } else {
+                        console.log('Longest goal (week) is default: N/A' )
+                        json.statistics.goal.longestGoal["week"] = "N/A";
+                        $(".statistic.longestGoal" + ".week").html("N/A");
+    
+                    }
+
+                    if (inactiveGoalsMonth.length > 0) {
+                        //used for finding longest goal completed
+                        var largestDiff = 0;
+
+                        //iterate through goals for longest goal
+                        for (var i = 0; i < inactiveGoalsMonth.length; i++) {
+                            var currStartStamp = inactiveGoalsMonth[i].timestamp,
+                                currEndStamp = inactiveGoalsMonth[i].goalStopped;
+
+                            //find longest completed goal
+                            var currDiff = currEndStamp - currStartStamp;
+                            if (largestDiff < currDiff) {
+                                largestDiff = currDiff;
+                            }
+                        }
+
+                        console.log('Longest goal (month) is ', convertSecondsToDateFormat(largestDiff, true))
+                        json.statistics.goal.longestGoal["month"] = largestDiff;
+                        $(".statistic.longestGoal" + ".month").html(convertSecondsToDateFormat(largestDiff, true));
+
+
+                    } else {
+                        console.log('Longest goal (month) is default: N/A' )
+                        json.statistics.goal.longestGoal["month"] = "N/A";
+                    }
+
+                    if (inactiveGoalsYear.length > 0) {
+                        //used for finding longest goal completed
+                        var largestDiff = 0;
+
+                        //iterate through goals for longest goal
+                        for (var i = 0; i < inactiveGoalsYear.length; i++) {
+                            var currStartStamp = inactiveGoalsYear[i].timestamp,
+                                currEndStamp = inactiveGoalsYear[i].goalStopped;
+
+                            //find longest completed goal
+                            var currDiff = currEndStamp - currStartStamp;
+                            if (largestDiff < currDiff) {
+                                largestDiff = currDiff;
+                            }
+                        }
+
+                        console.log('Longest goal (year) is ', convertSecondsToDateFormat(largestDiff, true))
+                        json.statistics.goal.longestGoal["year"] = largestDiff;
+                        $(".statistic.longestGoal" + ".yeah").html(convertSecondsToDateFormat(largestDiff, true));
+                        
+                    } else {
+                        console.log('Longest goal (year) is default: N/A' )
+                        json.statistics.goal.longestGoal["year"] = "N/A";
+                    }
+
                 }
             }
+            
 
             //NEEEWWWWW USERRR
-            if ((useCount == 0 && craveCount == 0 && boughtCount == 0 && goalCount == 0) &&
+            if ((useCount == 0 && craveCount == 0 && costCount == 0 && moodCount == 0 && goalCount == 0) &&
                 (json.baseline.specificSubject == false)) {
                 var introMessage = "<b>Welcome back!</b> - Try clicking some stuff this time! You can undo anything in the settings:";
                 var responseTools = '<button class="btn btn-md btn-outline-info clear-notification" onClick="$(\'#settings-tab-toggler\').click();">' +
@@ -527,6 +970,7 @@ $(document).ready(function () {
                     return e.clickType == "used" ||
                         e.clickType == "craved" ||
                         e.clickType == "bought" ||
+                        e.clickType == "mood" ||
                         (e.clickType == "goal" && (e.status == 2 || e.status == 3));
                 });
                 allActions = allActions.sort( (a, b) => {
@@ -545,21 +989,30 @@ $(document).ready(function () {
                                 currClickType = allActions[i].clickType,
                                 currClickCost = null,
                                 currGoalEndStamp = -1,
-                                currGoalType = "";
+                                currGoalType = "",
+                                comment = "",
+                                smiley = -1;
 
                             if (currClickType == "used" || currClickType == "craved") {
-                                placeActionIntoLog(currClickStamp, currClickType, currClickCost, true);
+                                placeActionIntoLog(currClickStamp, currClickType, currClickCost, null, null, true);
 
                             } else if (currClickType == "bought") {
                                 currClickCost = allActions[i].spent;
                                 //append curr action
-                                placeActionIntoLog(currClickStamp, currClickType, currClickCost, true);
+                                placeActionIntoLog(currClickStamp, currClickType, currClickCost, null, null, true);
 
                             } else if (currClickType == "goal") {
                                 currGoalEndStamp = allActions[i].goalStopped,
                                     currGoalType = allActions[i].goalType;
                                 //append 10 new goals
                                 placeGoalIntoLog(currClickStamp, currGoalEndStamp, currGoalType, true);
+                            } else if (currClickType == "mood") {
+                                //append curr action
+                                comment = allActions[i].comment;
+                                smiley = allActions[i].smiley;
+                                
+                                placeActionIntoLog(currClickStamp, currClickType, null, comment, smiley, true);
+
                             }
 
                             if (i == actionsToAddMin || i == 0) {
@@ -582,186 +1035,213 @@ $(document).ready(function () {
             }
         }
 
+        
+        function segregatedTimeRange(timeNow, action, value) {
+                
+            var runningTotal = 0,
+                runningWeek = 0,
+                runningMonth = 0,
+                runningYear = 0;
+            
+            //calculate timestamps for past week
+            var oneWeekAgoTimeStamp = timeNow - (60 * 60 * 24 * 7);
+            var oneMonthAgoTimeStamp = timeNow - (60 * 60 * 24 * 30);
+            var oneYearAgoTimeStamp = timeNow - (60 * 60 * 24 * 365);
+
+            for (var i = action.length - 1; i >= 0; i--) {
+                //update every bought record into running total
+                runningTotal = runningTotal + parseInt( value != undefined ? action[i][value] : 1 );
+
+                if (action[i].timestamp > oneWeekAgoTimeStamp) {
+                    runningWeek = runningWeek + parseInt( value != undefined ? action[i][value] : 1 );
+                }
+                if (action[i].timestamp > oneMonthAgoTimeStamp) {
+                    runningMonth = runningMonth + parseInt( value != undefined ? action[i][value] : 1 );
+                }
+                if (action[i].timestamp > oneYearAgoTimeStamp) {
+                    runningYear = runningYear + parseInt( value != undefined ? action[i][value] : 1 );
+                }
+            }
+            
+            return {
+                total: runningTotal, 
+                week: runningWeek, 
+                month: runningMonth, 
+                year: runningYear
+            };
+        }
+
+        function midnightOfTimestamp (timestamp) {
+            var requestedDate = new Date(timestamp*1000);
+
+            //FORMAT NEEDED == 2020-02-14T14:30:00
+            var newMidnightStr = requestedDate.getFullYear() + "-";
+            //add month
+            if (requestedDate.getMonth()+1 < 10 ) { newMidnightStr += "0" + (requestedDate.getMonth()+1) + "-";
+            } else { newMidnightStr += (requestedDate.getMonth()+1) + "-";
+            }
+            //add day
+            if (requestedDate.getDate() < 10 ) { newMidnightStr += "0" + (requestedDate.getDate());
+            } else {  newMidnightStr += (requestedDate.getDate());
+            }
+            //add hours
+            newMidnightStr += "T23:59:59";
+            
+            var midnightOfTimestamp = Math.round(new Date(newMidnightStr) / 1000)
+            return midnightOfTimestamp;
+        }
+
+        function calculateMaxReportHeight(storageObject) {
+
+            var jsonObject = storageObject ? storageObject : retrieveStorageObject();
+            var actions = jsonObject.action.filter(function (e) {
+                return e.clickType == "used" ||
+                    e.clickType == "craved";
+            });
+
+            var maxHeight = 0;
+            var actionCount = 0;
+            var currDate = new Date();
+            for(var action of actions) {
+                var actionDate  = new Date(action.timestamp*1000);
+                var actionYear  = actionDate.getFullYear();
+                var actionMonth = actionDate.getMonth();
+                var actionDay   = actionDate.getDate();
+
+                var actionOnCurrDate = 
+                       actionYear  == currDate.getFullYear()
+                    && actionMonth == currDate.getMonth()
+                    && actionDay   == currDate.getDate();
+
+                if (actionOnCurrDate) {
+                    actionCount++
+
+                    if (actionCount > maxHeight) {
+                        maxHeight = actionCount;
+                    }
+                } else {
+                    currDate = actionDate;
+                    actionCount = 1;
+                }
+            }
+
+            return maxHeight;
+        }
+
         //create object of weeks values from the end date timestamp
         function calculateReportValues(reportEndStamp) {
             var valuesObject = {
                 "reportStart": -1,
                 "reportEnd": -1,
-                "usesWeek": [0, 0, 0, 0, 0, 0, 0],
-                "cravesWeek": [0, 0, 0, 0, 0, 0, 0],
-                "spentWeek": [0, 0, 0, 0, 0, 0, 0],
-                "usesLastWeek": 0,
-                "CostLastWeek": 0
+                "used":   {
+                    "weekValues": [0, 0, 0, 0, 0, 0, 0],
+                    "total": 0
+                },
+                "craved": {
+                    "weekValues": [0, 0, 0, 0, 0, 0, 0],
+                    "total": 0
+                },
+                "bought": {
+                    "weekValues": [0, 0, 0, 0, 0, 0, 0],
+                    "total": 0
+                }
             }
 
             var jsonObject = retrieveStorageObject();
 
+            //Build new date as midnight of requested date
+            var midnightLastDay = midnightOfTimestamp(reportEndStamp)
+
             //start one week prior to end stamp
-            var reportStartStamp = reportEndStamp - (60 * 60 * 24 * 7);
+            var reportStartStamp = midnightLastDay - (60 * 60 * 24 * 7);
 
             //update report valuesObject
             valuesObject.reportStart = reportStartStamp;
-            valuesObject.reportEnd = reportEndStamp;
-
-            //keep json obj up to date
+            valuesObject.reportEnd = midnightLastDay;
             //to make the "previous report" arrow button workable
-            json.report.activeEndStamp = reportEndStamp;
+            json.report.activeEndStamp = midnightLastDay;
 
-            //query action table within acquired report range
+            for (var dayIndex = 0; dayIndex < 7; dayIndex++) {
+                var startOfDayTimestamp = reportStartStamp + ((60 * 60 * 24) * dayIndex);
+                var endOfDayTimestamp = reportStartStamp + ((60 * 60 * 24) * (dayIndex + 1));
+            
+                var actionsInRange = jsonObject.action.filter(function (e) {
+                    return (e.clickType == "used" || e.clickType == "craved") 
+                        && e.timestamp >= startOfDayTimestamp
+                        && e.timestamp <= endOfDayTimestamp
+                });
+                
+                //Sort actions into valuesObject
+                for (var action of actionsInRange) {
 
-            var useActionsInRange = jsonObject.action.filter(function (e) {
-                return e.clickType == "used" &&
-                    e.timestamp >= reportStartStamp &&
-                    e.timestamp <= reportEndStamp
-            });
-
-            for (var i = 0; i <= useActionsInRange.length - 1; i++) {
-                for (j = 0; j < 7; j++) {
-                    //increment the number in the array of any record happened on each of 7 days in a timespan week
-                    if (
-                        useActionsInRange[i].timestamp <= (reportStartStamp + (60 * 60 * 24) * (j + 1)) &&
-                        useActionsInRange[i].timestamp >= (reportStartStamp + (60 * 60 * 24) * (j))
-                    ) {
-                        //console.log("on day = " + (j + 1));
-                        valuesObject.usesWeek[j]++;
-                    }
+                    //insert action into array at day index
+                    valuesObject[action.clickType].weekValues[dayIndex]++;
+                    valuesObject[action.clickType].total++;
                 }
+            
             }
 
-            var craveActionsInRange = jsonObject.action.filter(function (e) {
-                return e.clickType == "craved" &&
-                    e.timestamp >= reportStartStamp &&
-                    e.timestamp <= reportEndStamp
-            });
-
-            for (var i = 0; i <= craveActionsInRange.length - 1; i++) {
-                for (j = 0; j < 7; j++) {
-                    //increment the number in the array of any record happened on each of 7 days in a timespan week
-                    if (
-                        craveActionsInRange[i].timestamp <= (reportStartStamp + (60 * 60 * 24) * (j + 1)) &&
-                        craveActionsInRange[i].timestamp >= (reportStartStamp + (60 * 60 * 24) * (j))
-                    ) {
-                        valuesObject.cravesWeek[j]++;
-                    }
-                }
-            }
-
-            var spentActionsInRange = jsonObject.action.filter(function (e) {
-                return e.clickType == "bought" &&
-                    e.timestamp >= reportStartStamp &&
-                    e.timestamp <= reportEndStamp
-            });
-
-            for (var i = 0; i <= spentActionsInRange.length - 1; i++) {
-                for (j = 0; j < 7; j++) {
-                    //increment the number in the array of any record happened on each of 7 days in a timespan week
-                    if (
-                        spentActionsInRange[i].timestamp <= (reportStartStamp + (60 * 60 * 24) * (j + 1)) &&
-                        spentActionsInRange[i].timestamp >= (reportStartStamp + (60 * 60 * 24) * (j))
-                    ) {
-                        valuesObject.spentWeek[j] = valuesObject.spentWeek[j] + parseInt(spentActionsInRange[i].spent);
-                    }
-                }
-            }
-
-            //total uses last week
-            var useActionsLastWeek = jsonObject.action.filter(function (e) {
-                return e.clickType == "used" &&
-                    e.timestamp >= (reportStartStamp - (60 * 60 * 24 * 7)) &&
-                    e.timestamp < (reportEndStamp - (60 * 60 * 24 * 7))
-            });
-            valuesObject.usesLastWeek = useActionsLastWeek.length;
-
-            //total amount spent last week
-            var costActionsLastWeek = jsonObject.action.filter(function (e) {
-                return e.clickType == "bought" &&
-                    e.timestamp >= (reportStartStamp - (60 * 60 * 24 * 7)) &&
-                    e.timestamp <= (reportEndStamp - (60 * 60 * 24 * 7))
-            });
-            if (costActionsLastWeek.length) {
-                var totalCostLastWeek = 0;
-                for (var i = 0; i <= costActionsLastWeek.length - 1; i++) {
-                    totalCostLastWeek = totalCostLastWeek + parseInt(costActionsLastWeek[i].spent);
-                }
-                valuesObject.CostLastWeek = totalCostLastWeek;
-            }
             return valuesObject;
         }
 
         function initiateReport() {
+
+            if( !json.option.reportItemsToDisplay.useVsResistsGraph ) {
+                return false;
+            }
+
             var jsonObject = retrieveStorageObject();
             var timeNow = Math.round(new Date() / 1000);
 
+            
+            json.report.maxHeight = calculateMaxReportHeight(jsonObject);
+
             //REPORTS!!!
             //is there ANY data??
-            if (jsonObject["action"].length) {
-                //is there at least a week of data? 
-                var firstStamp = jsonObject.action[0].timestamp;
-                if ((timeNow - firstStamp) >= (60 * 60 * 24 * 7)) {
+            if (!jsonObject["action"].length) {
+                return false;
+            }
 
-                    //calculate values for report
-                    var reportEndStamp = firstStamp;
-                    //as long as latest endStamp is < a week before the most recent timestamp taken,
-                    //add a week - to find interval of 7 since FIRST stamp    
-                    while (reportEndStamp <= (timeNow - (60 * 60 * 24 * 7))) {
-                        //add a week 
-                        reportEndStamp = parseInt(reportEndStamp) + (60 * 60 * 24 * 7);
-                    }
+            //is there at least a week of data? 
+            var firstStamp = jsonObject.action[0].timestamp;
+            if ((timeNow - firstStamp) >= (60 * 60 * 24 * 7)) {
 
-                    //define parameters for report ranges
-                    json.report.minEndStamp = parseInt(firstStamp) + (60 * 60 * 24 * 7);
-                    json.report.maxEndStamp = parseInt(reportEndStamp) + (60 * 60 * 24 * 7);
-
-                    //show most recent report
-                    createReport(calculateReportValues(reportEndStamp));
-                    //hide report description
-                    $(".weekly-report-description").hide();
-
-                    //Notify user of new report unless user is on reports page
-                    if (!$("#reports-content").hasClass("active")) {
-                        //find any data made in past report range
-                        var reportRangeActions = jsonObject.action.filter(function (e) {
-                            return e.timestamp >= parseInt(reportEndStamp) - (60 * 60 * 24 * 7)
-                                && e.timestamp < parseInt(reportEndStamp)
-                        });
-
-                        //find any action taken since report made possible
-                        var actionsSinceReportEnd = jsonObject.action.filter(function (e) {
-                            return e.timestamp > parseInt(reportEndStamp)
-                        });
-
-                        //if any action taken since report could be generated, 
-                        //follows that the report end notification was seen.
-                        //and, only notify user if there was something in that report
-
-                        if (!(actionsSinceReportEnd.length) && reportRangeActions.length) {
-                            //createNotification();
-                            var message = "A new report is available about the previous week's data about your habit!";
-                            var responseTools = '<button class="btn btn-md btn-outline-info clear-notification" onClick="$(\'#reports-tab-toggler\').click();">' +
-                                "Review your progress</button>";
-
-                            createNotification(message, responseTools);
-                        }
-                    }
+                //calculate values for report
+                var reportEndStamp = timeNow;
+                //as long as latest endStamp is < a week before the most recent timestamp taken,
+                //add a week - to find interval of 7 since FIRST stamp    
+                while (reportEndStamp <= (timeNow - (60 * 60 * 24 * 7))) {
+                    //add a week 
+                    reportEndStamp = parseInt(reportEndStamp) + (60 * 60 * 24 * 7);
                 }
+
+                //define parameters for report ranges
+                json.report.minEndStamp = parseInt(firstStamp);
+                json.report.maxEndStamp = parseInt(reportEndStamp) + (60 * 60 * 24 * 7);
+
+                //show most recent report
+                createReport(calculateReportValues(reportEndStamp));
+                //hide report description
+                $(".weekly-report-description").hide();
+
             }
         }
 
         //report template
         function createReport(reportValues) {
             //remove d-none from report template
-            if ($($(".weekly-report-template")[0]).hasClass("d-none")) {
-                $($(".weekly-report-template")[0]).removeClass("d-none");
+            if ($($(".weekly-report")[0]).hasClass("d-none")) {
+                $($(".weekly-report")[0]).removeClass("d-none");
             }
 
             //split object passed in to individual values
             var reportStart = reportValues.reportStart,
                 reportEnd = reportValues.reportEnd,
-                usesWeek = reportValues.usesWeek,
-                cravesWeek = reportValues.cravesWeek,
-                spentWeek = reportValues.spentWeek,
-                usesLastWeek = reportValues.usesLastWeek,
-                costLastWeek = reportValues.CostLastWeek;
+                usesWeek = reportValues.used.weekValues,
+                cravesWeek = reportValues.craved.weekValues,
+                spentWeek = reportValues.bought.weekValues,
+                usesLastWeek = reportValues.used.total,
+                costLastWeek = reportValues.bought.total;
 
             var totalUsesThisWeek = usesWeek.reduce(function (a, b) { return a + b; });
             var totalCostThisWeek = spentWeek.reduce(function (a, b) { return a + b; });
@@ -773,20 +1253,26 @@ $(document).ready(function () {
 
             //set bar chart values
             var dayLabels = [];
-            for (var i = 0; i <= 7; i++) {
+            for (var i = 1; i <= 7; i++) {
                 dayLabels.push(timestampToShortHandDate((reportStart + (60 * 60 * 24 * i)), false));
             }
+
+            var increaseHabitSeries = [
+                usesWeek,
+                cravesWeek
+            ]
 
             //initialize bar chart
             var data = {
                 labels: dayLabels,
                 series: [
-                    usesWeek,
-                    cravesWeek
+                    cravesWeek,
+                    usesWeek
                 ]
             };
 
             var options = {
+                high: json.report.maxHeight > 4 ? json.report.maxHeight : 4,
                 seriesBarDistance: 10
             };
 
@@ -955,26 +1441,35 @@ $(document).ready(function () {
             var shortHandDate = (endDateObj.getMonth() + 1) + "/" +
                 endDateObj.getDate();
             if (includeYear) {
-                shortHandDate = shortHandDate + "/" + (endDateObj.getFullYear());
+                var year = String(endDateObj.getFullYear()).substring(2)
+                shortHandDate = shortHandDate + "/" + year;
             }
             return shortHandDate;
         }
 
         $(".previous-report").on("click", function () {
+            $('.next-report').prop("disabled", false)
             if (json.report.activeEndStamp - (60 * 60 * 24 * 7) >= json.report.minEndStamp) {
                 var reportEndStamp = json.report.activeEndStamp - (60 * 60 * 24 * 7);
                 createReport(calculateReportValues(reportEndStamp));
             } else {
+                $('.previous-report').prop("disabled", true)
                 createNotification("Looks like there isn't enough data to make that report!");
+
+                $('html').animate({ scrollTop: 0 })
             }
         });
 
         $(".next-report").on("click", function () {
-            if (json.report.activeEndStamp + (60 * 60 * 24 * 7) <= json.report.maxEndStamp) {
+            $('.previous-report').prop("disabled", false)
+            if (json.report.activeEndStamp + (60 * 60 * 24 * 7) < json.report.maxEndStamp) {
                 var reportEndStamp = json.report.activeEndStamp + (60 * 60 * 24 * 7);
                 createReport(calculateReportValues(reportEndStamp));
             } else {
+                $('.next-report').prop("disabled", true)
                 createNotification("The next report is for a week that has not happened yet!");
+
+                $('html').animate({ scrollTop: 0 })
             }
         });
 
@@ -1010,6 +1505,7 @@ $(document).ready(function () {
 
                 } else {
                     $("#" + this.id).prop('checked', false);
+
                 }
             });
 
@@ -1024,6 +1520,9 @@ $(document).ready(function () {
                 if ($(".decreaseHabit").is(":checked")) {
                     console.log("desires decrease")
                     jsonObject.baseline.decreaseHabit = true;
+                    
+                    $('body').addClass("desires-decrease")
+                    $('body').removeClass("desires-increase")
 
                     /*
                         CUSTOM SETTINGS
@@ -1032,6 +1531,9 @@ $(document).ready(function () {
                 } else if ($(".increaseHabit").is(":checked")) {
                     console.log("desires increase")
                     jsonObject.baseline.decreaseHabit = false;
+                    
+                    $('body').addClass("desires-increase")
+                    $('body').removeClass("desires-decrease")
 
                      /*
                         CUSTOM SETTINGS
@@ -1041,15 +1543,45 @@ $(document).ready(function () {
                 if ($($(".valuesTime")[0]).is(":checked")) {
                     console.log("valuesTime")
                     jsonObject.baseline.valuesTime = true;
+                    jsonObject.baseline.useStatsIrrelevant = false;
+                    jsonObject.option.liveStatsToDisplay.usedButton = true;
+                    jsonObject.option.liveStatsToDisplay.cravedButton = true;
                 } else {
                     jsonObject.baseline.valuesTime = false;
+
+                    //toggle spent statistics (likely they are not useful)
+                    jsonObject.baseline.useStatsIrrelevant = true;
+                    jsonObject.baseline.amountDonePerWeek = false;
+                    jsonObject.option.reportItemsToDisplay.useVsResistsGraph = false;
+
+                    jsonObject.option.liveStatsToDisplay.usedButton = false;
+                    jsonObject.option.liveStatsToDisplay.cravedButton = false;
+                    jsonObject.option.liveStatsToDisplay.timesDone = false;
+                    jsonObject.option.liveStatsToDisplay.sinceLastDone = false;
+                    jsonObject.option.liveStatsToDisplay.avgBetweenDone = false;
+                    jsonObject.option.liveStatsToDisplay.didntPerDid = false;
+                    jsonObject.option.liveStatsToDisplay.resistedInARow = false;
+
 
                 }
                 if ($(".valuesMoney").is(":checked")) {
                     console.log("valuesMoney")
                     jsonObject.baseline.valuesMoney = true;
+                    jsonObject.baseline.costStatsIrrelevant = false;
+                    jsonObject.option.liveStatsToDisplay.spentButton = true;
+
                 } else {
                     jsonObject.baseline.valuesMoney = false;
+                    jsonObject.baseline.costStatsIrrelevant = true;
+                    jsonObject.baseline.amountSpentPerWeek = false;
+
+                    // uncheck visibility of spent related stats
+                    jsonObject.option.liveStatsToDisplay.spentButton = false;
+                    jsonObject.option.liveStatsToDisplay.boughtGoalButton = false;
+                    jsonObject.option.liveStatsToDisplay.sinceLastSpent = false;
+                    jsonObject.option.liveStatsToDisplay.avgBetweenSpent = false;
+                    jsonObject.option.liveStatsToDisplay.totalSpent = false;
+
                 }
 
                 if ($(".valuesHealth").is(":checked")) {
@@ -1057,29 +1589,23 @@ $(document).ready(function () {
                     jsonObject.baseline.valuesHealth = true;
                 } else {
                     jsonObject.baseline.valuesHealth = false;
+                    jsonObject.option.logItemsToDisplay.mood = false;
                 }
                 
 
                 if ($("#spendingNA").is(":checked") || $($("input.amountSpentPerWeek")[0]).val() == "") {
-
-                    jsonObject.baseline.costStatsIrrelevant = true;
-                    jsonObject.baseline.amountSpentPerWeek = false;
-
-                    //uncheck visibility of spent related stats
-                    // jsonObject.option.liveStatsToDisplay.boughtGoalButton = false;
-                    // jsonObject.option.liveStatsToDisplay.avgBetweenSpent = false;
-                    // jsonObject.option.liveStatsToDisplay.totalSpent = false;
-                    // jsonObject.option.liveStatsToDisplay.currWeekSpent = false;
-                    // jsonObject.option.liveStatsToDisplay.currMonthSpent = false;
-                    // jsonObject.option.liveStatsToDisplay.currYearSpent = false;
-                    
                     jsonObject.option.reportItemsToDisplay.costChangeVsBaseline = false;
                     jsonObject.option.reportItemsToDisplay.costChangeVsLastWeek = false;
-
+                    
 
                 } else {
-                    jsonObject.baseline.amountSpentPerWeek = $("input.amountSpentPerWeek").val();
-                    jsonObject.option.reportItemsToDisplay.costChangeVsBaseline = true;
+                    if (!$.isNumeric($("input.amountSpentPerWeek").val())) {
+                        alert("Please enter in a number into your current spending!");
+        
+                    } else {
+                        jsonObject.baseline.amountSpentPerWeek = $("input.amountSpentPerWeek").val();
+                        jsonObject.option.reportItemsToDisplay.costChangeVsBaseline = true;
+                    }
 
                 }
 
@@ -1088,26 +1614,28 @@ $(document).ready(function () {
                     jsonObject.option.reportItemsToDisplay.costGoalVsThisWeek = false;
 
                 } else {
-                    jsonObject.baseline.goalSpentPerWeek = $("input.goalSpentPerWeek").val();
-                    jsonObject.option.reportItemsToDisplay.costGoalVsThisWeek = true;
-
+                    if (!$.isNumeric($("input.goalSpentPerWeek").val())) {
+                        alert("Please enter in a number into your spending goal!");
+        
+                    } else {
+                        jsonObject.baseline.goalSpentPerWeek = $("input.goalSpentPerWeek").val();
+                        jsonObject.option.reportItemsToDisplay.costGoalVsThisWeek = true;
+                    }
                 }
 
                 if ($("#doneNA").is(":checked") || $($("input.amountDonePerWeek")[0]).val() == "") {
-                    //toggle spent statistics (likely they are not useful)
-                    jsonObject.baseline.useStatsIrrelevant = false;
-                    jsonObject.baseline.amountDonePerWeek = false;
-                    jsonObject.option.liveStatsToDisplay.sinceLastDone = true;
-                    jsonObject.option.liveStatsToDisplay.avgBetweenDone = true;
-                    jsonObject.option.liveStatsToDisplay.didntPerDid = false;
-                    jsonObject.option.liveStatsToDisplay.resistedInARow = false;
 
                     jsonObject.option.reportItemsToDisplay.useChangeVsBaseline = false;
                     jsonObject.option.reportItemsToDisplay.useChangeVsLastWeek = false;
 
                 } else {
-                    jsonObject.baseline.amountDonePerWeek = $("input.amountDonePerWeek").val();
-                    jsonObject.option.reportItemsToDisplay.useChangeVsBaseline = true;
+                    if (!$.isNumeric($("input.amountDonePerWeek").val())) {
+                        alert("Please enter in a number for your current usage!");
+        
+                    } else {
+                        jsonObject.baseline.amountDonePerWeek = $("input.amountDonePerWeek").val();
+                        jsonObject.option.reportItemsToDisplay.useChangeVsBaseline = true;
+                    }
 
                 }
 
@@ -1116,8 +1644,13 @@ $(document).ready(function () {
                     jsonObject.option.reportItemsToDisplay.useGoalVsThisWeek = false;
 
                 } else {
-                    jsonObject.baseline.goalDonePerWeek = $("input.goalDonePerWeek").val();
-                    jsonObject.option.reportItemsToDisplay.useGoalVsThisWeek = true;
+                    if (!$.isNumeric($("input.goalDonePerWeek").val())) {
+                        alert("Please enter in a number into your usage goal!");
+        
+                    } else {
+                        jsonObject.baseline.goalDonePerWeek = $("input.goalDonePerWeek").val();
+                        jsonObject.option.reportItemsToDisplay.useGoalVsThisWeek = true;
+                    }
 
                 }
 
@@ -1131,7 +1664,6 @@ $(document).ready(function () {
                 for (var key in jsonObject.option.liveStatsToDisplay) {
                     $("#" + key + "Displayed").prop('checked', jsonObject.option.liveStatsToDisplay[key]);
                 }
-
                 //HABIT LOG
                 for (var key in jsonObject.option.logItemsToDisplay) {
                     $("#" + key + "RecordDisplayed").prop('checked', jsonObject.option.logItemsToDisplay[key]);
@@ -1177,6 +1709,7 @@ $(document).ready(function () {
 
                 setStorageObject(jsonObject);
                 showActiveStatistics();
+                toggleActiveStatGroups();
                 hideInactiveStatistics();
 
             });
@@ -1229,6 +1762,18 @@ $(document).ready(function () {
                 //update option table value
                 var jsonObject = retrieveStorageObject();
                 jsonObject.option.reportItemsToDisplay[jsonHandle] = displayCorrespondingStat;
+
+                //case to remove an existing graph
+                if(!json.option.reportItemsToDisplay.useVsResistsGraph) {
+                    $(".weekly-report .chart-title").hide();
+                    $(".weekly-report .bar-chart").hide();
+                    $(".weekly-report .week-range").hide();
+                } else {
+                    $(".weekly-report .chart-title").show();
+                    $(".weekly-report .bar-chart").show();
+                    $(".weekly-report .week-range").show();
+
+                }
 
                 setStorageObject(jsonObject);
             });
@@ -1343,6 +1888,26 @@ $(document).ready(function () {
                 initiateGoalTimer();
             }
         }
+
+        $("#mood-tracker-area .smiley").on("mouseup", function () {
+            $("#mood-tracker-area .smiley").removeClass('selected');
+            $(this).addClass('selected')
+         });
+
+         $("#mood-tracker-area .response .submit").on("mouseup", function () {
+            var now = Math.round(new Date() / 1000);
+            var comment = $("#mood-tracker-area .response .text").val();
+                
+            $.each($("#mood-tracker-area .smiley"), function (i, value) {
+                if ($(this).hasClass('selected')) {
+                    updateActionTable(now, "mood", null, null, null, comment, i);
+                    
+                    
+                    placeActionIntoLog(now, "mood", null, comment, i, false);
+                }
+            });
+            
+         });
 
         /* NOTIFICATION CREATION AND RESPONSES */
         var clearNotification = function (event, swipeDirection) {
@@ -1651,14 +2216,7 @@ $(document).ready(function () {
             var actualEnd = timestampSeconds;
             placeGoalIntoLog(startStamp, actualEnd, goalType, false);
 
-            //if longest goal just happened
-            if ((actualEnd - startStamp) > json.statistics.goal.bestTimeSeconds) {
-                //update json
-                json.statistics.goal.bestTimeSeconds = (actualEnd - startStamp);
-                //insert onto page
-                var newLongestGoal = convertSecondsToDateFormat(json.statistics.goal.bestTimeSeconds);
-                $("#longestGoalCompleted").html(newLongestGoal);
-            }
+            replaceLongestGoal(startStamp, actualEnd)
             //update number of goals
             json.statistics.goal.completedGoals++;
             $("#numberOfGoalsCompleted").html(json.statistics.goal.completedGoals);
@@ -1675,6 +2233,11 @@ $(document).ready(function () {
 
             //return to relevant screen
             $("#statistics-tab-toggler").click();
+
+            recalculateAverageTimeBetween(goalType, "total")
+            recalculateAverageTimeBetween(goalType, "week")
+            recalculateAverageTimeBetween(goalType, "month")
+            //recalculateAverageTimeBetween(goalType, "year")
 
             //set local json goal type which is active
             var jsonHandle = "activeGoal" + goalType.charAt(0).toUpperCase() + goalType.slice(1);
@@ -1697,7 +2260,7 @@ $(document).ready(function () {
 
             var endDateObj = new Date(parseInt(endStamp + "000"));
 
-            var timeElapsed = convertSecondsToDateFormat(endStamp - startStamp);
+            var timeElapsed = convertSecondsToDateFormat(endStamp - startStamp, false);
             var dayOfTheWeek = endDateObj.toString().split(' ')[0];
 
             var shortHandDate = (endDateObj.getMonth() + 1) + "/" +
@@ -1730,7 +2293,7 @@ $(document).ready(function () {
         }
 
         /* COST && USE LOG FUNCTION */
-        function placeActionIntoLog(clickStamp, clickType, amountSpent, placeBelow) {
+        function placeActionIntoLog(clickStamp, clickType, amountSpent, comment, smiley, placeBelow) {
 
             //data seems to be in order
             var endDateObj = new Date(parseInt(clickStamp + "000"));
@@ -1757,7 +2320,7 @@ $(document).ready(function () {
             var target = "#habit-log";
 
             if (clickType == "bought") {
-                titleHTML = '<i class="fas fa-dollar-sign"></i>&nbsp;&nbsp;' + "You spent <b>" + parseInt(amountSpent) + "$</b> on it.";
+                titleHTML = '<i class="fas fa-dollar-sign"></i>&nbsp;&nbsp;' + "You spent <b>$" + parseInt(amountSpent) + "</b> on it.";
                 //target = "#cost-log";
             } else if (clickType == "used") {
                 titleHTML = '<i class="fas fa-cookie-bite"></i>&nbsp;' + "You did it at <b>" + shortHandTime + "</b>.";
@@ -1765,6 +2328,9 @@ $(document).ready(function () {
             } else if (clickType == "craved") {
                 titleHTML = '<i class="fas fa-ban"></i>&nbsp;' + "You resisted it at <b>" + shortHandTime + "</b>.";
                 //target = "#use-log";
+            } else if(clickType == "mood") {
+                var scrubbedComment = comment.replace(/<script\b[^<]*(?:(?!<\/script>)<[^<]*)*<\/script>/gi, "")
+                titleHTML = '<img class="img-fluid habit-log-icon smiley mood-' + smiley + '" src="images/escrave-smiley-' + smiley + '.png" />&nbsp;' + " <b>" + scrubbedComment + "</b>.";
             }
 
             var template = '<div class="item ' + clickType + '-record">' +
@@ -1774,6 +2340,8 @@ $(document).ready(function () {
                 '<span class="shortHandDate">' + shortHandDate + '</span>' +
                 '</p>' +
                 '</div><!--end habit-log item div-->';
+
+                console.log("TEMPLATE: ", clickType, template)
 
             if (json.option.logItemsToDisplay[clickType] === true) {
                 if (placeBelow) {
@@ -1787,7 +2355,7 @@ $(document).ready(function () {
         }
 
         /* Format entries into HABIT LOG */
-        function convertSecondsToDateFormat(rangeInSeconds) {
+        function convertSecondsToDateFormat(rangeInSeconds, multiline) {
 
             //s
             var currSeconds = rangeInSeconds % 60;
@@ -1822,7 +2390,11 @@ $(document).ready(function () {
                 if (dayCount > 1) {
                     plural = "s";
                 }
-                finalStringStatistic = dayCount + "<span>&nbsp;day" + plural + "&nbsp;</span>" + finalStringStatistic;
+                var newline = ""
+                if(multiline) {
+                    newline = "<br/>";
+                }
+                finalStringStatistic = dayCount + "<span>&nbsp;day" + plural + "&nbsp;</span>" + newline + finalStringStatistic;
                 //drop minutes
                 finalStringStatistic = finalStringStatistic.split("h")[0] + "h</span>";
             }
@@ -1911,108 +2483,256 @@ $(document).ready(function () {
             return tempEndStamp;
         }
 
-        function displayAverageTimeBetween(actionType) {
+        function displayAverageTimeBetween(actionType, timeIncrement) {
+            console.log('actionType display time btween:', actionType)
             //convert total seconds to ddhhmmss
-            var htmlDestination = "";
+            var htmlDestination = "." + actionType + ".betweenClicks." + timeIncrement;
 
-            if (actionType == "use") {
-                htmlDestination = "#averageTimeBetweenUses";
+            //console.log("json.statistics[actionType].betweenClicks: ", json.statistics[actionType].betweenClicks)
 
-            } else if (actionType == "cost") {
-                htmlDestination = "#averageTimeBetweenBoughts";
+            var finalStringStats = {
+                total: json.statistics[actionType].betweenClicks["total"],
+                week: json.statistics[actionType].betweenClicks["week"],
+                month: json.statistics[actionType].betweenClicks["month"],
+                year: json.statistics[actionType].betweenClicks["year"]
             }
 
-            var finalStringStatistic = convertSecondsToDateFormat(json.statistics[actionType].averageBetweenClicks);
-
             //insert HTML into span place holder
-            $(htmlDestination).html(finalStringStatistic);
+            for (const [key, value] of Object.entries(finalStringStats)) {
+                console.log(`${actionType} ${key}: ${convertSecondsToDateFormat(value, true)}`);
+                var reasonableNumber = !isNaN(finalStringStats[key]) && isFinite(finalStringStats[key]);
+
+                if(key == timeIncrement && reasonableNumber) {
+                    console.log("betweenClicks finalStringStats[key]: ", finalStringStats[key])
+                    $(htmlDestination).html(
+                        convertSecondsToDateFormat(finalStringStats[key], true) 
+                    );
+                }
+            }
         }
 
-        function calculateAverageTimeBetween(actionType) {
+        function recalculateAverageTimeBetween(actionType, timeIncrement) {
+            var jsonObject = retrieveStorageObject();
+
+            // console.log("\n\n\n\n---------\nLIVE CALC AVG JSON before mutate: ", json)
             //current timestamp
             var timeNow = Math.round(new Date() / 1000);
 
-            //set key to the correct calculation ((timeNow - firstTimestamp) / (totalClicks))
-            var totalTimeBetween = parseInt(timeNow) - parseInt(json.statistics[actionType].firstClickStamp),
-                totalClicks = parseInt(json.statistics[actionType].clickCounter);
-            json.statistics[actionType].averageBetweenClicks = Math.round(totalTimeBetween / (totalClicks - 1));
+            var timestampLength = {
+                total: timeNow - json.statistics[actionType].firstClickStamp,
+                week:  7*24*60*60,
+                month: 30*24*60*60,
+                year:  365*24*60*60
+            }
+
+            var actionGerund = "used";
+            if (actionType == "cost") {
+                actionGerund = "bought";
+            }
+
+            //total uses
+            var count = jsonObject.action.filter(function (e) {
+                return e.clickType == actionGerund;
+            });
+            count = count.sort( (a, b) => {
+                return parseInt(a.timestamp) > parseInt(b.timestamp) ? 1 : -1;
+            });
+
+            var countByIncrement = count.filter(function (e) {
+                return e.timestamp >= timeNow - timestampLength[timeIncrement];
+            });
+            
+            if (countByIncrement.length > 1) {
+                //var clickCount = countByIncrement.length - 1 > 0 ? countByIncrement.length - 1 : countByIncrement.length;
+
+                var timeBetween = timeNow - countByIncrement[0].timestamp;
+                var avgTimeBetween = Math.round(timeBetween / (countByIncrement.length));
+
+                if (json.statistics[actionType].betweenClicks[timeIncrement] != 0 && avgTimeBetween != 0) {
+                    json.statistics[actionType].betweenClicks[timeIncrement] = avgTimeBetween;
+                }
+                
+                // console.log("calculate avg time between timeBetween: ", timeBetween)
+                // console.log("calculate avg time between  avgTimeBetween: ", avgTimeBetween)
+            } else if (countByIncrement.length > 0) {
+                var maxPossibleTime = timeNow - countByIncrement[0].timestamp;
+                if (json.statistics[actionType].betweenClicks[timeIncrement] != 0 && maxPossibleTime != 0) {
+                    json.statistics[actionType].betweenClicks[timeIncrement] = maxPossibleTime;
+                }
+            }
 
             //call function to display new stat
-            displayAverageTimeBetween(actionType);
+            displayAverageTimeBetween(actionType, timeIncrement);
         }
 
-        function displayLongestGoal() {
-            var html = convertSecondsToDateFormat(json.statistics.goal.bestTimeSeconds);
-            $("#longestGoalCompleted").html(html);
+        function displayLongestGoal(timeIncrement) {
+            var longestGoal = json.statistics.goal.longestGoal;
+            if(longestGoal[timeIncrement] !== 0 && longestGoal[timeIncrement] !== "N/A") {
+                console.log('displayLongestGoal: ', timeIncrement)
+                var html = convertSecondsToDateFormat(json.statistics.goal.longestGoal[timeIncrement], true);
+                $(".statistic.longestGoal." + timeIncrement ).html(html);
+            }
+
+        }
+
+        function replaceLongestGoal(start, end) {
+            var timeNow = Math.round(new Date() / 1000);
+            var timestampLength = {
+                week:  7*24*60*60,
+                month: 30*24*60*60,
+                year:  365*24*60*60
+            }
+
+            var timeIncrement = "total";
+            if (start > timeNow - timestampLength["week"] ) {
+                timeIncrement = "week";
+            } else if (start > timeNow - timestampLength["month"] ) {
+                timeIncrement = "month";
+            } else if (start > timeNow - timestampLength["year"] ) {
+                timeIncrement = "year";
+            }
+
+            var goalLength = end - start;
+            console.log('replace longest goal')
+            if (goalLength > json.statistics.goal.longestGoal[timeIncrement]) {
+                //if longest goal just happened
+                json.statistics.goal.longestGoal[timeIncrement] = goalLength;
+                $(".statistic.longestGoal." + timeIncrement).html(
+                    convertSecondsToDateFormat(goalLength, true)
+                );
+
+            }
+
+        }
+
+        function toggleActiveStatGroups() {
+            //loop through all stats and auto hide duplicate values inside of Total-Week-Month-Year style objects
+            for (let statGroup in json.statistics ) {
+                for (let stat in json.statistics[statGroup] ) {
+                    let statObj = json.statistics[statGroup][stat];
+
+                    let statIsTimer = stat == "untilTimerEnd" || stat == "sinceTimerStart";
+                    if( typeof statObj !== 'object' || statIsTimer) {
+                        continue;
+                    }
+                    //console.log("\nstat: ", stat)
+                    
+                    //display only parts of the stat that matter
+                    //i.e. if total == week, then no need for total. Same goes for month == week.
+                    let i = 0;
+                    let allZeroValues = true;
+                    let timeRanges = Object.keys(statObj);
+                    var prevRange = "";
+                    for (let range of timeRanges) {
+                        //console.log("statObj[range]: ", statObj[range])
+                        i++;
+                        if (statObj[range] !== 0 && statObj[range] !== "N/A") { 
+                            allZeroValues = false;
+                            //console.log('found non zero val: ', statObj[range])
+                        } else {
+                            $(".statistic." + statGroup + "." + stat + "." + range).parent().hide();
+                            continue;
+                        }
+                        //console.log("stat specific ", range, ": ", statObj[range])
+
+                        let nextKey = statObj[timeRanges[i]];
+                        // let previousKey = statObj[keys[i-2]];
+                        if (nextKey == statObj[range] || statObj[range] == "N/A") {
+                            console.log("Hide: " + ".statistic." + statGroup + "." + stat + "." + range)
+                            $(".statistic." + statGroup + "." + stat + "." + range).parent().hide();
+                        } else if (nextKey == undefined) {
+                            //console.log("show: ", stat, key)
+                            $(".statistic." + statGroup + "." + stat + "." + "week").parent().show();
+
+                        }
+                        
+                        prevRange = range;
+                    }
+
+                    //labels should hide if the whole stat is also hidden
+                    if(allZeroValues) {
+                        //console.log('ALL zero val: ' + ".stat-group." + statGroup + "." + stat)
+                        $(".stat-group." + statGroup + "." + stat).parent().hide();
+
+                    } else {
+                        //console.log('NOO zero val: ' + ".stat-group." + statGroup + "." + stat)
+                        $(".stat-group." + statGroup + "." + stat).parent().show();
+                    }
+
+                }
+            }
         }
 
         //TOGGLE ANY STATS WHICH ARE NOT ZERO 
         function hideInactiveStatistics() {
+            var display = json.option.liveStatsToDisplay;
+            var stat = json.statistics;
+
             //used to hide instructions once app is in use
             var statisticPresent = false;
             //bought page 
             /*HIDE UNAVAILABLE STATS */
-            if (json.statistics.cost.clickCounter === 0) {
+            if (stat.cost.clickCounter === 0) {
                 $("#bought-total").hide();
                 $("#cost-content .timer-recepticle").hide();
             } else {
                 statisticPresent = true;
             }
-            if (json.statistics.cost.averageBetweenClicks === 0) {
-                $("#averageTimeBetweenBoughts").parent().hide();
+            if (stat.cost.clickCounter < 2 || isNaN(stat.cost.betweenClicks.total) ) {
+                $("#cost-content .betweenClicks.cost.week.statistic").parent().parent().parent().hide();
             }
-            console.log("json.statistics.cost: ", json.statistics.cost)
-            if (json.statistics.cost.totals.total === 0) {
-                //toggle all
-                $("#cost-content .statistic-recepticle").hide();
-                $("#totalAmountSpent").parent().hide();
-                $("#spentThisWeek").parent().hide();
-                $("#spentThisMonth").parent().hide();
-                $("#spentThisYear").parent().hide();
-            } else if (json.statistics.cost.totals.week == json.statistics.cost.totals.total) {
-                //toggle year month week 
-                $("#spentThisWeek").parent().hide();
-                $("#spentThisMonth").parent().hide();
-                $("#spentThisYear").parent().hide();
-            } else if (json.statistics.cost.totals.month == json.statistics.cost.totals.week) {
-                //toggle year and month
-                $("#spentThisMonth").parent().hide();
-                $("#spentThisYear").parent().hide();
-            } else if (json.statistics.cost.totals.year == json.statistics.cost.totals.month) {
-                $("#spentThisYear").parent().hide();
+            if (isNaN(stat.cost.betweenClicks.week) ) {
+                $("#cost-content .betweenClicks.cost.week.statistic").hide();
             }
-            
+            if (isNaN(stat.cost.betweenClicks.month) ) {
+                $("#cost-content .betweenClicks.cost.month.statistic").hide();
+            }
+            if (isNaN(stat.cost.betweenClicks.year ) ) {
+                $("#cost-content .betweenClicks.cost.year.statistic").hide();
+            }
 
-            if (json.statistics.use.clickCounter === 0) {
+            if (stat.use.clickCounter === 0) {
                 $("#use-total").hide();
                 $("#use-content .timer-recepticle").hide();
+                $("#use-content .statistic.use.totals.total").parent().parent().parent().hide();
             } else {
                 statisticPresent = true;
             }
-            if (json.statistics.use.averageBetweenClicks === 0) {
-                $("#averageTimeBetweenUses").parent().hide();
+
+            if (stat.use.clickCounter < 2 || isNaN(stat.use.betweenClicks.total) ) {
+                $("#use-content .betweenClicks.use.week.statistic").parent().parent().parent().hide();
             }
-            if (json.statistics.use.craveCounter === 0) {
+            if (isNaN(stat.use.betweenClicks.week) ) {
+                $("#use-content .betweenClicks.use.week.statistic").hide();
+            }
+            if (isNaN(stat.use.betweenClicks.month) ) {
+                $("#use-content .betweenClicks.use.month.statistic").hide();
+            }
+            if (isNaN(stat.use.betweenClicks.year ) ) {
+                $("#use-content .betweenClicks.use.year.statistic").hide();
+            }
+            
+            if (stat.use.craveCounter === 0) {
                 $("#crave-total").hide();
             } else {
                 statisticPresent = true;
             }
-            if (json.statistics.use.craveCounter === 0 || json.statistics.use.clickCounter === 0) {
-                $("#avgDidntPerDid").parent().hide();
+            if (stat.use.craveCounter === 0 || stat.use.clickCounter === 0) {
+                $(".didntPerDid.stat-group").parent().hide();
             }
-            if (json.statistics.use.cravingsInARow === 0 || json.statistics.use.cravingsInARow === 1) {
+            if (stat.use.cravingsInARow === 0 || stat.use.cravingsInARow === 1) {
                 $("#cravingsResistedInARow").parent().hide();
             }
 
-            if (json.statistics.goal.clickCounter === 0) {
+            if (stat.goal.clickCounter === 0) {
                 $("#goal-content .timer-recepticle").hide();
             } else {
                 statisticPresent = true;
             }
-            if (json.statistics.goal.bestTimeSeconds === 0) {
-                $("#longestGoalCompleted").parent().hide();
+            if (stat.goal.longestGoal.total === 0) {
+                $(".stat-group.longestGoal").parent().hide();
             }
-            if (json.statistics.goal.completedGoals === 0) {
+            if (stat.goal.completedGoals === 0) {
                 $("#numberOfGoalsCompleted").parent().hide();
             }
             if (statisticPresent) {
@@ -2021,168 +2741,195 @@ $(document).ready(function () {
 
             /* HIDE UNWANTED STATISTICS */
             //COST
-            if (json.option.liveStatsToDisplay.spentButton == false) {
-                $("#bought-button").parent().hide();
-            }
-            if (json.option.liveStatsToDisplay.boughtGoalButton == false) {
+            
+            if (!display.boughtGoalButton) {
                 $("#boughtGoalInput").parent().hide();
             }
-            if (json.option.liveStatsToDisplay.sinceLastSpent == false) {
+            if (!display.sinceLastSpent) {
                 $("#cost-content .timer-recepticle").hide();
             }
-            if (json.option.liveStatsToDisplay.avgBetweenSpent == false) {
-                $("#averageTimeBetweenBoughts").parent().hide();
+            if (!display.avgBetweenSpent) {
+                $(".statistic.cost.betweenClicks.total").parent().parent().parent().hide();
             }
-            if (json.option.liveStatsToDisplay.totalSpent == false) {
-                $("#totalAmountSpent").parent().parent().hide();
-            }
-            if (json.option.liveStatsToDisplay.currWeekSpent == false) {
-                $("#spentThisWeek").parent().parent().hide();
-            }
-            if (json.option.liveStatsToDisplay.currMonthSpent == false) {
-                $("#spentThisMonth").parent().parent().hide();
-            }
-            if (json.option.liveStatsToDisplay.currYearSpent == false) {
-                $("#spentThisYear").parent().parent().hide();
+            if (!display.totalSpent) {
+                $(".statistic.cost.totals.total").parent().parent().parent().hide();
             }
 
             //USE
-            if (json.option.liveStatsToDisplay.usedButton == false) {
+            if (!display.timesDone) {
+                $(".statistic.use.totals.total").parent().parent().parent().hide();
+            }
+            if (!display.sinceLastDone) {
+                $("#use-content .timer-recepticle").hide();
+            }
+            if (!display.avgBetweenDone) {
+                $("#use-content .betweenClicks").parent().hide();
+            }
+            if (!display.didntPerDid) {
+                $(".didntPerDid.stat-group").parent().hide();
+            }
+            if (!display.resistedInARow) {
+                $(".stat-group.resistStreak").parent().hide();
+            }
+            if (!display.timesDone) {
+                $(".stat-group .statistic.use.totals.total").parent().parent().parent().hide();
+            }
+
+            // MOOD TRACKER 
+            if (!json.option.logItemsToDisplay.mood) {
+                $("#mood-tracker-heading").hide();
+                $("#mood-tracker-area").hide();
+                //$("#longestGoalCompleted").parent().hide();
+            }
+
+            // BUTTONS
+            if (!display.spentButton) {
+                $("#bought-button").parent().hide();
+            }
+            if (!display.usedButton) {
                 $("#use-button").parent().hide();
             }
-            if (json.option.liveStatsToDisplay.usedGoalButton = false) {
-                $("#usedGoalInput").parent().hide();
-            }
-            if (json.option.liveStatsToDisplay.cravedButton == false) {
+            if (!display.cravedButton) {
                 $("#crave-button").parent().hide();
             }
-            if (json.option.liveStatsToDisplay.sinceLastDone == false) {
-                $("#use-content .timer-recepticle").hide();
-                //console.log("hide timer - use - if turned off");
+            if (!display.longestGoal) {
+                $("#goal-content .longestGoal").parent().hide();
+                //$("#longestGoalCompleted").parent().hide();
             }
-
-            if (json.option.liveStatsToDisplay.avgBetweenDone == false) {
-                $("#averageTimeBetweenUses").parent().hide();
-            }
-
-            if (json.option.liveStatsToDisplay.didntPerDid == false) {
-                $("#avgDidntPerDid").parent().hide();
-            }
-
-            if (json.option.liveStatsToDisplay.resistedInARow == false) {
-                $("#cravingsResistedInARow").parent().hide();
-            }
-
-            //GOAL    
-            if (json.option.liveStatsToDisplay.goalButton == false) {
-                $("#goal-button").parent().hide();
-            }
-
-            if (json.option.liveStatsToDisplay.longestGoal === 0) {
-                $("#longestGoalCompleted").parent().hide();
+            if (!display.untilGoalEnd) {
+                $("#goal-content .timer-recepticle").hide();
+                //$("#longestGoalCompleted").parent().hide();
             }
 
         }
+
         function showActiveStatistics() {
+            var display = json.option.liveStatsToDisplay;
+            var stat = json.statistics;
             //Show Buttons if requested
-            if (json.option.liveStatsToDisplay.spentButton == true) {
+            if (display.spentButton) {
                 $("#bought-button").parent().show();
             }
-            if (json.option.liveStatsToDisplay.boughtGoalButton == true) {
+            if (display.boughtGoalButton) {
                 $("#boughtGoalInput").parent().hide();
             }
-            if (json.option.liveStatsToDisplay.usedButton == true) {
+            if (display.usedButton) {
                 $("#use-button").parent().show();
             }
-            if (json.option.liveStatsToDisplay.usedGoalButton == true) {
+            if (display.usedGoalButton) {
                 $("#usedGoalInput").parent().hide();
             }
-            if (json.option.liveStatsToDisplay.cravedButton == true) {
+            if (display.cravedButton) {
                 $("#crave-button").parent().show();
             }
-            if (json.option.liveStatsToDisplay.goalButton == true) {
+            if (display.goalButton) {
                 $("#goal-button").parent().show();
             }
 
+            if (display.timesDone) {
+                $(".statistic.use.totals.total").parent().parent().parent().show();
+            }
             //bought page 
-            if (json.statistics.cost.clickCounter !== 0) {
+            if (display.sinceLastSpent && stat.cost.clickCounter !== 0) {
                 $("#bought-total").show();
-                if (json.option.liveStatsToDisplay.sinceLastSpent == true) {
-                    //console.log("about to show cost timer");
-                    $("#cost-content .timer-recepticle").show();
-                    $("#cost-content .fibonacci-timer").show();
+                $("#cost-content .timer-recepticle").show();
+                $("#cost-content .fibonacci-timer").show();
+            }
+
+            if (display.avgBetweenSpent && stat.cost.betweenClicks.total !== 0) {
+
+                $("#cost-content .betweenClicks").parent().show();
+                recalculateAverageTimeBetween("cost", "total");
+                
+                if (stat.cost.betweenClicks.week !== 0) {
+                    $("#cost-content .betweenClicks.week.statistic").show();
+                    recalculateAverageTimeBetween("cost", "week");
                 }
-            }
-            if (json.statistics.cost.averageBetweenClicks !== 0) {
-                if (json.option.liveStatsToDisplay.avgBetweenSpent == true) {
-                    $("#averageTimeBetweenBoughts").parent().show();
-                    calculateAverageTimeBetween("cost");
+                if (stat.cost.betweenClicks.month !== 0) {
+                    $("#cost-content .betweenClicks.month.statistic").show();
+                    recalculateAverageTimeBetween("cost", "month");
                 }
-            }
-            if (json.statistics.cost.totals.total !== 0) {
-                $("#cost-content .statistic-recepticle").show();
-                if (json.option.liveStatsToDisplay.totalSpent == true) {
-                    $("#totalAmountSpent").parent().show();
-                }
-            }
-            if (json.statistics.cost.totals.week !== json.statistics.cost.totals.total) {
-                if (json.option.liveStatsToDisplay.currWeekSpent == true) {
-                    $("#spentThisWeek").parent().show();
-                }
-            }
-            if (json.statistics.cost.totals.month !== json.statistics.cost.totals.week) {
-                if (json.option.liveStatsToDisplay.currMonthSpent == true) {
-                    $("#spentThisMonth").parent().show();
-                }
-            }
-            if (json.statistics.cost.totals.year !== json.statistics.cost.totals.month) {
-                if (json.option.liveStatsToDisplay.currYearSpent == true) {
-                    $("#spentThisYear").parent().show();
-                }
-            }
-            if (json.statistics.use.clickCounter !== 0) {
-                $("#use-total").show();
-                if (json.option.liveStatsToDisplay.sinceLastDone == true) {
-                    $("#use-content .timer-recepticle").show();
-                    $("#use-content .fibonacci-timer").show();
-                }
-            }
-            if (json.statistics.use.averageBetweenClicks !== 0) {
-                if (json.option.liveStatsToDisplay.avgBetweenDone == true) {
-                    $("#averageTimeBetweenUses").parent().show();
-                    calculateAverageTimeBetween("use");
-                }
-            }
-            if (json.statistics.use.craveCounter !== 0) {
-                $("#crave-total").show();
-            }
-            if (json.statistics.use.craveCounter !== 0 && json.statistics.use.clickCounter !== 0) {
-                if (json.option.liveStatsToDisplay.didntPerDid == true) {
-                    $("#avgDidntPerDid").parent().show();
-                }
-            }
-            if (json.statistics.use.cravingsInARow !== 0) {
-                if (json.option.liveStatsToDisplay.resistedInARow == true) {
-                    $("#cravingsResistedInARow").parent().show();
+                if (stat.cost.betweenClicks.year !== 0) {
+                    $("#cost-content .betweenClicks.year.statistic").show();
+                    recalculateAverageTimeBetween("cost", "year");
                 }
             }
 
+            if (display.totalSpent && stat.cost.totals.total !== 0) {
+                $("#cost-content .stat-recepticle").show();
+                $(".statistic.cost.totals.total").parent().show();
+            }
+            if (display.sinceLastDone && stat.use.clickCounter !== 0) {
+                $("#use-total").show();
+                $("#use-content .timer-recepticle").show();
+                $("#use-content .fibonacci-timer").show();
+            }
+
+            if (display.resistedInARow) {
+                $(".statistic.use.totals.total").parent().parent().parent().show();
+            }
+            if (display.avgBetweenDone && stat.use.betweenClicks.total !== 0) {
+
+                $("#use-content .betweenClicks").parent().show();
+                recalculateAverageTimeBetween("use", "total");
+                
+                if (stat.use.betweenClicks.week !== 0) {
+                    $("#use-content .betweenClicks.week.statistic").show();
+                    recalculateAverageTimeBetween("use", "week");
+                }
+                if (stat.use.betweenClicks.month !== 0) {
+                    $("#use-content .betweenClicks.month.statistic").show();
+                    recalculateAverageTimeBetween("use", "month");
+                }
+                if (stat.use.betweenClicks.year !== 0) {
+                    $("#use-content .betweenClicks.year.statistic").show();
+                    recalculateAverageTimeBetween("use", "year");
+                }
+            }
+            if (stat.use.craveCounter !== 0) {
+                $("#crave-total").show();
+            }
+            if (display.didntPerDid && stat.use.craveCounter !== 0 && stat.use.clickCounter !== 0) {
+                $(".didntPerDid.stat-group").parent().show();
+            }
+            if (display.resistedInARow && stat.use.cravingsInARow !== 0) {
+                $("#cravingsResistedInARow").parent().show();
+            }
+
             //goal page
-            if (json.statistics.goal.clickCounter !== 0 &&
-                (json.statistics.goal.activeGoalBoth || json.statistics.goal.activeGoalBought || json.statistics.goal.activeGoalUse)
+            if (display.untilGoalEnd && stat.goal.clickCounter !== 0 && stat.goal.untilTimerEnd.totalSeconds !== 0 &&
+                (stat.goal.activeGoalBoth || stat.goal.activeGoalBought || stat.goal.activeGoalUse)
             ) {
-                if (json.option.liveStatsToDisplay.untilGoalEnd == true) {
-                    $("#goal-content .timer-recepticle").show();
-                    $("#goal-content .fibonacci-timer").show();
-                }
+                $("#goal-content .timer-recepticle").show();
+                $("#goal-content .fibonacci-timer").show();
             }
-            if (json.statistics.goal.bestTimeSeconds !== 0) {
-                if (json.option.liveStatsToDisplay.longestGoal == true) {
-                    $("#longestGoalCompleted").parent().show();
+
+            var bestTime = stat.goal.longestGoal;
+            if (display.longestGoal && bestTime.total !== 0) {
+                $(".stat-group.longestGoal").parent().show();
+
+                if (bestTime.week !== "N/A") {
+                    $(".longestGoal.week.statistic").show();
+                    displayLongestGoal("week");
                 }
+                if (bestTime.month !== bestTime.week && bestTime.month !== "N/A") {
+                    $(".longestGoal.month.statistic").show();
+                    displayLongestGoal("month");
+                }
+                if (bestTime.year !== bestTime.month && bestTime.year !== "N/A") {
+                    $(".longestGoal.year.statistic").show();
+                    displayLongestGoal("year");
+                }
+                
             }
-            if (json.statistics.goal.completedGoals !== 0) {
+            if (stat.goal.completedGoals !== 0) {
                 $("#numberOfGoalsCompleted").parent().show();
+            }
+
+            if (json.option.logItemsToDisplay.mood) {
+                $("#mood-tracker-heading").show();
+                $("#mood-tracker-area").show();
+                //$("#longestGoalCompleted").parent().hide();
             }
         }
 
@@ -2194,17 +2941,16 @@ $(document).ready(function () {
 
             //remove most recent (last) record
             jsonObject["action"].pop();
-
             setStorageObject(jsonObject);
 
             //UNBREAK GOAL
             //if action could have broken a goal
             if (undoneActionClickType == "used" || undoneActionClickType == "bought") {
-                //cycle back through records until 
+                //cycle back through records until you find most recent goal
                 for (var i = jsonObject["action"].length - 1; i >= 0; i--) {
                     var currRecord = jsonObject["action"][i];
-
-                    if (currRecord.clickType == "goal" && (currRecord.goalType == "both" || currRecord.goalType == undoneActionClickType)) {
+                    var goalTypeIsRelevant = (currRecord.goalType == "both" || currRecord.goalType == undoneActionClickType);
+                    if (goalTypeIsRelevant && currRecord.clickType == "goal") {
                         //if this first finds a goal which would have been broken by undoneActionClickType, 
                         //change this.status to active, exit loop 
                         changeGoalStatus(1, currRecord.goalType, -1);
@@ -2214,7 +2960,6 @@ $(document).ready(function () {
                         //if this first finds an action.clickType == undoneActionClickType, 
                         //then a goal could not have been broken, so exit loop without changing goal status
                         break;
-
                     }
                 }
             }
@@ -2245,26 +2990,28 @@ $(document).ready(function () {
 
         /* CREATE NEW RECORD OF ACTION */
         //timestamp, clicktype, spent, goalStamp, goalType
-        function updateActionTable(ts, ct, spt, gs, gt) {
+        function updateActionTable(ts, ct, spt, gs, gt, cm, sm) {
             var jsonObject = retrieveStorageObject();
 
-            ts = ts.toString();
+            console.log("update action table")
 
             var newRecord;
             var now = Math.round(new Date() / 1000);
 
             if (ct == "used" || ct == "craved") {
-                newRecord = { timestamp: ts, clickType: ct, clickStamp: now };
+                newRecord = { timestamp: ts.toString(), clickType: ct, clickStamp: now };
 
             } else if (ct == "bought") {
-                spt = spt.toString();
-                newRecord = { timestamp: ts, clickType: ct, clickStamp: now, spent: spt };
+                newRecord = { timestamp: ts.toString(), clickType: ct, clickStamp: now, spent: spt.toString() };
 
             } else if (ct == "goal") {
-                gs = gs.toString();
                 var st = 1;
                 var goalStopped = -1;
-                newRecord = { timestamp: ts, clickType: ct, clickStamp: now, goalStamp: gs, goalType: gt, status: st, goalStopped: goalStopped };
+                newRecord = { timestamp: ts.toString(), clickType: ct, clickStamp: now, goalStamp: gs.toString(), goalType: gt, status: st, goalStopped: goalStopped };
+            
+            } else if (ct == "mood") {
+                newRecord = { timestamp: ts.toString(), clickType: ct, clickStamp: now, comment: cm, smiley: sm };
+
             }
 
             jsonObject["action"].push(newRecord);
@@ -2283,29 +3030,29 @@ $(document).ready(function () {
                     timerElement = document.getElementById(timerId);
 
                 if (visibleBoxes.length == 1) {
-                    timerElement.style.width = "3.3rem";
-                    timerElement.style.height = "3.3rem";
+                    timerElement.style.width = "3rem";
+                    timerElement.style.height = "3rem";
 
                     //adjustment to align horizontal at 4 boxes shown                    
                     timerElement.classList.remove("fully-visible");
 
                 } else if (visibleBoxes.length == 2) {
-                    timerElement.style.width = "6.4rem";
-                    timerElement.style.height = "3.3rem";
+                    timerElement.style.width = "5.9rem";
+                    timerElement.style.height = "3rem";
 
                     //adjustment to align horizontal at 4 boxes shown                    
                     timerElement.classList.remove("fully-visible");
 
                 } else if (visibleBoxes.length == 3) {
-                    timerElement.style.width = "9.4rem";
-                    timerElement.style.height = "6.4rem";
+                    timerElement.style.width = "9rem";
+                    timerElement.style.height = "6rem";
 
                     //adjustment to align horizontal at 4 boxes shown                    
                     timerElement.classList.remove("fully-visible");
 
                 } else if (visibleBoxes.length == 4) {
-                    timerElement.style.width = "15.7rem";
-                    timerElement.style.height = "9.8rem";
+                    timerElement.style.width = "15.4rem";
+                    timerElement.style.height = "9.4rem";
 
                     //adjustment to align horizontal at 4 boxes shown                    
                     timerElement.classList.add("fully-visible");
@@ -2366,39 +3113,14 @@ $(document).ready(function () {
         var goalTimer;
 
         /*Actions on switch tab */
-        $(document).delegate("#baseline-tab-toggler", 'click', function (e) {
-            saveActiveTab();
-            $("#settings-tab-toggler").removeClass("active");
-            $("#statistics-tab-toggler").removeClass("active");
-            $("#reports-tab-toggler").removeClass("active");
-
-            //close dropdown nav
-            if ($("#options-collapse-menu").hasClass("show")) {
-                $(".navbar-toggler").click();
-            }
-
-        });
-        $(document).delegate("#reports-tab-toggler", 'click', function (e) {
-            saveActiveTab();
-            $("#baseline-tab-toggler").removeClass("active");
-            $("#settings-tab-toggler").removeClass("active");
-            $("#statistics-tab-toggler").removeClass("active");
-
-            //close dropdown nav
-            if ($("#options-collapse-menu").hasClass("show")) {
-                $(".navbar-toggler").click();
-
-            }
-
-            initiateReport();
-
-        });
 
         $(document).delegate("#statistics-tab-toggler", 'click', function (e) {
             saveActiveTab();
 
             setTimeout(function () {
+                toggleActiveStatGroups();
                 hideInactiveStatistics();
+
                 adjustFibonacciTimerToBoxes("goal-timer");
                 adjustFibonacciTimerToBoxes("smoke-timer");
                 adjustFibonacciTimerToBoxes("bought-timer");
@@ -2413,6 +3135,9 @@ $(document).ready(function () {
             if ($("#options-collapse-menu").hasClass("show")) {
                 $(".navbar-toggler").click();
             }
+
+            //get them notifcations for useful reports
+            initiateReport();
         });
 
         $(document).delegate("#settings-tab-toggler", 'click', function (e) {
@@ -2441,13 +3166,36 @@ $(document).ready(function () {
             $("#bought-total").html(json.statistics.cost.clickCounter);
 
             //Average time between
-            displayAverageTimeBetween("use");
-            displayAverageTimeBetween("cost");
-            displayLongestGoal();
+            displayAverageTimeBetween("use", "total");
+            displayAverageTimeBetween("use", "week");
+            displayAverageTimeBetween("use", "month");
+            displayAverageTimeBetween("cost", "total");
+            displayAverageTimeBetween("cost", "week");
+            displayAverageTimeBetween("cost", "month");
+
+            $(".longestGoal.statistic").parent().hide();
+            var bestTime = json.statistics.goal.longestGoal;
+            if (bestTime.week !== "N/A") {
+                $(".longestGoal.week.statistic").parent().show();
+                displayLongestGoal("week");
+            } else if (bestTime.month !== "N/A" && bestTime.month !== bestTime.week) {
+                $(".longestGoal.month.statistic").parent().show();
+                displayLongestGoal("month");
+            }
+            if (bestTime.total !== "N/A" 
+                && bestTime.total !== bestTime.week
+                && bestTime.total !== bestTime.month) {
+
+                $(".longestGoal.total.statistic").parent().show();
+                displayLongestGoal("total");
+            }
+
+
             returnToActiveTab();
             hideTimersOnLoad();
 
             //after all is said and done 
+            toggleActiveStatGroups();
             hideInactiveStatistics();
 
             //get them notifcations for useful reports
@@ -2460,12 +3208,13 @@ $(document).ready(function () {
             var newJsonString = '{ "action": [], ' +
                 '  "baseline": {"userSubmitted": false, "specificSubject": false, "decreaseHabit": true, "useStatsIrrelevant": false, "costStatsIrrelevant": false, "amountDonePerWeek":"0","goalDonePerWeek":"0","amountSpentPerWeek":"0","goalSpentPerWeek":"0", "valuesTime": true, "valuesMoney": true, "valuesHealth": true},' +
                 '  "option": { "activeTab" : "settings-content",' +
-                '"liveStatsToDisplay" : {"untilGoalEnd": true, "longestGoal": true, "sinceLastDone": true, "avgBetweenDone": true, "didntPerDid": true, "resistedInARow": true, "sinceLastSpent": true,"avgBetweenSpent": true, "totalSpent": true, "currWeekSpent": true, "currMonthSpent": true, "currYearSpent": true},' +
-                '"logItemsToDisplay" : {"goal": true, "used": true, "craved": true,	"bought": true},' +
-                '"reportItemsToDisplay" : {	"useChangeVsBaseline": false, "useChangeVsLastWeek": true, "costChangeVsBaseline": false, "costChangeVsLastWeek": true, "useGoalVsThisWeek": false, "costGoalVsThisWeek": false}' +
+                '"liveStatsToDisplay" : {"untilGoalEnd": true, "longestGoal": true, "sinceLastDone": true, "timesDone": true, "avgBetweenDone": true, "didntPerDid": true, "resistedInARow": true, "sinceLastSpent": true,"avgBetweenSpent": true, "totalSpent": true},' +
+                '"logItemsToDisplay" : {"goal": true, "used": true, "craved": true,	"bought": true, "mood": true},' +
+                '"reportItemsToDisplay" : {	"useChangeVsBaseline": false, "useChangeVsLastWeek": true, "useVsResistsGraph": true, "costChangeVsBaseline": false, "costChangeVsLastWeek": true, "useGoalVsThisWeek": false, "costGoalVsThisWeek": false}' +
                 '} }';
             localStorage.setItem("esCrave", newJsonString);
 
+            toggleActiveStatGroups();
             hideInactiveStatistics();
 
             $("#settings-tab-toggler").click();
@@ -2487,7 +3236,7 @@ $(document).ready(function () {
             if (this.id == "crave-button") {
 
                 //don't allow clicks more recent than 10 seconds
-                if (timestampSeconds - json.statistics.use.lastClickStampCrave > 10) {
+                if (timestampSeconds - json.statistics.use.lastClickStampCrave > 1) {
 
                     //return user to stats page
                     $("#statistics-tab-toggler").click();
@@ -2498,21 +3247,31 @@ $(document).ready(function () {
                     updateActionTable(timestampSeconds, "craved");
 
                     //add record into log
-                    placeActionIntoLog(timestampSeconds, "craved", null, false);
+                    placeActionIntoLog(timestampSeconds, "craved", null, null, null, false);
 
-                    var currCravingsPerSmokes = Math.round(json.statistics.use.craveCounter / json.statistics.use.clickCounter * 10) / 10;
-                    $("#avgDidntPerDid").html(currCravingsPerSmokes);
+                    // var currCravingsPerSmokes = Math.round(json.statistics.use.craveCounter / json.statistics.use.clickCounter * 10) / 10;
+                    // $(".avgDidntPerDid").html(currCravingsPerSmokes);
+
+                    var bestStreak = parseInt( $('.stat-group.resistStreak .statistic.total').html() );
+                    if (bestStreak == json.statistics.use.cravingsInARow) {
+
+                        $('.stat-group.resistStreak .statistic.total').html(bestStreak + 1)   
+                    }
 
                     json.statistics.use.cravingsInARow++;
                     $("#cravingsResistedInARow").html(json.statistics.use.cravingsInARow);
+
+                    
 
                     showActiveStatistics();
 
                     //keep lastClickStamp up to date while using app
                     json.statistics.use.lastClickStampCrave = timestampSeconds;
+        
+                    initiateReport();
 
                 } else {
-                    alert("You just clicked this button! Wait a bit longer before clicking it again");
+                    alert("You just clicked this button! Wait a second longer before clicking it again");
                 }
 
             } else if (this.id == "use-button") {                
@@ -2573,6 +3332,20 @@ $(document).ready(function () {
 
         }); //end bought-button click handler
 
+        //totals should trigger clicks of button
+        $("#bought-total").click(function () {
+            $("#bought-button").click();
+        })
+        $("#crave-total").click(function () {
+            $("#crave-button").click();
+        })
+        $("#use-total").click(function () {
+            $("#use-button").click();
+        });
+        $("#goal-total").click(function () {
+            $("#goal-button").click();
+        })
+
         //START USED TIMER		
         function initiateSmokeTimer(requestedTimestamp) {
             //if there is a more recent timer than newly requested
@@ -2603,10 +3376,6 @@ $(document).ready(function () {
                     minutesSinceUse = Math.floor(totalSecondsSinceUse / (60)) % 60;
                     secondsSinceUse = totalSecondsSinceUse % 60;
                     
-                    // console.log("daysSinceUse: ", daysSinceUse)
-                    // console.log("hoursSinceUse: ", hoursSinceUse)
-                    // console.log("minutesSinceUse: ", minutesSinceUse)
-                    // console.log("secondsSinceUse: ", secondsSinceUse)
 
                     //reset json vars
                     json.statistics.use.sinceTimerStart.days = daysSinceUse;
@@ -2634,7 +3403,7 @@ $(document).ready(function () {
                     for (let timerBox of $("#use-content .boxes div:visible")) {
                         if (parseInt($(timerBox).find(".timerSpan").html()) == 0) {
                             
-                            console.log("$(timerBox): ", $(timerBox))
+                            //console.log("$(timerBox): ", $(timerBox))
                             $(timerBox).hide();
                         } else { //found a non-zero value
                             $(timerBox).show();
@@ -2706,7 +3475,7 @@ $(document).ready(function () {
                 if (minutesSinceUse == 0 && !foundNonZero) {
                     $("#use-content .minutesSinceLastClick").parent().toggle();
                 } else if(minutesSinceUse == 0) {
-                    $("#use-content .minutesSinceLastClick:first-child").html("0" + minutesSinceUse);
+                    $("#use-content .minutesSinceLastClick:first-child").html(minutesSinceUse);
                 } else {
                     foundNonZero = true;
                 }
@@ -2841,16 +3610,13 @@ $(document).ready(function () {
                 if (json.statistics.use.clickCounter == 0) {
                     json.statistics.use.firstClickStamp = json.statistics.use.firstClickStamp + timestampSeconds;
 
-                } else if (json.statistics.use.clickCounter == 1) {
-                    json.statistics.use.averageBetweenClicks = timestampSeconds - json.statistics.use.firstClickStamp;
-
-                }
+                } 
 
                 json.statistics.use.clickCounter++;
                 $("#use-total").html(json.statistics.use.clickCounter);
 
-                var currCravingsPerSmokes = Math.round(json.statistics.use.craveCounter / json.statistics.use.clickCounter * 10) / 10;
-                $("#avgDidntPerDid").html(currCravingsPerSmokes);
+                // var currCravingsPerSmokes = Math.round(json.statistics.use.craveCounter / json.statistics.use.clickCounter * 10) / 10;
+                // $("#avgDidntPerDid").html(currCravingsPerSmokes);
 
                 json.statistics.use.cravingsInARow = 0;
                 $("#cravingsResistedInARow").html(json.statistics.use.cravingsInARow);
@@ -2860,7 +3626,7 @@ $(document).ready(function () {
                 if (userDidItNow) {
                     //update relevant statistics
                     updateActionTable(timestampSeconds, "used");
-                    placeActionIntoLog(timestampSeconds, "used", null, false);
+                    placeActionIntoLog(timestampSeconds, "used", null, null, null, false);
                     initiateSmokeTimer();
 
                 } else {
@@ -2869,15 +3635,7 @@ $(document).ready(function () {
                     var secondsToNow = date.getHours()*60*60 + date.getMinutes()*60;
                     var secondsToRequested = requestedTimeStartHours*60*60 + requestedTimeStartMinutes*60;
 
-                    console.log("date.getHours(): ", date.getHours())
-                    console.log("date.getMinutes(): ", date.getMinutes())
-                    console.log("requestedTimeStartHours: ", requestedTimeStartHours)
-                    console.log("requestedTimeStartMinutes: ", requestedTimeStartMinutes)
-                    console.log("secondsToRequested: ", secondsToRequested)
-                    console.log("secondsToNow: ", secondsToNow)
-
                     if( secondsToRequested > secondsToNow) {
-                        console.log('firing initsmoke with a req timestampe: ', requestedTimestamp)
                         //take one day off
                         requestedTimestamp = requestedTimestamp - (1*24*60*60);
                     }
@@ -2886,6 +3644,29 @@ $(document).ready(function () {
                     updateActionTable(requestedTimestamp, "used");
                     initiateSmokeTimer(requestedTimestamp);
                 }
+                
+                var newTotals = {
+                    total: parseInt( $(".statistic.use.totals.total").html() ) + 1,
+                    week: parseInt( $(".statistic.use.totals.week").html() ) + 1,
+                    month: parseInt( $(".statistic.use.totals.month").html() ) + 1,
+                    year: parseInt( $(".statistic.use.totals.year").html() ) + 1,
+                }
+                $(".statistic.use.totals.total").html(newTotals.total);
+                $(".statistic.use.totals.week").html(newTotals.week);
+                $(".statistic.use.totals.month").html(newTotals.month);
+                $(".statistic.use.totals.year").html(newTotals.year);
+
+                var betweenClicks = {
+                    total: json.statistics.use.betweenClicks.total,
+                    week: json.statistics.use.betweenClicks.week,
+                    month: json.statistics.use.betweenClicks.month,
+                    year: json.statistics.use.betweenClicks.year 
+                }
+
+                $(".statistic.use.timeBetween.total").html(betweenClicks.total);
+                $(".statistic.use.timeBetween.week").html(betweenClicks.week);
+                $(".statistic.use.timeBetween.month").html(betweenClicks.month);
+                $(".statistic.use.timeBetween.year").html(betweenClicks.year);
 
                 //there is an active bought related goal
                 if (json.statistics.goal.activeGoalUse !== 0 || json.statistics.goal.activeGoalBoth !== 0) {
@@ -2912,6 +3693,7 @@ $(document).ready(function () {
                     clearInterval(goalTimer);
 
                     $("#goal-content .timer-recepticle").hide();
+                    toggleActiveStatGroups();
                     hideInactiveStatistics();
 
                     //place a goal into the goal log
@@ -2919,20 +3701,16 @@ $(document).ready(function () {
                     var actualEnd = requestedTimestamp;
                     placeGoalIntoLog(startStamp, actualEnd, goalType, false);
 
-                    //if longest goal just happened
-                    if ((actualEnd - startStamp) > json.statistics.goal.bestTimeSeconds) {
-                        //update json
-                        json.statistics.goal.bestTimeSeconds = (actualEnd - startStamp);
-                        //insert onto page
-                        var newLongestGoal = convertSecondsToDateFormat(json.statistics.goal.bestTimeSeconds);
-                        $("#longestGoalCompleted").html(newLongestGoal);
+                    //if longest goal just happened longestGoal
+                    replaceLongestGoal(startStamp, actualEnd)
 
-                    }
                     //update number of goals
                     json.statistics.goal.completedGoals++;
                     $("#numberOfGoalsCompleted").html(json.statistics.goal.completedGoals);
 
                 }
+                
+                initiateReport();
 
                 showActiveStatistics();
                 //keep lastClickStamp up to date while using app
@@ -2942,13 +3720,22 @@ $(document).ready(function () {
         });
         
         //notify user when requested times are for yesterday.
-        $(".use.log-more-info").find(".time-picker-minute, .time-picker-hour, .time-picker-am-pm, .form-check-input").on('change', function() {
+        $(".use.log-more-info").find(".time-picker-minute, .time-picker-hour, .time-picker-am-pm, .form-check-input").on('change', function(event) {
+           
+            let minute = event.target.classList.contains("time-picker-minute");
+            let hour = event.target.classList.contains("time-picker-hour");
+            let ampm = event.target.classList.contains("time-picker-am-pm");
+
+            if( (minute || hour || ampm) && !$('#pastTimeUseRadio').is(":checked")) {
+                $('#pastTimeUseRadio').prop("checked", true)
+            }
+            
             var date = new Date();
             var currMinutes = date.getHours()*60 + date.getMinutes();
             var reqHours = parseInt( $(".use.log-more-info .time-picker-hour").val() );
             var reqMinutes = parseInt( $(".use.log-more-info .time-picker-minute").val() );
 
-            //compensate for non-military time
+            //compensate for non-miaverageTimeBetweenBoughtslitary time
             if ($(".use.log-more-info .time-picker-am-pm").val() == "PM") {
                 reqHours = reqHours + 12;
             }
@@ -3167,6 +3954,7 @@ $(document).ready(function () {
                         /* ENTIRE GOAL IS DONE */
                         jsonSecondsString = 0;
                         clearInterval(goalTimer);
+                        toggleActiveStatGroups();
                         hideInactiveStatistics();
 
                         //find most recent goal type
@@ -3192,14 +3980,7 @@ $(document).ready(function () {
                         placeGoalIntoLog(startStamp, actualEnd, goalType, false);
 
                         //if longest goal just happened
-                        if ((actualEnd - startStamp) > json.statistics.goal.bestTimeSeconds) {
-                            //update json
-                            json.statistics.goal.bestTimeSeconds = (actualEnd - startStamp);
-                            //insert onto page
-                            var newLongestGoal = convertSecondsToDateFormat(json.statistics.goal.bestTimeSeconds);
-                            $("#longestGoalCompleted").html(newLongestGoal);
-
-                        }
+                        replaceLongestGoal(startStamp, actualEnd);
                         //update number of goals
                         json.statistics.goal.completedGoals++;
                         $("#numberOfGoalsCompleted").html(json.statistics.goal.completedGoals);
@@ -3276,14 +4057,14 @@ $(document).ready(function () {
                 updateActionTable(timestampSeconds, "bought", amountSpent);
 
                 //add record into log
-                placeActionIntoLog(timestampSeconds, "bought", amountSpent, false);
+                placeActionIntoLog(timestampSeconds, "bought", amountSpent, null, null, false);
 
                 //fake firstStampBought in json obj
                 if (json.statistics.cost.clickCounter == 0) {
                     json.statistics.cost.firstClickStamp = json.statistics.cost.firstClickStamp + timestampSeconds;
 
                 } else if (json.statistics.cost.clickCounter == 1) {
-                    json.statistics.cost.averageBetweenClicks = timestampSeconds - json.statistics.cost.firstClickStamp;
+                    json.statistics.cost.betweenClicks.total = timestampSeconds - json.statistics.cost.firstClickStamp;
 
                 }
 
@@ -3297,16 +4078,17 @@ $(document).ready(function () {
                 json.statistics.cost.totals.month = parseInt(json.statistics.cost.totals.month) + parseInt(amountSpent);
                 json.statistics.cost.totals.year = parseInt(json.statistics.cost.totals.year) + parseInt(amountSpent);
 
-                console.log("json.statistics.cost.totals after submit: ", json.statistics.cost.totals)
+                // console.log("json.statistics.cost.totals after submit: ", json.statistics.cost.totals)
                 //update display
-                $("#totalAmountSpent").html("$" + json.statistics.cost.totals.total);
-                $("#spentThisWeek").html("$" + json.statistics.cost.totals.week );
-                $("#spentThisMonth").html("$" + json.statistics.cost.totals.month );
-                $("#spentThisYear").html("$" + json.statistics.cost.totals.year );
+                $(".statistic.cost.totals.total").html("$" + json.statistics.cost.totals.total);
+                $(".statistic.cost.totals.week").html("$" + json.statistics.cost.totals.week );
+                $(".statistic.cost.totals.month").html("$" + json.statistics.cost.totals.month );
+                $(".statistic.cost.totals.year").html("$" + json.statistics.cost.totals.year );
 
                 closeClickDialog(".cost");
                 initiateBoughtTimer();
                 showActiveStatistics();
+                toggleActiveStatGroups();
                 hideInactiveStatistics();
                 adjustFibonacciTimerToBoxes("bought-timer");
 
@@ -3335,6 +4117,7 @@ $(document).ready(function () {
                     clearInterval(goalTimer);
 
                     $("#goal-content .timer-recepticle").hide();
+                    toggleActiveStatGroups();
                     hideInactiveStatistics();
 
                     //place a goal into the goal log
@@ -3343,14 +4126,8 @@ $(document).ready(function () {
                     placeGoalIntoLog(startStamp, actualEnd, goalType, false);
 
                     //if longest goal just happened
-                    if ((actualEnd - startStamp) > json.statistics.goal.bestTimeSeconds) {
-                        //update json
-                        json.statistics.goal.bestTimeSeconds = (actualEnd - startStamp);
-                        //insert onto page
-                        var newLongestGoal = convertSecondsToDateFormat(json.statistics.goal.bestTimeSeconds);
-                        $("#longestGoalCompleted").html(newLongestGoal);
-
-                    }
+                    replaceLongestGoal(startStamp, actualEnd)
+                    
                     //update number of goals
                     json.statistics.goal.completedGoals++;
                     $("#numberOfGoalsCompleted").html(json.statistics.goal.completedGoals);
@@ -3515,16 +4292,12 @@ $(document).ready(function () {
             closeClickDialog(".goal");
         });
 
-
-
     } else {
         //NO LOCAL STORAGE
         alert("This app uses your local storage to store your data." +
             " That means we DO NO STORE YOUR DATA. You store your data." +
-            " BUT, your browser doesn't support local storage, so your data cannot be saved!" +
-            " Modern browsers support LocalStorage, so if you want to try Escrave, you should update your browser or try Chrome, Firefox, or safari!");
+            " BUT, your browser doesn't support local storage, so your data cannot be saved.");
     }
-
 
     //refreshes the page automatically, upon user action,
     //to refresh timers from local storage timestamp

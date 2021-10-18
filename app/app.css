@@ -39,6 +39,12 @@ h4 {
 	max-width: 480px;
 }
 
+#header {
+    display: flex;
+    flex-direction: row-reverse;
+    justify-content: space-between;
+}
+
 /* fake bootstrap if ya can 
 .col-6 {
     -ms-flex: 0 0 50%;
@@ -105,7 +111,7 @@ h4 {
 .hamburger .navbar-toggler {
 	background: white;
 	cursor: pointer;
-	margin-top: 5px;
+	margin-top: 8px;
     width: 70px;
     height: 50px;
 }
@@ -267,13 +273,8 @@ h4 {
         
     }
 
-    .desires-increase {
-        display: none;
-    }
-
     .baseline-questionnaire {
         padding-bottom: 15px;
-
     }
 
     .btn.btn-collapse {
@@ -326,31 +327,35 @@ h4 {
 
 
 
-    .weekly-report-template .week-range {
+    .weekly-report .week-range {
 		display: flex;
 		align-items: center;
 		justify-content: space-evenly;
 		margin-top: 25px;
 		margin-bottom: 25px;
 	}
-    .weekly-report-template .week-range .btn {
+    .weekly-report .week-range .btn {
 		margin-bottom: 0px;
 	}
 	
-	.weekly-report-template .week-range button,
-	.weekly-report-template .week-range .current-week {
+	.weekly-report .week-range button,
+	.weekly-report .week-range .current-week {
 		display: flex;
 	}
-	.weekly-report-template .week-range .current-week > div {
+	.weekly-report .week-range .current-week > div {
 		display: inline-block;
 	}
 
-    .weekly-report-template span.ct-label.ct-horizontal.ct-end {
+    .weekly-report span.ct-label.ct-horizontal.ct-end {
         transform: rotate(60deg);
         padding-left: 10px;
     }
 
     /* BAR CHART */
+    .bar-chart {
+        display: flex; 
+        flex-direction: column-reverse;
+    }
 
         .bar-chart .legend {
             display: flex;
@@ -373,11 +378,31 @@ h4 {
             
         }
         .bar-chart .legend .color.primary {
-            background: #d70206;
+            background: #2b922bb7;
 
         }
         .bar-chart .legend .color.secondary {
-            background: #f05b4f;
+            background: #c704078c;
+        }
+        .ct-series-a line{
+            stroke: #2b922bb7 !important;
+        }
+        .ct-series-b line{
+            stroke: #c704078c !important;
+        }
+
+
+        .desires-increase .bar-chart .legend .color.primary {
+            background: #c704078c;
+        }
+        .desires-increase .bar-chart .legend .color.secondary {
+            background: #2b922bb7;
+        }
+        .desires-increase .ct-series-a line{
+            stroke: #c704078c !important;
+        }
+        .desires-increase .ct-series-b line{
+            stroke: #2b922bb7 !important;
         }
 
 
@@ -407,27 +432,27 @@ h4 {
             
             clear: right;
         }
-        .weekly-report-template .statistic .percent-changed.down {
+        .weekly-report .statistic .percent-changed.down {
             color: #28a745;
         }
-        .weekly-report-template .statistic .percent-changed.up {
+        .weekly-report .statistic .percent-changed.up {
             color: #dc3545;
         }
         
-        .weekly-report-template .goal-report {
+        .weekly-report .goal-report {
             margin-top: 20px;
             clear: both;
         }
-        .weekly-report-template .goal-report .row {
+        .weekly-report .goal-report .row {
             padding: 20px 0px;
         }
-        .weekly-report-template .goal-report .amount-changed {
+        .weekly-report .goal-report .amount-changed {
             font-weight: 600;
         } 
-        .weekly-report-template .goal-report .amount-changed.down {
+        .weekly-report .goal-report .amount-changed.down {
             color: #28a745;
         }
-        .weekly-report-template .goal-report .amount-changed.up {
+        .weekly-report .goal-report .amount-changed.up {
             color: #dc3545;
         }
 
@@ -447,26 +472,104 @@ h4 {
 
 
 /* STATISTICS */
-.statistic-recepticle,
+.stat-group {
+    display: flex;
+    padding: 5px 0px;
+}
+.stat-group .stat-recepticle {
+    position: relative;
+    background-image: url("images/mayan-ruin-background-timers.jpg");
+    width: 33.3333%;
+    flex: 1 0 33.3333%;    
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    max-width: calc(33.3333%);
+    margin-bottom: 0;
+    padding: 3px;
+    
+}
+.stat-group .stat-recepticle .white-bg {
+    background: white;
+    position: absolute;
+    top: -2px;
+    bottom: 3px;
+    left: 3px;
+    right: 3px;
+    border-radius: 4px;
+}
+
+.stat-group .stat-recepticle p {
+    margin: 0;
+    font-size: .8rem;
+    z-index: 10;
+}
+.stat-group .stat-recepticle span {
+    text-align: center;
+    z-index: 10;
+}
+.stat-group .stat-recepticle .white-bg::after {
+    width: calc(100% + 8px);
+    height: 35px;
+    background: white;
+    content: "";
+    position: absolute;
+    left: -4px;
+}
+
+.stat-recepticle,
 .timer-recepticle {
 	text-align: left;
-	margin-bottom: 20px;
-    align-items: center;
+    margin-bottom: 30px;
+    border-radius: 4px;
+
 }
 
-.statistic-recepticle span {
+.stat-recepticle span {
     display: inline-block;
-	font-weight: 600;
-	font-size: 1.4rem;
+    font-weight: 600;
+    font-size: 1.2rem;
+}
+.stat-recepticle .stat-group.avgTimeBetween span {
+	font-size: 1rem;
 }
 
-.statistic-recepticle p,
+.stat-recepticle p,
 .timer-recepticle p {
-	margin: 0 auto;
-    padding-right: 5px;
-    margin-right: 5px;
-	color: #828282;
-}  
+    font-size: 1.2rem;
+    color: #828282;
+    margin: 0;
+}
+
+.stat-recepticle.highlighted {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 0px;
+}
+
+.stat-recepticle.highlighted > p {
+    padding-top: 10px;
+}
+
+.stat-recepticle.highlighted .stat-recepticle {
+    width: 100%;
+    flex: unset;
+    max-width: inherit;
+
+    border-top-left-radius: 100px;
+    border-top-right-radius: 4px;
+}
+.stat-recepticle.highlighted .stat-recepticle .white-bg{
+
+    top: 4px;
+    bottom: -2px;
+    left: -2px;
+    right: 2px;
+}
+.stat-recepticle.highlighted .stat-recepticle .white-bg::after{
+    width: calc(100% + 4px);
+}
 
 .clickCounter {
 	background: red;
@@ -588,9 +691,10 @@ h4 {
 	.fibonacci-timer {
 		display: inline-block;
 		background-image: url("images/mayan-ruin-background-timers.jpg");
-		padding: 3px;
+		padding: 1px;
 		overflow: hidden;
 		max-width: 100%;
+        border-radius: 4px;
     }
     
 	.fibonacci-timer .boxes {
@@ -615,7 +719,7 @@ h4 {
 	.fibonacci-timer .boxes div {
 		position: relative;
 		background-color: white;
-		margin: 3px;
+		margin: 2px;
 		border-radius: 3px;
 	}
 
@@ -635,13 +739,19 @@ h4 {
 	}
 	
 	.fibonacci-timer .boxes div:first-child {
-		height: 100%;
+        height: 100%;
+        /* center the 5 Days in box */
+        /* display: flex;
+        flex-direction: column;
+        justify-content: center;
+        align-items: center; */
 	}
 	  
 	.fibonacci-timer .boxes div:nth-child(2) {
 		width: calc(66.6% - 6px);
-		height: calc(66.6% - 6px);
-		float: left;
+		height: calc(66.6% - 8px);
+        float: left;
+        
 	}
 	  
 	.fibonacci-timer .boxes div:nth-child(3) {
@@ -659,27 +769,27 @@ h4 {
 
     /* Create artificial horizontal layout when all boxes are visible */
     .fully-visible.fibonacci-timer .boxes div:nth-child(2) {
-        width: calc(66.6% - 2px);
+        width: calc(66.6%);
         height: calc(66.6% - 2px);
         position: relative;
         left: 100%;
-        top: -104%;
+        top: -102%;
 	}
 	  
 	.fully-visible.fibonacci-timer .boxes div:nth-child(3) {
-        width: calc(33.3% - 4px);
-		height: calc(33.3% - 4px);
+        width: calc(33.3% - 2px);
+		height: calc(33.3% - 2px);
         position: relative;
         left: 100%;
-        top: -105%;
+        top: -103%;
 	}
 	  
 	.fully-visible.fibonacci-timer .boxes div:last-child {
-		width: calc(33.3% - 4px);
-		height: calc(33.3% - 4px);
+		width: calc(33.3% - 2px);
+		height: calc(33.3% - 2px);
         position: relative;
         left: 100%;
-        top: -105%;
+        top: -103%;
 	}
 
 
@@ -739,6 +849,58 @@ h4 {
 	padding: 0px 15px;
 	margin: 0px 5px 10px 5px;
 }
+
+/* smiley response  */
+#mood-tracker-area .smileys {
+    display: flex;
+}
+#mood-tracker-area .smiley {
+    max-width: 20%;
+    flex-basis: 20%;
+    margin: 5px;
+}
+
+#mood-tracker-area .smiley img {
+    border-radius: 50%;
+}
+
+.mood-0.smiley.selected img,
+.mood-0.smiley.habit-log-icon{
+    background-color: #e7e7e7;
+    
+}
+.mood-1.smiley.selected img,
+.mood-1.smiley.habit-log-icon{
+    background-color: #e9e9c7;
+    
+}
+.mood-2.smiley.selected img,
+.mood-2.smiley.habit-log-icon{
+    background-color: #e9e9a9;
+    
+}
+.mood-3.smiley.selected img,
+.mood-3.smiley.habit-log-icon{
+    background-color: #e2e267;
+    
+}
+.mood-4.smiley.selected img,
+.mood-4.smiley.habit-log-icon{
+    background-color: #f0f000;
+    
+}
+#mood-tracker-area .response {
+    padding: 10px;
+}
+#mood-tracker-area .response .text {
+    width: 100%;
+}
+
+.smiley.habit-log-icon {
+    border-radius: 50%;
+    max-width: 20px;
+}
+
 
 /* GOAL LOG */
 
